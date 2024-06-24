@@ -28,5 +28,5 @@ export async function GET() {
   cookieStore.set("tid", tdetails.tid, { path: "/" })
   cookieStore.set("tname", tdetails.tname, { path: "/" })
 
-  return NextResponse.redirect(`${env.APP_URL}/user/${tdetails.tid}`)
+  return NextResponse.redirect(`${env.APP_URL}/${tdetails.tid}`)
 }

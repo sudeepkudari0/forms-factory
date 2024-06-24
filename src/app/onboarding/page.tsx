@@ -20,7 +20,7 @@ const OnboardingPage = async () => {
 
   if (user?.status === UserStatus.ACTIVE) {
     if (user?.role === UserRole.USER) {
-      return redirect(`/user/${tname?.value}`);
+      return redirect(`/${tname?.value}`);
     }
     if (user?.role === UserRole.SUPER_ADMIN) {
       return redirect("/super-admin");
