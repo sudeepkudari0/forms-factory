@@ -46,12 +46,14 @@ interface FormsTableWithFilterProps {
       form: Form;
     };
   })[];
+  tname?: string;
 }
 
 const FormsTableWithFilter: React.FC<FormsTableWithFilterProps> = ({
   forms,
   teams,
   user,
+  tname,
 }) => {
   const [selectedteam, setSelectedteam] = useState<string>("");
   const [isShared, setIsShared] = useState<boolean>(false);
@@ -75,6 +77,7 @@ const FormsTableWithFilter: React.FC<FormsTableWithFilterProps> = ({
             fid: selectedteam,
             uId: user.id,
             ...form,
+            tname,
             submissionId: existingSubmission ? existingSubmission.id : null,
           };
         })

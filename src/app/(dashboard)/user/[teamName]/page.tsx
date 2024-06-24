@@ -3,6 +3,7 @@ import { DashboardHeader } from "@/components/header";
 import { DashboardShell } from "@/components/shell";
 import { getCurrentUser } from "@/lib/session";
 import { UserRole, UserStatus } from "@prisma/client";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import FormsTableWithFilter from "./_components/forms-table-with-filter";
 
@@ -17,6 +18,8 @@ const UserPage = async () => {
   if (user?.status !== UserStatus.ACTIVE) {
     return redirect("/unauthorized");
   }
+  const cookieStore = cookies();
+  const tname = cookieStore.get("tname");
 
   const { forms, teams } = await getFormsAndteams();
   const sharedSubmissions = await getSharedSubmissions();
@@ -29,6 +32,7 @@ const UserPage = async () => {
           teams={teams}
           user={user}
           sharedSubmissions={sharedSubmissions}
+          tname={tname?.value}
         />
       </div>
     </DashboardShell>
