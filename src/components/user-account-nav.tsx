@@ -1,0 +1,82 @@
+"use client";
+
+import { getCurrentUserDetails } from "@/actions/users";
+import Loading from "@/app/(auth)/loading";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { UserAvatar } from "@/components/user-avatar";
+import { env } from "@/env.mjs";
+import { UserRole } from "@prisma/client";
+import { useQuery } from "@tanstack/react-query";
+import { signOut } from "next-auth/react";
+import Link from "next/link";
+
+export function UserAccountNav() {
+  const { data: userData, isLoading } = useQuery({
+    queryKey: ["userData"],
+    queryFn: async () => {
+      return await getCurrentUserDetails();
+    },
+  });
+
+  if (isLoading || !userData) {
+    return <Loading />;
+  }
+
+  return (
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger>
+          <UserAvatar
+            user={{
+              name: userData.name || null,
+              image: userData.image || null,
+            }}
+            className="h-10 w-10"
+          />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <div className="flex items-center justify-start gap-2 p-2">
+            <div className="flex flex-col space-y-1 leading-none">
+              {userData.name && <p className="font-medium">{userData.name}</p>}
+              {userData.email && (
+                <p className="text-muted-foreground w-[200px] truncate text-sm">
+                  {userData.email}
+                </p>
+              )}
+            </div>
+          </div>
+          <DropdownMenuSeparator />
+          <Link
+            href={
+              userData.userRole === UserRole.USER
+                ? "/user/profile"
+                : "/super-admin/profile"
+            }
+          >
+            <DropdownMenuItem className="cursor-pointer w-full">
+              Profile
+            </DropdownMenuItem>
+          </Link>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            className="cursor-pointer"
+            onSelect={(event) => {
+              event.preventDefault();
+              signOut({
+                callbackUrl: `${env.NEXT_PUBLIC_APP_URL}/login`,
+              });
+            }}
+          >
+            Sign out
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </>
+  );
+}

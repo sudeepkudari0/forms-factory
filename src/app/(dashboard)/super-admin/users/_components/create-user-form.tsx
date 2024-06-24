@@ -1,0 +1,228 @@
+"use client";
+
+import { createUser } from "@/actions/users";
+import { PasswordInput } from "@/components/password-input";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { LoadingButton } from "@/components/ui/loading-button";
+import { Switch } from "@/components/ui/switch";
+import { toast } from "@/components/ui/use-toast";
+import { generateSecurePassword } from "@/utils/misc";
+import { zodResolver } from "@hookform/resolvers/zod";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import PhoneInput from "react-phone-input-2";
+import * as z from "zod";
+import "react-phone-input-2/lib/style.css";
+import { useQueryClient } from "@tanstack/react-query";
+
+const userSchema = z.object({
+  name: z.string().min(2).max(50),
+  email: z.string().email().min(2).max(50),
+  whatsapp: z.string().min(10).max(15),
+  password: z.string().max(512),
+  preApproved: z.boolean().optional().default(false),
+  isPlusUser: z.boolean().optional().default(false),
+});
+
+type userSchema = z.infer<typeof userSchema>;
+
+const CreateUserForm = ({ trigger }: { trigger: React.ReactElement }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const queryClient = useQueryClient();
+
+  const form = useForm<userSchema>({
+    resolver: zodResolver(userSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      password: generateSecurePassword(),
+      preApproved: false,
+      isPlusUser: false,
+    },
+  });
+
+  async function onSubmit(values: userSchema) {
+    setIsLoading(true);
+    const data = await createUser({ ...values });
+    if (data) {
+      queryClient.invalidateQueries({ queryKey: ["filteredUsers"] });
+    }
+    toast({
+      title: "Account created",
+      description: `User ${data.data?.name} has been created.`,
+    });
+    setIsOpen(false);
+    setIsLoading(false);
+  }
+
+  return (
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        setIsOpen(open);
+        form.reset();
+      }}
+    >
+      <DialogTrigger asChild>
+        {React.cloneElement(trigger, {
+          onClick: () => setIsOpen(true),
+        })}
+      </DialogTrigger>
+      <DialogContent className="rounded sm:max-w-[500px]">
+        <DialogHeader>
+          <DialogTitle>Create User</DialogTitle>
+          <DialogDescription>
+            Users are responsible for filling the forms!
+          </DialogDescription>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input type="email" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="whatsapp"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Whatsapp Number</FormLabel>
+                  <FormControl>
+                    <PhoneInput
+                      enableSearch
+                      autoFormat={false}
+                      containerStyle={{
+                        width: "100%",
+                        border: "0px solid #ebeaea",
+                        boxSizing: "border-box",
+                        backgroundColor: "#ccc9c9",
+                        borderRadius: "8px",
+                        marginBottom: "8px",
+                      }}
+                      buttonClass="border-none bg-white"
+                      inputStyle={{
+                        width: "100%",
+                        color: "black",
+                        border: "1px solid #ebeaea",
+                        boxSizing: "border-box",
+                        marginBottom: "8px",
+                      }}
+                      onChange={(e) => {
+                        field.onChange(e);
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormDescription>
+                    Autogenerated password. Sent via Whatsapp.
+                  </FormDescription>
+                  <FormControl>
+                    <PasswordInput readOnly {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="isPlusUser"
+              render={({ field }) => (
+                <FormItem className="shadow- flex flex-row items-center justify-between rounded-lg border p-3">
+                  <div className="space-y-0.5">
+                    <FormLabel>Team Lead</FormLabel>
+                    <FormDescription>
+                      Give user access to create and fill forms
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch onCheckedChange={field.onChange} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="preApproved"
+              render={({ field }) => (
+                <FormItem className="shadow- flex flex-row items-center justify-between rounded-lg border p-3">
+                  <div className="space-y-0.5">
+                    <FormLabel>Pre-approved</FormLabel>
+                    <FormDescription>
+                      Pre-approve user to start using this platform
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch onCheckedChange={field.onChange} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <DialogFooter>
+              <LoadingButton
+                type="submit"
+                className="rounded text-white font-bold bg-gradient-to-r from-[#0077B6] to-[#00BCD4] "
+                disabled={isLoading}
+                loading={isLoading}
+              >
+                Create
+              </LoadingButton>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export default CreateUserForm;

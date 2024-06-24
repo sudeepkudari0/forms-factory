@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://dc.thinkroman.com
+
+# Sitemaps
+Sitemap: https://dc.thinkroman.com/sitemap.xml

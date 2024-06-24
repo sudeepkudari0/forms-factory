@@ -1,0 +1,255 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters", "relationJoins"]
+  binaryTargets   = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model ApiKey {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  name      String
+  key       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  prefix    String
+  active    Boolean  @default(true)
+
+  @@index([userId])
+  @@map("api_keys")
+}
+
+model User {
+  id                 String             @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  name               String
+  email              String             @unique
+  userRole           UserRole           @default(USER)
+  userStatus         UserStatus         @default(ACTIVE)
+  image              String?
+  hashedPassword     String
+  whatsapp           String
+  accounts           Account[]
+  submissions        Submission[]
+  feedbacks          Feedback[]
+  forms              UserForm[]
+  teams              UserTeam[]
+  sessions           Session[]
+  submissionAccesses SubmissionAccess[]
+}
+
+model Form {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  createdBy   String
+  title       String
+  description String?
+  submitText  String
+  published   Boolean      @default(false)
+  status      FormStatus   @default(PUBLIC)
+  archived    Boolean      @default(false)
+  userId      String?
+  fields      Field[]
+  users       UserForm[]
+  submissions Submission[]
+  webhooks    Webhook[]
+  teams       TeamForm[]
+}
+
+enum FormStatus {
+  PUBLIC
+  PRIVATE
+}
+
+model Teams {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @default(now())
+  published Boolean    @default(false)
+  name      String     @unique
+  forms     TeamForm[]
+  users     UserTeam[]
+}
+
+model UserTeam {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @db.ObjectId
+  teamId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id])
+  team   Teams  @relation(fields: [teamId], references: [id])
+}
+
+model UserForm {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @db.ObjectId
+  formId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id])
+  form   Form   @relation(fields: [formId], references: [id])
+}
+
+model TeamForm {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  teamId String @db.ObjectId
+  formId String @db.ObjectId
+  team   Teams  @relation(fields: [teamId], references: [id])
+  form   Form   @relation(fields: [formId], references: [id])
+}
+
+model Submission {
+  id                 String             @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @default(now())
+  submittedBy        String?
+  data               Json
+  status             SubmissionStatus
+  formId             String             @db.ObjectId
+  form               Form               @relation(fields: [formId], references: [id])
+  userId             String?            @db.ObjectId
+  user               User?              @relation(fields: [userId], references: [id])
+  webhookEvents      WebhookEvent[]
+  submissionAccesses SubmissionAccess[]
+}
+
+model SubmissionAccess {
+  id           String               @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @default(now())
+  role         SubmissionAccessRole
+  userId       String               @db.ObjectId
+  user         User                 @relation(fields: [userId], references: [id])
+  submissionId String               @db.ObjectId
+  submission   Submission           @relation(fields: [submissionId], references: [id])
+}
+
+model Account {
+  userId                   String  @id @default(auto()) @map("_id") @db.ObjectId
+  type                     String
+  provider                 String
+  providerAccountId        String
+  refresh_token            String?
+  access_token             String?
+  expires_at               Int?
+  refresh_token_expires_in Int?
+  token_type               String?
+  scope                    String?
+  id_token                 String?
+  session_state            String?
+  user                     User    @relation(fields: [userId], references: [id])
+}
+
+model Session {
+  sessionToken String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String   @db.ObjectId
+  expires      DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id])
+}
+
+model VerificationToken {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  identifier String
+  token      String
+  expires    DateTime
+}
+
+model Field {
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  type        fieldType?
+  label       String
+  placeholder String?
+  required    Boolean    @default(false)
+  description String?
+  saved       Boolean?   @default(false)
+  order       Int?
+  options     String?
+  formId      String     @db.ObjectId
+  form        Form       @relation(fields: [formId], references: [id])
+}
+
+model Webhook {
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @default(now())
+  formId        String         @db.ObjectId
+  deleted       Boolean        @default(false)
+  endpoint      String
+  events        Json
+  enabled       Boolean        @default(true)
+  secretKey     String
+  form          Form           @relation(fields: [formId], references: [id])
+  webhookEvents WebhookEvent[]
+}
+
+model WebhookEvent {
+  id           String             @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt    DateTime           @default(now())
+  webhookId    String             @db.ObjectId
+  submissionId String             @db.ObjectId
+  event        String
+  statusCode   Int?
+  status       WebhookEventStatus @default(attempting)
+  lastAttempt  DateTime?
+  nextAttempt  DateTime?
+  attemptCount Int                @default(0)
+  webhook      Webhook            @relation(fields: [webhookId], references: [id])
+  submission   Submission         @relation(fields: [submissionId], references: [id])
+}
+
+model Feedback {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  text      String
+  url       String
+  ua        String
+  userId    String?  @db.ObjectId
+  user      User?    @relation(fields: [userId], references: [id])
+}
+
+enum WebhookEventStatus {
+  attempting
+  failed
+  success
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  USER
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum fieldType {
+  text
+  checkbox
+  radio
+  select
+  textarea
+  email
+  number
+  url
+  date
+  time
+  tel
+  upload
+}
+
+enum SubmissionAccessRole {
+  OWNER
+  COLLABORATOR
+}
+
+enum SubmissionStatus {
+  DRAFT
+  SUBMITTED
+}
