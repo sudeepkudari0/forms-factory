@@ -206,7 +206,6 @@ export const getAllteamFormsNotInUser = async (userId: string) => {
     ...team,
     forms: team.forms.filter((form) => !userFormIds.includes(form.formId)),
   }))
-  console.log(filteredData)
   return filteredData
 }
 
@@ -324,8 +323,6 @@ export const removeFormsFromUser = async ({
 
     const data = await Promise.all(deletePromises)
 
-    console.log("Deleted records:", data)
-
     // Optionally, return the result if you need it
     return data
   } catch (error) {
@@ -382,8 +379,6 @@ export const getFormsAndteams = async () => {
         },
       },
     })
-
-    console.log(userWithFormsAndteams)
 
     const forms =
       userWithFormsAndteams?.forms.map((userForm) => ({

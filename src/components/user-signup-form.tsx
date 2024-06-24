@@ -35,7 +35,7 @@ export function UserSignUpForm({ className, ...props }: UserSignUpFormProps) {
     setIsLoading(true);
     try {
       const response = await createUser(data);
-
+      console.log(response);
       if (!response) {
         toast({
           title: "Sign Up Error",
@@ -46,9 +46,19 @@ export function UserSignUpForm({ className, ...props }: UserSignUpFormProps) {
         return;
       }
 
+      if (response.status === "error") {
+        toast({
+          title: "Sign Up Error",
+          description: response.error,
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
       toast({
         title: "Sign Up Successful",
-        description: "Account created successfully. You can now sign in.",
+        description: "Account created successfully.",
       });
 
       // Optionally, you can automatically sign in the user after sign-up
@@ -68,8 +78,9 @@ export function UserSignUpForm({ className, ...props }: UserSignUpFormProps) {
         return;
       }
 
-      router.push("/"); // Redirect to a welcome page or similar after sign-up
+      router.push("/onboarding"); // Redirect to a welcome page or similar after sign-up
     } catch (error) {
+      console.log(error);
       toast({
         title: "Sign Up Error",
         description: "An error occurred during sign-up.",
@@ -120,6 +131,26 @@ export function UserSignUpForm({ className, ...props }: UserSignUpFormProps) {
             {errors?.email && (
               <p className="px-1 text-xs text-red-600">
                 {errors.email.message?.toString()}
+              </p>
+            )}
+          </div>
+          <div className="grid gap-1">
+            <Label className="sr-only" htmlFor="name">
+              Access Token
+            </Label>
+            <Input
+              id="name"
+              placeholder="Access Token"
+              type="text"
+              autoCapitalize="none"
+              autoComplete="name"
+              autoCorrect="off"
+              disabled={isLoading}
+              {...register("accessToken")}
+            />
+            {errors?.name && (
+              <p className="px-1 text-xs text-red-600">
+                {errors.accessToken?.message?.toString()}
               </p>
             )}
           </div>

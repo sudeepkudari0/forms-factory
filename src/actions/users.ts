@@ -1,5 +1,6 @@
 "use server"
 
+import { env } from "@/env.mjs"
 import { db } from "@/lib/db"
 import { getCurrentUser } from "@/lib/session"
 import { type User, UserRole, UserStatus } from "@prisma/client"
@@ -35,8 +36,15 @@ export async function createUser(values: {
   name: string
   email: string
   password: string
+  accessToken: string
 }) {
   try {
+    if (values.accessToken !== env.SIGNUP_ACCESS_TOKEN) {
+      return {
+        status: "error",
+        error: "Invalid access token",
+      }
+    }
     const saltRounds = 10
     const hashedPassword = await bcrypt.hash(values.password, saltRounds)
 
