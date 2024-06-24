@@ -40,6 +40,7 @@ const userSchema = z.object({
   password: z.string().max(512),
   preApproved: z.boolean().optional().default(false),
   isPlusUser: z.boolean().optional().default(false),
+  accessToken: z.string().min(2),
 });
 
 type userSchema = z.infer<typeof userSchema>;
@@ -58,6 +59,7 @@ const CreateUserForm = ({ trigger }: { trigger: React.ReactElement }) => {
       password: generateSecurePassword(),
       preApproved: false,
       isPlusUser: false,
+      accessToken: "secret",
     },
   });
 

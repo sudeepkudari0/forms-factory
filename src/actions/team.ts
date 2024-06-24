@@ -14,7 +14,6 @@ export async function getteam() {
 
 export async function createteam(values: {
   name: string
-  address: string
 }) {
   try {
     const data = await db.teams.create({
@@ -167,4 +166,15 @@ export const getteams = async () => {
     console.log(error)
     throw error
   }
+}
+
+export const getUserTeams = async (userId: string) => {
+  return db.user.findUnique({
+    where: {
+      id: userId,
+    },
+    include: {
+      teams: true,
+    },
+  })
 }

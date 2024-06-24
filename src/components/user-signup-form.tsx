@@ -35,7 +35,7 @@ export function UserSignUpForm({ className, ...props }: UserSignUpFormProps) {
     setIsLoading(true);
     try {
       const response = await createUser(data);
-      console.log(response);
+
       if (!response) {
         toast({
           title: "Sign Up Error",

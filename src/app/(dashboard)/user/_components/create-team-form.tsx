@@ -50,7 +50,6 @@ const CreateteamForm = ({
     resolver: zodResolver(teamSchema),
     defaultValues: {
       name: "",
-      address: "",
     },
   });
 
