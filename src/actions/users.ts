@@ -6,6 +6,7 @@ import { getCurrentUser } from "@/lib/session"
 import { type User, UserRole, UserStatus } from "@prisma/client"
 import bcrypt from "bcrypt"
 import { revalidatePath } from "next/cache"
+import { createteam } from "./team"
 
 export const createSuperUser = async (values: {
   name: string
@@ -58,6 +59,17 @@ export async function createUser(values: {
         userStatus: UserStatus.ACTIVE,
       },
     })
+
+    const createTeam = await createteam({
+      name: `${values.name}'s Team`,
+    })
+
+    if (createTeam) {
+      await addUserToteams({
+        userId: createdUser.id,
+        teamIds: [createTeam.id],
+      })
+    }
 
     return {
       status: "success",
