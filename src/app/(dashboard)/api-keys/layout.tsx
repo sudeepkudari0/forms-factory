@@ -1,37 +1,38 @@
-import { redirect } from "next/navigation"
+import { redirect } from "next/navigation";
 
-import BreadCrumb from "@/components/breadcrumb"
-import Header from "@/components/layout/header"
-import HeaderMobile from "@/components/layout/header-mobile"
-import MarginWidthWrapper from "@/components/layout/margin-width-wrapper"
-import PageWrapper from "@/components/layout/page-wrapper"
-import SideNav from "@/components/layout/sidebar"
-import { USER_ITEMS } from "@/lib/constants"
-import { getCurrentUser } from "@/lib/session"
-import { UserRole, UserStatus } from "@prisma/client"
+import { getTeams } from "@/actions/team";
+import BreadCrumb from "@/components/breadcrumb";
+import Header from "@/components/layout/header";
+import HeaderMobile from "@/components/layout/header-mobile";
+import MarginWidthWrapper from "@/components/layout/margin-width-wrapper";
+import PageWrapper from "@/components/layout/page-wrapper";
+import SideNav from "@/components/layout/sidebar";
+import { USER_ITEMS } from "@/lib/constants";
+import { getCurrentUser } from "@/lib/session";
+import { UserRole, UserStatus } from "@prisma/client";
 
 interface UserLayoutProps {
-  children?: React.ReactNode
+  children?: React.ReactNode;
 }
 
 export default async function UserLayout({ children }: UserLayoutProps) {
-  const user = await getCurrentUser()
+  const user = await getCurrentUser();
   if (!user?.id) {
-    return redirect("/login")
+    return redirect("/login");
   }
   if (user?.role !== UserRole.USER) {
-    return redirect("/onboarding")
+    return redirect("/onboarding");
   }
   if (user?.status !== UserStatus.ACTIVE) {
-    return redirect("/unauthorized")
+    return redirect("/unauthorized");
   }
-
+  const teams = await getTeams(user?.id);
   return (
     <div className="flex">
       <SideNav SideNavItems={USER_ITEMS} />
       <main className="flex-1">
         <MarginWidthWrapper>
-          <Header />
+          <Header user={user} teams={teams} />
           <HeaderMobile SideNavItems={USER_ITEMS} />
           <PageWrapper>
             <BreadCrumb />
@@ -40,5 +41,5 @@ export default async function UserLayout({ children }: UserLayoutProps) {
         </MarginWidthWrapper>
       </main>
     </div>
-  )
+  );
 }

@@ -4,7 +4,7 @@ import { getCurrentUser } from "@/lib/session"
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
 
-export const fetchTid = async () => {
+const fetchTid = async () => {
   const user = await getCurrentUser()
   const userWithTeams = await db.userTeam.findMany({
     where: {

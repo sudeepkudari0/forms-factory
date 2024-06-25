@@ -333,14 +333,13 @@ export const removeFormsFromUser = async ({
   }
 }
 
-export const getFormsAndteams = async () => {
+export const getFormsAndTeams = async (teamId: string) => {
   const user = await getCurrentUser()
   if (!user) {
     throw new Error("User not authenticated")
   }
-
   try {
-    const userWithFormsAndteams = await db.user.findUnique({
+    const userWithFormsAndTeams = await db.user.findUnique({
       where: {
         id: user.id,
       },
@@ -380,24 +379,57 @@ export const getFormsAndteams = async () => {
       },
     })
 
-    const forms =
-      userWithFormsAndteams?.forms.map((userForm) => ({
-        ...userForm.form,
-        teams: userForm.form.teams.map((teamForm) => teamForm.team),
-      })) || []
+    let forms = []
+    if (teamId) {
+      forms =
+        userWithFormsAndTeams?.forms
+          .map((userForm) => ({
+            ...userForm.form,
+            teams: userForm.form.teams.map((teamForm) => teamForm.team),
+          }))
+          .filter((form) => form.teams.some((team) => team.id === teamId)) || []
+    } else {
+      forms =
+        userWithFormsAndTeams?.forms.map((userForm) => ({
+          ...userForm.form,
+          teams: userForm.form.teams.map((teamForm) => teamForm.team),
+        })) || []
+    }
 
     const teams =
-      userWithFormsAndteams?.teams.map((userteam) => ({
-        ...userteam.team,
-        forms: userteam.team.forms.map((teamForm) => teamForm.form),
+      userWithFormsAndTeams?.teams.map((userTeam) => ({
+        ...userTeam.team,
+        forms: userTeam.team.forms.map((teamForm) => teamForm.form),
       })) || []
-
+    console.log(forms)
     return { forms, teams }
   } catch (error) {
     console.error("Error fetching forms and teams:", error)
     return { forms: [], teams: [] }
-  } finally {
-    await db.$disconnect()
+  }
+}
+
+export const getTeamForms = async (teamId: string) => {
+  const user = await getCurrentUser()
+  if (!user) {
+    throw new Error("User not authenticated")
+  }
+  try {
+    const teamForms = await db.form.findMany({
+      where: {
+        teams: {
+          some: {
+            teamId,
+          },
+        },
+      },
+    })
+
+    console.log(teamForms)
+    return teamForms
+  } catch (error) {
+    console.error("Error fetching team forms:", error)
+    return []
   }
 }
 

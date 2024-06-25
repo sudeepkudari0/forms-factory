@@ -1,4 +1,4 @@
-import { getFormsAndteams, getSharedSubmissions } from "@/actions/forms";
+import {} from "@/actions/forms";
 import { DashboardHeader } from "@/components/header";
 import { DashboardShell } from "@/components/shell";
 import { getCurrentUser } from "@/lib/session";
@@ -21,19 +21,11 @@ const UserPage = async () => {
   const cookieStore = cookies();
   const tname = cookieStore.get("tname");
 
-  const { forms, teams } = await getFormsAndteams();
-  const sharedSubmissions = await getSharedSubmissions();
   return (
     <DashboardShell>
       <DashboardHeader heading="My Workspace" text="Fill and submit forms." />
       <div className="overflow-hidden px-2">
-        <FormsTableWithFilter
-          forms={forms}
-          teams={teams}
-          user={user}
-          sharedSubmissions={sharedSubmissions}
-          tname={tname?.value}
-        />
+        <FormsTableWithFilter user={user} tname={tname?.value} />
       </div>
     </DashboardShell>
   );

@@ -1,7 +1,3 @@
-"use client";
-
-import { getCurrentUserDetails } from "@/actions/users";
-import Loading from "@/app/(auth)/loading";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,22 +8,11 @@ import {
 import { UserAvatar } from "@/components/user-avatar";
 import { env } from "@/env.mjs";
 import { UserRole } from "@prisma/client";
-import { useQuery } from "@tanstack/react-query";
+import type { User } from "next-auth";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 
-export function UserAccountNav() {
-  const { data: userData, isLoading } = useQuery({
-    queryKey: ["userData"],
-    queryFn: async () => {
-      return await getCurrentUserDetails();
-    },
-  });
-
-  if (isLoading || !userData) {
-    return <Loading />;
-  }
-
+export function UserAccountNav({ userData }: { userData: User }) {
   return (
     <>
       <DropdownMenu>
@@ -54,7 +39,7 @@ export function UserAccountNav() {
           <DropdownMenuSeparator />
           <Link
             href={
-              userData.userRole === UserRole.USER
+              userData.role === UserRole.USER
                 ? "/user/profile"
                 : "/super-admin/profile"
             }

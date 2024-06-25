@@ -19,6 +19,8 @@ model ApiKey {
   prefix    String
   active    Boolean  @default(true)
 
+  user User @relation(fields: [userId], references: [id])
+
   @@index([userId])
   @@map("api_keys")
 }
@@ -41,6 +43,7 @@ model User {
   teams              UserTeam[]
   sessions           Session[]
   submissionAccesses SubmissionAccess[]
+  apiKeys            ApiKey[]
 }
 
 model Form {
@@ -105,7 +108,6 @@ model Submission {
   id                 String             @id @default(auto()) @map("_id") @db.ObjectId
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @default(now())
-  submittedBy        String?
   data               Json
   status             SubmissionStatus
   formId             String             @db.ObjectId

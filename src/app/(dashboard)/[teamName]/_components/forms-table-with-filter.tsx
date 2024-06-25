@@ -1,75 +1,52 @@
 "use client";
+import { getTeamForms } from "@/actions/forms";
 import { EmptyPlaceholder } from "@/components/empty-placeholder";
 import { Button } from "@/components/ui/button";
-import {} from "@/components/ui/command";
 import { DataTable } from "@/components/ui/data-table";
-import {} from "@/components/ui/popover";
-import type { Form, Submission, SubmissionAccess, Teams } from "@prisma/client";
+import type { Form, Teams } from "@prisma/client";
 import Cookies from "js-cookie";
-import {} from "lucide-react";
 import type { User } from "next-auth";
 import type React from "react";
 import { useEffect, useState } from "react";
 import { columns } from "../columns";
 import CreateFormForm from "./create-form-form";
 
-export interface FormWithteams extends Form {
+export interface FormWithTeams extends Form {
   teams: Teams[];
-  submissions: Submission[];
-  submissionId?: string | null;
-  sharedSubmissions?: (SubmissionAccess & {
-    submission: Submission & {
-      form: Form;
-    };
-  })[];
 }
 
 interface FormsTableWithFilterProps {
-  forms: FormWithteams[];
-  teams: Teams[];
   user: User;
-  sharedSubmissions?: (SubmissionAccess & {
-    submission: Submission & {
-      form: Form;
-    };
-  })[];
   tname?: string;
 }
 
 const FormsTableWithFilter: React.FC<FormsTableWithFilterProps> = ({
-  forms,
-  teams,
   user,
   tname,
 }) => {
-  const [selectedteam, setSelectedteam] = useState<string>("");
-
-  let filteredForms: string | any[] = [];
+  const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
+  const [filteredForms, setFilteredForms] = useState<any[]>([]);
+  const [reFetch, setReFetch] = useState(false);
 
   useEffect(() => {
-    const tid = Cookies.get("tid");
-    const tname = Cookies.get("tname");
-    if (tid) {
-      setSelectedteam(tid);
-    }
-    filteredForms = selectedteam
-      ? forms
-          .filter((form) => form.teams.some((team) => team.id === tid))
-          .map((form) => {
-            const existingSubmission = form.submissions.find(
-              (submission) =>
-                submission.formId === form.id && submission.userId === user.id
-            );
-            return {
-              fid: selectedteam,
-              uId: user.id,
-              ...form,
-              tname,
-              submissionId: existingSubmission ? existingSubmission.id : null,
-            };
-          })
-      : forms.map((form) => ({ ...form, submissionId: null }));
-  }, [Cookies]);
+    const getForms = async () => {
+      const tid = Cookies.get("tid");
+      if (!tid) {
+        console.log("No team ID found in cookies");
+        return;
+      }
+      setSelectedTeam(tid);
+      const response = await getTeamForms(tid);
+      const updatedForms = response.map((form) => ({
+        fid: tid,
+        uId: user.id,
+        tname,
+        ...form,
+      }));
+      setFilteredForms(updatedForms);
+    };
+    getForms();
+  }, [Cookies, selectedTeam, reFetch, tname, user.id]);
 
   return (
     <div>
@@ -82,10 +59,12 @@ const FormsTableWithFilter: React.FC<FormsTableWithFilterProps> = ({
           }
           userId={user.id || ""}
           username={user.name || ""}
-          teamId={selectedteam}
+          teamId={selectedTeam as string}
+          setRefetch={setReFetch}
+          refetch={reFetch}
         />
       </div>
-      {filteredForms.length > 0 && selectedteam ? (
+      {selectedTeam ? (
         <DataTable
           columns={columns}
           data={filteredForms as any}

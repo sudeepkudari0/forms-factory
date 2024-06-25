@@ -178,6 +178,7 @@ export const FormRenderer = ({
       await createDraftSubmission({
         submissionId: submission?.id as string,
         data: JSON.parse(JSON.stringify(values)),
+        formId: formData?.id as string,
       });
       toast({
         variant: "default",

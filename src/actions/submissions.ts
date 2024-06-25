@@ -1,9 +1,6 @@
 "use server"
 
-import { headers } from "next/headers"
-
 import { db } from "@/lib/db"
-import { ratelimit } from "@/lib/ratelimiter"
 import { getCurrentUser } from "@/lib/session"
 import { SubmissionAccessRole, SubmissionStatus } from "@prisma/client"
 
@@ -23,7 +20,6 @@ export const createSubmission = async ({ formId }: { formId: string | undefined 
   const submission = await db.submission.create({
     data: {
       formId: formId,
-      submittedBy: user.name,
       data: JSON.stringify(dummyData),
       userId: user?.id,
       status: SubmissionStatus.DRAFT,
@@ -44,16 +40,8 @@ export const createFinalSubmission = async (data: {
   submissionId: string
   data: object
 }) => {
-  const ip = headers().get("x-forwarded-for")
-
   if (!data.submissionId) {
     return null
-  }
-
-  const { success } = await ratelimit.limit(ip ?? "anonymous")
-
-  if (!success) {
-    throw new Error("Too many requests")
   }
 
   const update = await db.submission.update({
@@ -78,40 +66,35 @@ export const createFinalSubmission = async (data: {
 }
 export const createDraftSubmission = async (data: {
   data: object
-  submissionId: string
+  submissionId?: string
+  formId: string
 }) => {
-  const ip = headers().get("x-forwarded-for")
-
-  if (!data.submissionId) {
-    return null
+  if (data.submissionId) {
+    const update = await db.submission.update({
+      where: {
+        id: data.submissionId,
+      },
+      data: {
+        data: JSON.stringify(data.data),
+      },
+      include: {
+        submissionAccesses: true,
+      },
+    })
+    return update
   }
 
-  const { success } = await ratelimit.limit(ip ?? "anonymous")
-
-  if (!success) {
-    throw new Error("Too many requests")
-  }
-
-  const update = await db.submission.update({
-    where: {
-      id: data.submissionId,
-    },
+  const create = await db.submission.create({
     data: {
-      data: JSON.stringify(data?.data),
+      data: JSON.stringify(data.data),
+      status: SubmissionStatus.DRAFT,
+      formId: data.formId,
     },
     include: {
       submissionAccesses: true,
     },
   })
-
-  return update
-  // const event = new Event("submission.created")
-
-  // await event.emit({
-  //   formId: data.formId,
-  //   data: JSON.stringify(data?.data),
-  //   submissionId: id,
-  // })
+  return create
 }
 
 export const getSubmissions = async (formId: string) => {

@@ -31,7 +31,7 @@ type teams = UserTeam & {
   team: Teams;
 };
 
-const Header = ({ user, teams }: { user: User; teams: teams[] }) => {
+const Header = ({ user, teams }: { user?: User; teams?: teams[] }) => {
   const scrolled = useScroll(5);
   const selectedLayout = useSelectedLayoutSegment();
   const [selectedteam, setSelectedteam] = useState<string | null>(null);
@@ -45,7 +45,7 @@ const Header = ({ user, teams }: { user: User; teams: teams[] }) => {
 
   useEffect(() => {
     if (selectedteam) {
-      const selectedTeamData = teams.find((team) => team.id === selectedteam);
+      const selectedTeamData = teams?.find((team) => team.id === selectedteam);
       if (selectedTeamData) {
         const tname = selectedTeamData.team.name.replace(/\s+/g, "-");
         router.refresh();
@@ -78,7 +78,7 @@ const Header = ({ user, teams }: { user: User; teams: teams[] }) => {
                 className="w-[200px] justify-between"
               >
                 {selectedteam
-                  ? teams.find((team) => team.id === selectedteam)?.team.name
+                  ? teams?.find((team) => team.id === selectedteam)?.team.name
                   : "Select team"}
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
@@ -117,7 +117,7 @@ const Header = ({ user, teams }: { user: User; teams: teams[] }) => {
                             <PlusCircleIcon className="ml-2 h-4 w-4" />
                           </div>
                         }
-                        userId={user.id || ""}
+                        userId={user?.id || ""}
                       />
                     </CommandItem>
                   </CommandList>
@@ -137,7 +137,7 @@ const Header = ({ user, teams }: { user: User; teams: teams[] }) => {
         </div>
         <div className="mr-4 hidden space-x-2 md:flex md:items-center md:justify-center">
           <ModeToggle />
-          {user ? <UserAccountNav /> : <UserNav />}
+          {user ? <UserAccountNav userData={user} /> : <UserNav />}
         </div>
       </div>
     </div>

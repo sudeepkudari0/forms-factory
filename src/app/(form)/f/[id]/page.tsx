@@ -4,12 +4,10 @@ import { TypographyH1 } from "@/components/typography";
 import { Separator } from "@/components/ui/separator";
 import { env } from "@/env.mjs";
 import { db } from "@/lib/db";
-import { getCurrentUser } from "@/lib/session";
 import { cn } from "@/lib/utils";
-import { FormStatus, SubmissionStatus, UserStatus } from "@prisma/client";
+import { FormStatus, SubmissionStatus } from "@prisma/client";
 import { CircleIcon } from "lucide-react";
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
 import { HeaderHelper } from "./_components/header-helper";
 import notFound from "./not-found";
 interface FormPageProperties {
@@ -58,21 +56,20 @@ const Form = async ({ params, searchParams }: FormPageProperties) => {
   const { id } = params;
   const { sid } = searchParams;
   const form = await getForm({ id });
-
+  console.log({ id, sid });
   if (form?.status !== FormStatus.PUBLIC) {
-    const user = await getCurrentUser();
-    if (!user?.id) {
-      return redirect("/login");
-    }
-    if (user?.status !== UserStatus.ACTIVE) {
-      return redirect("/unauthorized");
-    }
+    return notFound();
+  }
+  // biome-ignore lint/suspicious/noImplicitAnyLet: <explanation>
+  let submission;
+  if (sid) {
+    submission = await getSubmission(sid);
   }
 
-  const submission = await getSubmission(sid);
   if (!form?.published) {
-    notFound();
+    return notFound();
   }
+
   const submissionAccess = await getSubmissionAccess(sid);
 
   return (
