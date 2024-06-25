@@ -1,7 +1,6 @@
+import { LogoAnimation } from "@/components/logo-animation";
 import { getCurrentUser } from "@/lib/session";
-import Image from "next/image";
 import Link from "next/link";
-import hero from "../../../public/hero-image-cropped.svg";
 export default async function IndexPage() {
   const user = await getCurrentUser();
   return (
@@ -9,14 +8,13 @@ export default async function IndexPage() {
       {
         <section className="space-y-6 pb-8 md:pb-12">
           <div className="container flex max-w-5xl flex-col items-center text-center">
-            <div className="overflow-hidden pb-5 md:h-[500px] md:w-[700px]">
-              <Image
-                src={hero}
-                alt="Hero"
-                width={1000}
-                height={1000}
-                className="h-full w-full"
-              />
+            <div className="overflow-hidden md:pb-10 md:h-[380px] md:w-[700px]">
+              <LogoAnimation />
+            </div>
+            <div>
+              <h1 className="text-3xl font-Nunito pb-8 tracking-wide text-[#f01212] font-bold md:text-7xl">
+                Tr Forms Factory
+              </h1>
             </div>
             <div className="flex flex-col gap-2 md:flex-row">
               <Link

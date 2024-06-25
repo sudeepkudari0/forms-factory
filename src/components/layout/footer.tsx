@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-
+import logo from "../../../public/LOGO.svg";
 const LINK_ITEMS = [
   {
     href: "/policy",
@@ -129,7 +129,7 @@ export const Footer = () => {
         <div className="flex items-center space-x-3">
           <Image
             loading="lazy"
-            src="/favicon.ico"
+            src={logo}
             width={1000}
             height={100}
             alt="Logo"
