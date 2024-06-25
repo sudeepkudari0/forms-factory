@@ -178,3 +178,14 @@ export const getUserTeams = async (userId: string) => {
     },
   })
 }
+
+export const getTeams = async (teamId: string) => {
+  return db.userTeam.findMany({
+    where: {
+      userId: teamId,
+    },
+    include: {
+      team: true,
+    },
+  })
+}

@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { addField, deleteField, updateReorderFields } from "@/actions/fields"
-import { setFormPublished } from "@/actions/forms"
-import { CSVUploadDialog } from "@/app/(editor)/forms/[id]/edit/_components/upload-csv"
+import { addField, deleteField, updateReorderFields } from "@/actions/fields";
+import { setFormPublished } from "@/actions/forms";
+import { CSVUploadDialog } from "@/app/(editor)/forms/[id]/edit/_components/upload-csv";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,23 +12,28 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { env } from "@/env.mjs"
-import { cn } from "@/lib/utils"
-import type { Field, Form } from "@prisma/client"
-import { useQueryClient } from "@tanstack/react-query"
-import { Reorder } from "framer-motion"
-import { CircleIcon, PlusCircleIcon, ShareIcon } from "lucide-react"
-import Link from "next/link"
-import { useState, useTransition } from "react"
-import { useHotkeys } from "react-hotkeys-hook"
-import { Typewriter } from "react-simple-typewriter"
-import { EditFieldForm } from "./edit-field-form"
-import { FormRenderer } from "./form-renderer-preview"
-import { Icons } from "./icons"
-import { ModeToggle } from "./mode-toggle"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion"
-import { Button, buttonVariants } from "./ui/button"
+} from "@/components/ui/alert-dialog";
+import { env } from "@/env.mjs";
+import { cn } from "@/lib/utils";
+import type { Field, Form } from "@prisma/client";
+import { useQueryClient } from "@tanstack/react-query";
+import { Reorder } from "framer-motion";
+import { CircleIcon, PlusCircleIcon, ShareIcon } from "lucide-react";
+import Link from "next/link";
+import { useState, useTransition } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
+import { Typewriter } from "react-simple-typewriter";
+import { EditFieldForm } from "./edit-field-form";
+import { FormRenderer } from "./form-renderer-preview";
+import { Icons } from "./icons";
+import { ModeToggle } from "./mode-toggle";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "./ui/accordion";
+import { Button, buttonVariants } from "./ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,78 +43,78 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu"
-import { LoadingButton } from "./ui/loading-button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs"
-import { toast } from "./ui/use-toast"
+} from "./ui/dropdown-menu";
+import { LoadingButton } from "./ui/loading-button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { toast } from "./ui/use-toast";
 
 type FormWithFields = Form & {
-  fields: Field[]
-}
+  fields: Field[];
+};
 
 const setPublishForm = async ({
   formId,
   publish,
 }: {
-  formId: string
-  publish: boolean
+  formId: string;
+  publish: boolean;
 }) => {
   await setFormPublished({
     id: formId,
     published: publish,
-  })
+  });
   toast({
     title: `Form ${publish ? "published" : "unpublished"}`,
     description: `Form has been ${publish ? "published" : "unpublished"}`,
-  })
-}
+  });
+};
 
 const copyLinkToClipboard = async ({ formId }: { formId: string }) => {
-  const url = `${env.NEXT_PUBLIC_APP_URL}/f/${formId}`
-  await navigator.clipboard.writeText(url)
+  const url = `${env.NEXT_PUBLIC_APP_URL}/f/${formId}`;
+  await navigator.clipboard.writeText(url);
   toast({
     title: "Copied to clipboard",
     description: "Link has been copied to clipboard",
-  })
-}
+  });
+};
 
-export const Editor = ({
-  form,
-}: {
-  form: FormWithFields
-}) => {
+export const Editor = ({ form }: { form: FormWithFields }) => {
   useHotkeys("mod+c", () => {
     if (!form.published) {
-      return
+      return;
     }
-    copyLinkToClipboard({ formId: form.id })
-  })
+    copyLinkToClipboard({ formId: form.id });
+  });
 
-  const [fields, setFields] = useState<Field[]>(form.fields || [])
-  const [isLoading, setIsLoading] = useState(false)
-  const [isPending, startTransition] = useTransition()
+  const [fields, setFields] = useState<Field[]>(form.fields || []);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const [unSavedChanges, setUnSavedChanges] = useState<{
-    [key: string]: boolean
-  }>({})
-  const [showWarning, setShowWarning] = useState(false)
-  const [currentOpenAccordian, setCurrentOpenAccordian] = useState<string[]>([])
-  const [nextAccordionState, setNextAccordionState] = useState<string[]>([])
-  const [initialAccordionState, setInitialAccordionState] = useState<string[]>([])
-  const [isUpdating, setIsUpdating] = useState(false)
-  const formname = [form.title] || ["Untitled Form"]
+    [key: string]: boolean;
+  }>({});
+  const [showWarning, setShowWarning] = useState(false);
+  const [currentOpenAccordian, setCurrentOpenAccordian] = useState<string[]>(
+    []
+  );
+  const [nextAccordionState, setNextAccordionState] = useState<string[]>([]);
+  const [initialAccordionState, setInitialAccordionState] = useState<string[]>(
+    []
+  );
+  const [isUpdating, setIsUpdating] = useState(false);
+  const formname = [form.title] || ["Untitled Form"];
 
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   const handleReorder = async (newOrder: Field[]) => {
-    setFields(newOrder)
+    setFields(newOrder);
     startTransition(async () => {
-      await updateReorderFields(newOrder)
-    })
-    queryClient.invalidateQueries({ queryKey: ["form", form.id] })
-  }
+      await updateReorderFields(newOrder);
+    });
+    queryClient.invalidateQueries({ queryKey: ["form", form.id] });
+  };
 
   const handleAddField = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     const newField = {
       label: "",
       type: null,
@@ -117,84 +122,98 @@ export const Editor = ({
       placeholder: "",
       options: undefined,
       formId: form.id,
-    }
-    const data = await addField(newField)
+    };
+    const data = await addField(newField);
     if (data) {
-      setFields((prevFields) => [...prevFields, data])
-      setCurrentOpenAccordian((prev) => [...prev, data.id])
+      setFields((prevFields) => [...prevFields, data]);
+      setCurrentOpenAccordian((prev) => [...prev, data.id]);
     }
-    setIsLoading(false)
-  }
+    setIsLoading(false);
+  };
 
   const handleSaveField = (updatedField: Field) => {
-    setIsUpdating(true)
+    setIsUpdating(true);
     setFields((prevFields) =>
-      prevFields.map((field) => (field.id === updatedField.id ? updatedField : field))
-    )
-    setIsUpdating(false)
-  }
+      prevFields.map((field) =>
+        field.id === updatedField.id ? updatedField : field
+      )
+    );
+    setIsUpdating(false);
+  };
 
   const handleSaveArrayOfFields = (updatedFields: Field[]) => {
-    setIsUpdating(true)
+    setIsUpdating(true);
     setFields((prevFields) => {
-      const updatedFieldsMap = new Map(updatedFields.map((field) => [field.id, field]))
+      const updatedFieldsMap = new Map(
+        updatedFields.map((field) => [field.id, field])
+      );
 
-      const newFields = prevFields.map((field) => updatedFieldsMap.get(field.id) || field)
+      const newFields = prevFields.map(
+        (field) => updatedFieldsMap.get(field.id) || field
+      );
 
       updatedFields.forEach((updatedField) => {
         if (!prevFields.some((field) => field.id === updatedField.id)) {
-          newFields.push(updatedField)
+          newFields.push(updatedField);
         }
-      })
-      return newFields
-    })
-    setIsUpdating(false)
-  }
+      });
+      return newFields;
+    });
+    setIsUpdating(false);
+  };
 
   const handleRemoveField = async (fieldId: string) => {
-    setFields((prevFields) => prevFields.filter((field) => field.id !== fieldId))
-    await deleteField(fieldId)
+    setFields((prevFields) =>
+      prevFields.filter((field) => field.id !== fieldId)
+    );
+    await deleteField(fieldId);
     toast({
       title: "Field deleted",
       description: "Field has been deleted",
-    })
-  }
+    });
+  };
 
   const handleAccordianChange = (value: string[]) => {
-    const closingAccordions = currentOpenAccordian.filter((id) => !value.includes(id))
-    const hasUnsavedChanges = closingAccordions.some((id) => unSavedChanges[id])
+    const closingAccordions = currentOpenAccordian.filter(
+      (id) => !value.includes(id)
+    );
+    const hasUnsavedChanges = closingAccordions.some(
+      (id) => unSavedChanges[id]
+    );
 
     if (closingAccordions.length > 0 && hasUnsavedChanges) {
-      setInitialAccordionState(currentOpenAccordian)
-      setNextAccordionState(value)
-      setShowWarning(true)
+      setInitialAccordionState(currentOpenAccordian);
+      setNextAccordionState(value);
+      setShowWarning(true);
     } else {
-      setCurrentOpenAccordian(value)
+      setCurrentOpenAccordian(value);
     }
-  }
+  };
 
   const handleConfirmClose = () => {
-    setShowWarning(false)
-    setCurrentOpenAccordian(initialAccordionState)
-  }
+    setShowWarning(false);
+    setCurrentOpenAccordian(initialAccordionState);
+  };
 
   const handleCancelClose = () => {
-    setShowWarning(false)
-    setCurrentOpenAccordian(nextAccordionState)
-    const closedAccordions = currentOpenAccordian.filter((id) => !nextAccordionState.includes(id))
-    const updatedUnsavedChanges = { ...unSavedChanges }
+    setShowWarning(false);
+    setCurrentOpenAccordian(nextAccordionState);
+    const closedAccordions = currentOpenAccordian.filter(
+      (id) => !nextAccordionState.includes(id)
+    );
+    const updatedUnsavedChanges = { ...unSavedChanges };
     closedAccordions.forEach((id) => {
-      delete updatedUnsavedChanges[id]
-    })
-    setUnSavedChanges(updatedUnsavedChanges)
-  }
+      delete updatedUnsavedChanges[id];
+    });
+    setUnSavedChanges(updatedUnsavedChanges);
+  };
 
   const updateUnsavedChanges = (fieldId: string, hasChanges: boolean) => {
     setUnSavedChanges((prev) => ({
       ...prev,
       [fieldId]: hasChanges,
-    }))
-  }
+    }));
+  };
 
   return (
     <div className="grid w-full gap-10">
@@ -204,7 +223,10 @@ export const Editor = ({
         )}
       >
         <div className="flex items-center md:space-x-10">
-          <Link href="/onboarding" className={cn(buttonVariants({ variant: "ghost" }))}>
+          <Link
+            href="/onboarding"
+            className={cn(buttonVariants({ variant: "ghost" }))}
+          >
             <>
               <Icons.chevronLeft className="mr-2 h-4 w-4" />
               Back
@@ -240,13 +262,21 @@ export const Editor = ({
                   })
                 }
               >
-                <DropdownMenuRadioItem value="true">Publish</DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="false">Draft</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="true">
+                  Publish
+                </DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="false">
+                  Draft
+                </DropdownMenuRadioItem>
               </DropdownMenuRadioGroup>
             </DropdownMenuContent>
           </DropdownMenu>
           <div>
-            <LoadingButton loading={isPending} variant={"link"} className="hover:no-underline">
+            <LoadingButton
+              loading={isPending}
+              variant={"link"}
+              className="hover:no-underline"
+            >
               {isPending ? (
                 <p>Reorder saving</p>
               ) : (
@@ -257,7 +287,7 @@ export const Editor = ({
             </LoadingButton>
           </div>
         </div>
-        <p className="text-xl">
+        <p className="text-xl from-accent-foreground trackin-light max-w-sm overflow-hidden truncate">
           <Typewriter words={formname} />
         </p>
         <div className="flex justify-end gap-4">
@@ -275,13 +305,18 @@ export const Editor = ({
           {/* <FeedbackButton className="hidden md:block" userId={user.id} /> */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button disabled={!form.published} className="bg-blue-600 hover:bg-blue-700">
+              <Button
+                disabled={!form.published}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
                 Share <ShareIcon className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56">
               <DropdownMenuGroup>
-                <DropdownMenuItem onClick={() => copyLinkToClipboard({ formId: form.id })}>
+                <DropdownMenuItem
+                  onClick={() => copyLinkToClipboard({ formId: form.id })}
+                >
                   <Icons.copy className="mr-2 h-4 w-4" />
                   <span>Copy link</span>
                   <DropdownMenuShortcut>⌘C</DropdownMenuShortcut>
@@ -312,7 +347,9 @@ export const Editor = ({
                   <AccordionItem value={`${fieldItem.id}`}>
                     <AccordionTrigger value={`${fieldItem.id}`}>
                       <p className="font-heading text-xl font-bold">
-                        {fieldItem.label ? fieldItem.label : `Field ${index + 1}`}
+                        {fieldItem.label
+                          ? fieldItem.label
+                          : `Field ${index + 1}`}
                       </p>
                     </AccordionTrigger>
                     <AccordionContent>
@@ -353,10 +390,13 @@ export const Editor = ({
                     <AlertDialogHeader>
                       <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
                       <AlertDialogDescription>
-                        You have unsaved changes. Are you sure you want to proceed without saving?
+                        You have unsaved changes. Are you sure you want to
+                        proceed without saving?
                       </AlertDialogDescription>
                       <AlertDialogFooter>
-                        <AlertDialogCancel onClick={handleConfirmClose}>Cancel</AlertDialogCancel>
+                        <AlertDialogCancel onClick={handleConfirmClose}>
+                          Cancel
+                        </AlertDialogCancel>
                         <AlertDialogAction
                           className={buttonVariants({ variant: "destructive" })}
                           onClick={handleCancelClose}
@@ -376,5 +416,5 @@ export const Editor = ({
         </TabsContent>
       </Tabs>
     </div>
-  )
-}
+  );
+};

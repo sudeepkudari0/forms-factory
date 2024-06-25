@@ -25,6 +25,7 @@ import { LoadingButton } from "@/components/ui/loading-button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -42,15 +43,19 @@ const CreateFormForm = ({
   userId,
   username,
   teamId,
+  setRefetch,
+  refetch,
 }: {
   trigger: React.ReactElement;
   userId: string;
   username: string;
   teamId: string;
+  setRefetch: React.Dispatch<React.SetStateAction<boolean>>;
+  refetch: boolean;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
+  const router = useRouter();
   const form = useForm<formSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -71,6 +76,8 @@ const CreateFormForm = ({
       await addFormsToUser({ userId, formIds: [data.id] });
       await addFormsToteam({ teamId, formIds: [data.id] });
     }
+    setRefetch(!refetch);
+    router.push(`/forms/${data.id}/edit`);
     toast({
       title: "Form created",
       description: "Your form has been created.",

@@ -12,6 +12,7 @@ import { SubmissionsTable } from "./_components/submissions-table";
 interface UserFormPageProperties {
   params: {
     id: string;
+    tname?: string;
   };
   searchParams: {
     fid: string;
@@ -22,16 +23,16 @@ const UserFormPage = async ({
   params,
   searchParams,
 }: UserFormPageProperties) => {
-  const { id } = params;
+  const { id, tname } = params;
   const { fid } = searchParams;
-  const form = await getForm({ id });
+  const form = await getForm({ id: id });
 
   return (
     <DashboardShell>
       <div>
         <Link
           className={cn(buttonVariants({ variant: "link" }), "-ml-2")}
-          href={"/user"}
+          href={tname ? `/user/${tname}` : "/user"} // use tname if present
         >
           <Icons.arrowLeft className="mr-2 h-4 w-4" />
           All Forms
@@ -43,7 +44,7 @@ const UserFormPage = async ({
             href={`/forms/${id}/edit`}
             className={cn(
               buttonVariants({ variant: "outline" }),
-              "rounded w-[100px] text-white font-bold  bg-gradient-to-r from-[#0077B6] to-[#00BCD4] hover:text-white"
+              "rounded w-[100px] text-white font-bold bg-gradient-to-r from-[#0077B6] to-[#00BCD4] hover:text-white"
             )}
           >
             <Edit2Icon className="mr-2 h-4 w-4" />

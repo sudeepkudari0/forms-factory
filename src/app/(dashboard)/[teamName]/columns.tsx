@@ -1,6 +1,11 @@
-"use client"
+"use client";
 
-import { duplicateFormFields, setFormArchived, setFormPublished, updateFormPrivacy } from "@/actions/forms"
+import {
+  duplicateFormFields,
+  setFormArchived,
+  setFormPublished,
+  updateFormPrivacy,
+} from "@/actions/forms";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,9 +16,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { Button, buttonVariants } from "@/components/ui/button"
-import { DataTableColumnHeader } from "@/components/ui/data-column-header"
+} from "@/components/ui/alert-dialog";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { DataTableColumnHeader } from "@/components/ui/data-column-header";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,12 +27,17 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { toast } from "@/components/ui/use-toast"
-import { cn } from "@/lib/utils"
-import { type Form, FormStatus, type Submission, type Teams } from "@prisma/client"
-import type { ColumnDef } from "@tanstack/react-table"
-import dayjs from "dayjs"
+} from "@/components/ui/dropdown-menu";
+import { toast } from "@/components/ui/use-toast";
+import { cn } from "@/lib/utils";
+import {
+  type Form,
+  FormStatus,
+  type Submission,
+  type Teams,
+} from "@prisma/client";
+import type { ColumnDef } from "@tanstack/react-table";
+import dayjs from "dayjs";
 import {
   CircleIcon,
   CopyIcon,
@@ -38,99 +48,102 @@ import {
   PencilIcon,
   Trash2,
   UnlockIcon,
-} from "lucide-react"
-import Link from "next/link"
+} from "lucide-react";
+import Link from "next/link";
 
 interface FormWithTeams extends Form {
-  facilities: Teams[]
-  submissions: Submission[]
-  submissionId?: string | null
-  uId: string
-  fid: string
+  facilities: Teams[];
+  submissions: Submission[];
+  submissionId?: string | null;
+  uId: string;
+  fid: string;
+  tname?: string;
 }
 
 const setPublishForm = async ({
   formId,
   publish,
 }: {
-  formId: string
-  publish: boolean
+  formId: string;
+  publish: boolean;
 }) => {
   await setFormPublished({
     id: formId,
     published: publish,
-  })
+  });
   toast({
     title: `Form ${publish ? "published" : "unpublished"}`,
     description: `Form has been ${publish ? "published" : "unpublished"}`,
-  })
-}
+  });
+};
 
 const duplicateForm = async (formId: string) => {
-  const data = await duplicateFormFields(formId)
+  const data = await duplicateFormFields(formId);
 
   toast({
     title: "Form duplicated",
     description: `Form has been duplicated with the title "${data?.title}"`,
-  })
-}
+  });
+};
 
 const setArchiveForm = async ({
   formId,
   archived,
 }: {
-  formId: string
-  archived: boolean
+  formId: string;
+  archived: boolean;
 }) => {
   await setFormArchived({
     id: formId,
     archived: archived,
-  })
+  });
   toast({
     title: `Form ${archived ? "archived" : "unarchived"}`,
     description: `Form has been ${archived ? "archived" : "unarchived"}`,
-  })
-}
+  });
+};
 
 const setFormPrivacy = async ({
   formId,
   isPublic,
 }: {
-  formId: string
-  isPublic: boolean
+  formId: string;
+  isPublic: boolean;
 }) => {
   await updateFormPrivacy({
     formId: formId,
     isPublic: isPublic ? FormStatus.PUBLIC : FormStatus.PRIVATE,
-  })
+  });
   toast({
     title: `Form set to ${isPublic ? "public" : "private"}`,
     description: `Form has been set to ${isPublic ? "public" : "private"}`,
-  })
-}
+  });
+};
 
 export const columns: ColumnDef<FormWithTeams>[] = [
   {
     accessorKey: "title",
     header: "Title",
     cell: ({ row }) => {
-      const form = row.original
+      const form = row.original;
 
       return (
         <Link
-        href={`/user/${form.id}?fid=${form.fid}`}
-                  className="decoration-muted-foreground truncate underline decoration-dashed underline-offset-4"
+          href={`/${form.tname}/${form.id}?fid=${form.fid}`}
+          className="decoration-muted-foreground truncate underline decoration-dashed underline-offset-4"
         >
           {form.title}
         </Link>
-      )
+      );
     },
   },
   {
     accessorKey: "published",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Status" />,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Status" />
+    ),
     cell: ({ row }) => {
-      const form = row.original
+      const form = row.original;
 
       return (
         <div className="inline-flex items-center">
@@ -142,60 +155,72 @@ export const columns: ColumnDef<FormWithTeams>[] = [
           />
           <span>{form.published ? "Published" : "Draft"}</span>
         </div>
-      )
+      );
     },
   },
   {
     accessorKey: "status",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Privacy" />,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Privacy" />
+    ),
     cell: ({ row }) => {
-      const form = row.original
+      const form = row.original;
 
       return (
         <div className="inline-flex items-center">
           <CircleIcon
             className={cn(
               "mr-2 h-2 w-2 text-transparent",
-              form.status === FormStatus.PUBLIC ? "fill-green-600" : "fill-red-600"
+              form.status === FormStatus.PUBLIC
+                ? "fill-green-600"
+                : "fill-red-600"
             )}
           />
-          <span>{form.status === FormStatus.PUBLIC ? "Public" : "Private"}</span>
+          <span>
+            {form.status === FormStatus.PUBLIC ? "Public" : "Private"}
+          </span>
         </div>
-      )
+      );
     },
   },
   {
     id: "submissions",
     accessorKey: "submissions.length",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Submissions" />,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Submissions" />
+    ),
     cell: ({ row }) => {
-      const form = row.original
+      const form = row.original;
 
-      return <div>{form?.submissions?.length}</div>
+      return <div>{form?.submissions?.length}</div>;
     },
   },
   {
     accessorKey: "createdBy",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Created by" />,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Created by" />
+    ),
     cell: ({ row }) => {
-      const form = row.original
+      const form = row.original;
 
-      return <div>{form.createdBy}</div>
+      return <div>{form.createdBy}</div>;
     },
   },
   {
     accessorKey: "createdAt",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Created at" />,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Created at" />
+    ),
     cell: ({ row }) => {
-      const form = row.original
+      const form = row.original;
 
-      return <div>{dayjs(form.createdAt).format("MMM D, YYYY")}</div>
+      return <div>{dayjs(form.createdAt).format("MMM D, YYYY")}</div>;
     },
   },
   {
     id: "actions",
     cell: ({ row }) => {
-      const form = row.original
+      const form = row.original;
 
       return (
         <AlertDialog>
@@ -214,7 +239,7 @@ export const columns: ColumnDef<FormWithTeams>[] = [
                     setPublishForm({
                       formId: form.id,
                       publish: !form.published,
-                    })
+                    });
                   }}
                 >
                   {!form.published ? (
@@ -245,7 +270,7 @@ export const columns: ColumnDef<FormWithTeams>[] = [
                     setFormPrivacy({
                       formId: form.id,
                       isPublic: form.status !== FormStatus.PUBLIC,
-                    })
+                    });
                   }}
                 >
                   {form.status !== FormStatus.PUBLIC ? (
@@ -274,14 +299,16 @@ export const columns: ColumnDef<FormWithTeams>[] = [
             <AlertDialogHeader>
               <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
               <AlertDialogDescription>
-                You are going to archive this form. Its <b>not</b> deleted permanently though. You
-                can restore it whenever you want.
+                You are going to archive this form. Its <b>not</b> deleted
+                permanently though. You can restore it whenever you want.
               </AlertDialogDescription>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                 <AlertDialogAction
                   className={buttonVariants({ variant: "destructive" })}
-                  onClick={() => setArchiveForm({ archived: true, formId: form.id })}
+                  onClick={() =>
+                    setArchiveForm({ archived: true, formId: form.id })
+                  }
                 >
                   Archive form
                 </AlertDialogAction>
@@ -289,7 +316,7 @@ export const columns: ColumnDef<FormWithTeams>[] = [
             </AlertDialogHeader>
           </AlertDialogContent>
         </AlertDialog>
-      )
+      );
     },
   },
-]
+];
