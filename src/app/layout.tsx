@@ -1,35 +1,34 @@
-import "./globals.css"
+import "./globals.css";
 
-import QueryClientWrapper from "@/components/providers/query-client-provider"
-import { TailwindIndicator } from "@/components/tailwind-indicator"
-import { ThemeProvider } from "@/components/theme-provider"
-import { Toaster } from "@/components/ui/toaster"
-import { cn } from "@/lib/utils"
-import { Analytics } from "@vercel/analytics/react"
-import type { Metadata } from "next"
-import { Inter as FontSans } from "next/font/google"
-import localFont from "next/font/local"
-
-const fontSans = FontSans({ subsets: ["latin"], variable: "--font-sans" })
+import QueryClientWrapper from "@/components/providers/query-client-provider";
+import { TailwindIndicator } from "@/components/tailwind-indicator";
+import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/toaster";
+import { cn } from "@/lib/utils";
+import { Analytics } from "@vercel/analytics/react";
+import type { Metadata } from "next";
+import { Inter as FontSans } from "next/font/google";
+import localFont from "next/font/local";
+const fontSans = FontSans({ subsets: ["latin"], variable: "--font-sans" });
 
 const fontHeading = localFont({
   src: "../assets/fonts/CalSans-SemiBold.woff2",
   variable: "--font-heading",
-})
+});
 
 export const metadata: Metadata = {
-  title: "ThinkRoman Data Center",
+  title: "Tr Form Factory",
   description:
     "TrDC is a datacenter from ThinkRoman designed to collect clinical data and enhance clinical care through the application of AI, ML, and data modeling",
   icons: {
-    icon: "/logo.png",
+    icon: "",
   },
-}
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
@@ -55,5 +54,5 @@ export default function RootLayout({
         </ThemeProvider>
       </body>
     </html>
-  )
+  );
 }

@@ -1,11 +1,12 @@
 "use client";
+
 import { Footer } from "@/components/layout/footer";
 import { ModeToggle } from "@/components/mode-toggle";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
 import { Fade } from "react-awesome-reveal";
-
+import logo from "../../../public/LOGO.svg";
 interface MarketingLayoutProps {
   children: React.ReactNode;
 }
@@ -18,7 +19,7 @@ export default function MarketingLayout({ children }: MarketingLayoutProps) {
           <div className="sticky top-0 flex items-center justify-between py-4 pl-0 text-xl md:py-6 md:pl-[40px]">
             <Link href="/">
               <Image
-                src={"/logo.png"}
+                src={logo}
                 alt="Logo"
                 width={1000}
                 height={1000}
@@ -26,8 +27,6 @@ export default function MarketingLayout({ children }: MarketingLayoutProps) {
               />
             </Link>
             <div className="flex text-sm md:text-lg items-center gap-4 font-mono px-4 md:px-10">
-              <Link href={"#"}>About</Link>
-              <Link href={"#"}>Services</Link>
               <Link href={"/login"}>Register</Link>
               <ModeToggle />
             </div>
