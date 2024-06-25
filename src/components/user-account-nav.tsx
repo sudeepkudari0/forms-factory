@@ -8,10 +8,10 @@ import {
 import { UserAvatar } from "@/components/user-avatar";
 import { env } from "@/env.mjs";
 import { UserRole } from "@prisma/client";
+import Cookies from "js-cookie";
 import type { User } from "next-auth";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
-
 export function UserAccountNav({ userData }: { userData: User }) {
   return (
     <>
@@ -53,6 +53,8 @@ export function UserAccountNav({ userData }: { userData: User }) {
             className="cursor-pointer"
             onSelect={(event) => {
               event.preventDefault();
+              Cookies.remove("tid");
+              Cookies.remove("tname");
               signOut({
                 callbackUrl: `${env.NEXT_PUBLIC_APP_URL}/login`,
               });

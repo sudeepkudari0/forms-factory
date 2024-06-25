@@ -239,8 +239,8 @@ export const Editor = ({ form }: { form: FormWithFields }) => {
                 className={cn(
                   "text-white",
                   form.published
-                    ? "bg-[#78e08f] hover:bg-green-500"
-                    : "bg-yellow-300 hover:bg-yellow-400"
+                    ? "bg-green-500 hover:bg-green-500"
+                    : "bg-yellow-400 hover:bg-yellow-400"
                 )}
               >
                 <CircleIcon
@@ -327,9 +327,10 @@ export const Editor = ({ form }: { form: FormWithFields }) => {
         </div>
       </div>
       <Tabs defaultValue="editor" className="container">
-        <TabsList className="mx-auto mb-8 grid w-[400px] grid-cols-2">
+        <TabsList className="mx-auto mb-8 grid w-[400px] grid-cols-3">
           <TabsTrigger value="editor">Editor</TabsTrigger>
           <TabsTrigger value="preview">Preview</TabsTrigger>
+          <TabsTrigger value="headers">Headers</TabsTrigger>
         </TabsList>
         <TabsContent value="editor" className="mx-auto w-full space-x-4">
           <Reorder.Group
@@ -373,10 +374,10 @@ export const Editor = ({ form }: { form: FormWithFields }) => {
                   </AccordionItem>
                 </Reorder.Item>
               ))}
-              <div className="">
+              <div className="w-full flex items-center">
                 <LoadingButton
                   variant={"ghost"}
-                  className="mx-auto mt-2 border"
+                  className="mx-auto mt-2 border bg-black dark:bg-zinc-200 dark:text-black text-white"
                   onClick={handleAddField}
                   loading={isLoading}
                 >
@@ -414,6 +415,7 @@ export const Editor = ({ form }: { form: FormWithFields }) => {
         <TabsContent value="preview">
           <FormRenderer preview formId={form.id} />
         </TabsContent>
+        <TabsContent value="headers">Hi</TabsContent>
       </Tabs>
     </div>
   );
