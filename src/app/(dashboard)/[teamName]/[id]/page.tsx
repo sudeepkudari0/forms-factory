@@ -1,4 +1,4 @@
-import { getForm } from "@/actions/forms";
+import { getForm, getFormSubmissions } from "@/actions/forms";
 import { DashboardHeader } from "@/components/header";
 import { Icons } from "@/components/icons";
 import { DashboardShell } from "@/components/shell";
@@ -26,7 +26,7 @@ const UserFormPage = async ({
   const { id, tname } = params;
   const { fid } = searchParams;
   const form = await getForm({ id: id });
-
+  const submissions = await getFormSubmissions({ id: id });
   return (
     <DashboardShell>
       <div>
@@ -53,7 +53,7 @@ const UserFormPage = async ({
           <CreateSubmissionDialog formData={form} />
         </div>
       </DashboardHeader>
-      <SubmissionsTable formId={form.id} />
+      <SubmissionsTable submissions={submissions} />
     </DashboardShell>
   );
 };

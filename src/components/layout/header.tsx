@@ -16,11 +16,10 @@ import {
 } from "@/components/ui/popover";
 import useScroll from "@/hooks/use-scroll";
 import { cn } from "@/lib/utils";
-import type { Teams, UserTeam } from "@prisma/client";
+import { type Teams, UserRole, type UserTeam } from "@prisma/client";
 import Cookies from "js-cookie";
 import { Check, ChevronsUpDown, PlusCircleIcon } from "lucide-react";
 import type { User } from "next-auth";
-import Link from "next/link";
 import { useRouter, useSelectedLayoutSegment } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ModeToggle } from "../mode-toggle";
@@ -68,73 +67,69 @@ const Header = ({ user, teams }: { user?: User; teams?: teams[] }) => {
       )}
     >
       <div className="flex h-[79px] items-center justify-between px-4">
-        <div>
-          <Popover open={teamOpen} onOpenChange={setteamOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                role="combobox"
-                aria-expanded={teamOpen}
-                className="w-[200px] justify-between"
-              >
-                {selectedteam
-                  ? teams?.find((team) => team.id === selectedteam)?.team.name
-                  : "Select team"}
-                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-[200px] p-0">
-              <Command>
-                {/* <CommandInput placeholder="Search team..." /> */}
-                <CommandEmpty>No team found.</CommandEmpty>
-                <CommandGroup>
-                  <CommandList>
-                    {teams?.map((team) => (
-                      <CommandItem
-                        key={team?.id}
-                        value={team?.id}
-                        onSelect={(currentValue) => {
-                          setSelectedteam(currentValue);
-                          setteamOpen(false);
-                        }}
-                      >
-                        <Check
-                          className={cn(
-                            "mr-2 h-4 w-4",
-                            selectedteam === team?.id
-                              ? "opacity-100"
-                              : "opacity-0"
-                          )}
+        {user?.role !== UserRole.SUPER_ADMIN && (
+          <div>
+            <Popover open={teamOpen} onOpenChange={setteamOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={teamOpen}
+                  className="w-[200px] justify-between overflow-hidden"
+                >
+                  <span className="truncate">
+                    {selectedteam
+                      ? teams?.find((team) => team.id === selectedteam)?.team
+                          .name
+                      : "select team"}
+                  </span>
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[200px] p-0">
+                <Command>
+                  {/* <CommandInput placeholder="Search team..." /> */}
+                  <CommandEmpty>No team found.</CommandEmpty>
+                  <CommandGroup>
+                    <CommandList>
+                      {teams?.map((team) => (
+                        <CommandItem
+                          key={team?.id}
+                          value={team?.id}
+                          onSelect={(currentValue) => {
+                            setSelectedteam(currentValue);
+                            setteamOpen(false);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              selectedteam === team?.id
+                                ? "opacity-100"
+                                : "opacity-0"
+                            )}
+                          />
+                          {team?.team.name}
+                        </CommandItem>
+                      ))}
+                      <CommandItem>
+                        <CreateteamForm
+                          trigger={
+                            <div className="rounded flex flex-row h-7 items-center justify-center w-full font-semibold py-2 cursor-pointer">
+                              Create team
+                              <PlusCircleIcon className="ml-2 h-4 w-4" />
+                            </div>
+                          }
+                          userId={user?.id || ""}
                         />
-                        {team?.team.name}
                       </CommandItem>
-                    ))}
-                    <CommandItem>
-                      <CreateteamForm
-                        trigger={
-                          <div className="rounded flex flex-row h-7 items-center justify-center w-full font-semibold py-2 cursor-pointer">
-                            Create team
-                            <PlusCircleIcon className="ml-2 h-4 w-4" />
-                          </div>
-                        }
-                        userId={user?.id || ""}
-                      />
-                    </CommandItem>
-                  </CommandList>
-                </CommandGroup>
-              </Command>
-            </PopoverContent>
-          </Popover>
-        </div>
-        <div className="flex items-center space-x-4">
-          <Link
-            href="/"
-            className="flex flex-row items-center justify-center space-x-3 md:hidden"
-          >
-            <span className="h-7 w-7 rounded-lg" />
-            <span className="flex text-xl font-bold ">Logo</span>
-          </Link>
-        </div>
+                    </CommandList>
+                  </CommandGroup>
+                </Command>
+              </PopoverContent>
+            </Popover>
+          </div>
+        )}
         <div className="mr-4 hidden space-x-2 md:flex md:items-center md:justify-center">
           <ModeToggle />
           {user ? <UserAccountNav userData={user} /> : <UserNav />}

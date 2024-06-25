@@ -9,7 +9,9 @@ const OnboardingPage = async () => {
   if (!user) {
     return redirect("/login");
   }
-
+  if (user?.role === UserRole.SUPER_ADMIN) {
+    return redirect("/super-admin");
+  }
   const cookieStore = cookies();
   const tid = cookieStore.get("tid");
   const tname = cookieStore.get("tname");
@@ -21,9 +23,6 @@ const OnboardingPage = async () => {
   if (user?.status === UserStatus.ACTIVE) {
     if (user?.role === UserRole.USER) {
       return redirect(`/${tname?.value}`);
-    }
-    if (user?.role === UserRole.SUPER_ADMIN) {
-      return redirect("/super-admin");
     }
     return redirect("/");
   }

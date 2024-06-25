@@ -37,7 +37,7 @@ export default async function SuperAdminLayout({
       <SideNav SideNavItems={SUPER_ADMIN_ITEMS} />
       <main className="flex-1">
         <MarginWidthWrapper>
-          <Header />
+          <Header user={user} />
           <HeaderMobile SideNavItems={SUPER_ADMIN_ITEMS} />
           <PageWrapper>
             <BreadCrumb />

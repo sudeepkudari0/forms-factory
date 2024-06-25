@@ -20,7 +20,7 @@ const UserPage = async () => {
         <CreateUserForm
           trigger={
             <Button className="rounded text-white font-bold bg-gradient-to-r from-[#0077B6] to-[#00BCD4] ">
-              Create User / User-plus
+              Create User
             </Button>
           }
         />

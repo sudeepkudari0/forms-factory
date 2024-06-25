@@ -22,6 +22,12 @@ export const getForm = async ({ id }: { id: string }) => {
   return form
 }
 
+export const getFormSubmissions = async ({ id }: { id: string }) => {
+  return await db.submission.findMany({
+    where: { formId: id },
+  })
+}
+
 export async function createForm(values: {
   title: string
   description?: string

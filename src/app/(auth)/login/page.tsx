@@ -19,13 +19,13 @@ export default async function LoginPage() {
 
   return (
     <div className="flex flex-col p-10 md:flex-row h-screen">
-      <div className="hidden md:flex flex-col justify-center items-center w-full rounded-lg md:w-1/2 transition-all duration-500 ease-in-out bg-[url('/login-image.png')] bg-cover bg-center text-white p-8" />
+      <div className="hidden md:flex flex-col justify-center items-center w-full rounded-lg md:w-1/2 transition-all duration-500 ease-in-out bg-[url('/login-image.png')] bg-cover bg-center bg-transparent text-white p-8" />
 
       <div className="flex flex-col justify-center items-center h-full w-full md:w-1/2 bg-muted p-8 shadow-lg">
-        <div className="bg-white p-8 rounded-md">
+        <div className="bg-background p-8 rounded-md">
           <Tabs
             defaultValue="login"
-            className="flex flex-col items-center max-w-2xl bg-white"
+            className="flex flex-col items-center max-w-2xl bg-background"
           >
             <TabsList className="flex w-auto">
               <TabsTrigger

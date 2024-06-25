@@ -20,7 +20,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { LoadingButton } from "@/components/ui/loading-button";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
@@ -31,7 +30,6 @@ import * as z from "zod";
 
 const teamSchema = z.object({
   name: z.string().min(2).max(50),
-  address: z.string().min(2),
 });
 
 type teamSchema = z.infer<typeof teamSchema>;
@@ -45,7 +43,6 @@ const CreateteamForm = ({ trigger }: { trigger: React.ReactElement }) => {
     resolver: zodResolver(teamSchema),
     defaultValues: {
       name: "",
-      address: "",
     },
   });
 
@@ -89,23 +86,6 @@ const CreateteamForm = ({ trigger }: { trigger: React.ReactElement }) => {
                   <FormLabel>Name</FormLabel>
                   <FormControl>
                     <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="address"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Address</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder=""
-                      className="resize-none"
-                      {...field}
-                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

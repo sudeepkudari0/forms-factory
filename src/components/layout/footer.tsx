@@ -1,60 +1,153 @@
-"use client"
+import Image from "next/image";
+import Link from "next/link";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { SocialLinks } from "../social-links"
+const LINK_ITEMS = [
+  {
+    href: "/policy",
+    text: "Policy",
+  },
+  {
+    href: "/terms",
+    text: "Terms",
+  },
+  {
+    href: "/contact",
+    text: "Contact",
+  },
+];
 
-export function Footer() {
-  const pathname = usePathname()
-
-  if (pathname.includes("pitch")) {
-    return null
-  }
-
+const SocialLinks = ({ classStyles }: { classStyles: string }) => {
   return (
-    <footer className="border-t-[1px] border-border px-4 md:px-6 pt-10 md:pt-16 overflow-hidden max-h-[900px]">
-      <div className="container">
-        <div className="flex justify-between items-center border-border border-b-[1px] pb-10 md:pb-16 mb-12">
-          <Link href="/">
-            <div className="bg-[url('/logo-2.jpg')] h-[40px] w-[150px] bg-contain bg-center bg-no-repeat items-center justify-center space-x-3  md:h-[100px] md:w-[300px] dark:bg-[url('/logo-2-dark.png')]" />
-          </Link>
-          <span className="font-normal md:text-2xl text-right">
-            Gateway to Cutting Edge Data Solutions
-          </span>
+    <div className={`${classStyles} space-x-6`}>
+      {/* Replace with your social media icons */}
+      <Link
+        href="https://wa.me/+15103772160"
+        target="_blank"
+        className="text-white"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 128 128"
+          width="1rem"
+          height="1rem"
+        >
+          <path
+            d="M 64 2 C 29.8 2 2 29.8 2 64 C 2 74.5 4.5992188 84.800391 9.6992188 93.900391 L 4.4003906 113.30078 C 3.5003906 116.40078 4.3992188 119.60039 6.6992188 121.90039 C 8.9992188 124.20039 12.200781 125.10078 15.300781 124.30078 L 35.5 119 C 44.3 123.6 54.099609 126 64.099609 126 C 98.299609 126 126.09961 98.2 126.09961 64 C 126.09961 47.4 119.7 31.899219 108 20.199219 C 96.2 8.4992187 80.6 2 64 2 z M 64 8 C 79 8 93.099609 13.800391 103.59961 24.400391 C 114.19961 35.000391 120.1 49.1 120 64 C 120 94.9 94.9 120 64 120 C 54.7 120 45.399219 117.59922 37.199219 113.19922 C 36.799219 112.99922 36.300781 112.80078 35.800781 112.80078 C 35.500781 112.80078 35.3 112.80039 35 112.90039 L 13.699219 118.5 C 12.199219 118.9 11.200781 118.09922 10.800781 117.69922 C 10.400781 117.29922 9.6 116.30078 10 114.80078 L 15.599609 94.199219 C 15.799609 93.399219 15.700781 92.600391 15.300781 91.900391 C 10.500781 83.500391 8 73.8 8 64 C 8 33.1 33.1 8 64 8 z M 64 17 C 38.1 17 17 38 17 64 C 17 72.3 19.200781 80.4 23.300781 87.5 C 24.900781 90.3 25.3 93.599219 24.5 96.699219 L 21.599609 107.19922 L 32.800781 104.30078 C 33.800781 104.00078 34.800781 103.90039 35.800781 103.90039 C 37.800781 103.90039 39.8 104.40039 41.5 105.40039 C 48.4 109.00039 56.1 111 64 111 C 89.9 111 111 89.9 111 64 C 111 51.4 106.09922 39.599219 97.199219 30.699219 C 88.399219 21.899219 76.6 17 64 17 z M 43.099609 36.699219 L 45.900391 36.699219 C 47.000391 36.699219 48.099219 36.799219 49.199219 39.199219 C 50.499219 42.099219 53.399219 49.399609 53.699219 50.099609 C 54.099219 50.799609 54.300781 51.699219 53.800781 52.699219 C 53.300781 53.699219 53.100781 54.299219 52.300781 55.199219 C 51.600781 56.099219 50.699609 57.100781 50.099609 57.800781 C 49.399609 58.500781 48.6 59.300781 49.5 60.800781 C 50.4 62.300781 53.299219 67.1 57.699219 71 C 63.299219 76 68.099609 77.600781 69.599609 78.300781 C 71.099609 79.000781 71.900781 78.900391 72.800781 77.900391 C 73.700781 76.900391 76.5 73.599609 77.5 72.099609 C 78.5 70.599609 79.500781 70.900391 80.800781 71.400391 C 82.200781 71.900391 89.400391 75.499219 90.900391 76.199219 C 92.400391 76.899219 93.399219 77.300391 93.699219 77.900391 C 94.099219 78.700391 94.100391 81.599609 92.900391 85.099609 C 91.700391 88.499609 85.700391 91.899609 82.900391 92.099609 C 80.200391 92.299609 77.699219 93.300391 65.199219 88.400391 C 50.199219 82.500391 40.7 67.099609 40 66.099609 C 39.3 65.099609 34 58.100781 34 50.800781 C 34 43.500781 37.799219 40 39.199219 38.5 C 40.599219 37 42.099609 36.699219 43.099609 36.699219 z"
+            fill="#ffffff"
+          />
+        </svg>
+      </Link>
+      <Link
+        href="https://twitter.com/thinkRoman"
+        target="_blank"
+        className="text-white"
+      >
+        <svg
+          stroke="currentColor"
+          fill="currentColor"
+          strokeWidth="0"
+          viewBox="0 0 16 16"
+          height="1em"
+          width="1em"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path d="M5.026 15c6.038 0 9.341-5.003 9.341-9.334 0-.14 0-.282-.006-.422A6.685 6.685 0 0 0 16 3.542a6.658 6.658 0 0 1-1.889.518 3.301 3.301 0 0 0 1.447-1.817 6.533 6.533 0 0 1-2.087.793A3.286 3.286 0 0 0 7.875 6.03a9.325 9.325 0 0 1-6.767-3.429 3.289 3.289 0 0 0 1.018 4.382A3.323 3.323 0 0 1 .64 6.575v.045a3.288 3.288 0 0 0 2.632 3.218 3.203 3.203 0 0 1-.865.115 3.23 3.23 0 0 1-.614-.057 3.283 3.283 0 0 0 3.067 2.277A6.588 6.588 0 0 1 .78 13.58a6.32 6.32 0 0 1-.78-.045A9.344 9.344 0 0 0 5.026 15z" />
+        </svg>
+      </Link>
+      <Link
+        href="https://www.linkedin.com/company/thinkroman/"
+        target="_blank"
+        className="text-white"
+      >
+        <svg
+          stroke="currentColor"
+          fill="currentColor"
+          strokeWidth="0"
+          viewBox="0 0 16 16"
+          height="1em"
+          width="1em"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854V1.146zm4.943 12.248V6.169H2.542v7.225h2.401zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248-.822 0-1.359.54-1.359 1.248 0 .694.521 1.248 1.327 1.248h.016zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016a5.54 5.54 0 0 1 .016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225h2.4z" />
+        </svg>
+      </Link>
+      <Link
+        href="https://www.instagram.com/tr.thinkroman"
+        target="_blank"
+        className="text-white"
+      >
+        <svg
+          stroke="currentColor"
+          fill="currentColor"
+          strokeWidth="0"
+          viewBox="0 0 16 16"
+          height="1em"
+          width="1em"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.917 3.917 0 0 0-1.417.923A3.927 3.927 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.916 3.916 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.926 3.926 0 0 0-.923-1.417A3.911 3.911 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0h.003zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599.28.28.453.546.598.92.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.47 2.47 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.478 2.478 0 0 1-.92-.598 2.48 2.48 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233 0-2.136.008-2.388.046-3.231.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92.28-.28.546-.453.92-.598.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045v.002zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92zm-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217zm0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334z" />
+        </svg>
+      </Link>
+      <Link
+        href="https://www.facebook.com/groups/thinkRoman"
+        target="_blank"
+        className="text-white"
+      >
+        <svg
+          stroke="currentColor"
+          fill="currentColor"
+          strokeWidth="0"
+          viewBox="0 0 16 16"
+          height="1em"
+          width="1em"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951z" />
+        </svg>
+      </Link>
+    </div>
+  );
+};
+
+export const Footer = () => {
+  return (
+    <footer className="z-50 flex h-[12vh] flex-col items-center justify-center gap-2 bg-gray-800 px-4 py-2 md:h-[10vh]">
+      <SocialLinks classStyles="lg:hidden flex" />
+      <div className="flex w-full flex-col items-center justify-center gap-2 md:flex-row-reverse md:justify-between md:gap-4">
+        <div className="flex space-x-4">
+          {LINK_ITEMS.map((item, idx) => (
+            <Link
+              key={idx}
+              href={item.href}
+              className="text-gray-200 hover:underline"
+            >
+              {item.text}
+            </Link>
+          ))}
         </div>
-
-        <div className="flex flex-col md:flex-row w-full">
-          <div className="flex flex-col space-y-8 md:space-y-0 md:flex-row md:w-6/12 justify-between leading-8">
-            <div>
-              <ul>
-                <li className="transition-colors text-[#878787]">
-                  <Link href="/support">Support</Link>
-                </li>
-                <li className="transition-colors text-[#878787]">
-                  <Link href="/policy">Privacy policy</Link>
-                </li>
-                <li className="transition-colors text-[#878787]">
-                  <Link href="/terms">Terms and Conditions</Link>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="md:w-6/12 flex mt-8 md:mt-0 md:justify-end">
-            <div className="flex justify-between md:items-end flex-col space-y-14">
-              <div className="flex items-center">
-                {/* <GithubStars /> */}
-                <SocialLinks />
-              </div>
-              <div className="md:mr-0 mr-auto">{/* <StatusWidget /> */}</div>
-            </div>
+        <SocialLinks classStyles="hidden lg:flex" />
+        <div className="flex items-center space-x-3">
+          <Image
+            loading="lazy"
+            src="/favicon.ico"
+            width={1000}
+            height={100}
+            alt="Logo"
+            className="hidden h-auto md:block md:w-10 rounded"
+          />
+          <div className="text-center text-xs text-white md:text-sm">
+            ©{new Date().getFullYear()}&nbsp;
+            <Link
+              className="hover:text-blue-500"
+              target="_blank"
+              href="https://thinkroman.com/"
+            >
+              ThinkRoman Ventures LLP
+            </Link>
+            . All rights reserved.
           </div>
         </div>
       </div>
-
-      <h5 className="text-[500px] leading-none text-center pointer-events-none text-white dark:text-black">
-        TrDC
-      </h5>
     </footer>
-  )
-}
+  );
+};
