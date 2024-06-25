@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { FormStatus, SubmissionStatus } from "@prisma/client";
 import { CircleIcon } from "lucide-react";
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { HeaderHelper } from "./_components/header-helper";
 import notFound from "./not-found";
 interface FormPageProperties {
@@ -55,15 +56,23 @@ export async function generateMetadata({
 const Form = async ({ params, searchParams }: FormPageProperties) => {
   const { id } = params;
   const { sid } = searchParams;
+  const cookieStore = cookies();
+
+  const sidcookie = cookieStore.get("sid");
+  const fidcookie = cookieStore.get("fid");
+
   const form = await getForm({ id });
-  console.log({ id, sid });
   if (form?.status !== FormStatus.PUBLIC) {
     return notFound();
   }
   // biome-ignore lint/suspicious/noImplicitAnyLet: <explanation>
   let submission;
   if (sid) {
-    submission = await getSubmission(sid);
+    submission = await getSubmission(sid, id);
+  } else {
+    if (sidcookie && fidcookie?.value === id) {
+      submission = await getSubmission(sidcookie.value, fidcookie.value);
+    }
   }
 
   if (!form?.published) {

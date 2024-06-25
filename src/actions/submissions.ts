@@ -3,6 +3,7 @@
 import { db } from "@/lib/db"
 import { getCurrentUser } from "@/lib/session"
 import { SubmissionAccessRole, SubmissionStatus } from "@prisma/client"
+import { cookies } from "next/headers"
 
 export const createSubmission = async ({ formId }: { formId: string | undefined }) => {
   const user = await getCurrentUser()
@@ -69,6 +70,8 @@ export const createDraftSubmission = async (data: {
   submissionId?: string
   formId: string
 }) => {
+  const cookieStore = cookies()
+
   if (data.submissionId) {
     const update = await db.submission.update({
       where: {
@@ -94,6 +97,8 @@ export const createDraftSubmission = async (data: {
       submissionAccesses: true,
     },
   })
+  cookieStore.set("sid", create.id, { path: "/" })
+  cookieStore.set("fid", create.formId, { path: "/" })
   return create
 }
 
@@ -147,9 +152,9 @@ export const getSubmissionForUserInteam = async (formId: string) => {
   }
 }
 
-export const getSubmission = async (submissionId: string) => {
+export const getSubmission = async (submissionId: string, formId: string) => {
   const data = await db.submission.findFirst({
-    where: { id: submissionId },
+    where: { id: submissionId, formId: formId },
   })
 
   return data

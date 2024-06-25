@@ -254,7 +254,6 @@ export const getteamFormsInUser = async (userId: string) => {
       console.log(`No teams found with forms for user with ID ${userFormIds}`)
       return []
     }
-    console.log(teamsWithForms)
     return teamsWithForms
   } catch (error) {
     console.error(error)
@@ -311,7 +310,6 @@ export const removeFormsFromUser = async ({
   formIds: string[]
 }) => {
   try {
-    console.log("Removing forms from user:", userId, formIds)
     const deletePromises = formIds.map((formId) =>
       db.userForm.deleteMany({
         where: {
@@ -401,7 +399,6 @@ export const getFormsAndTeams = async (teamId: string) => {
         ...userTeam.team,
         forms: userTeam.team.forms.map((teamForm) => teamForm.form),
       })) || []
-    console.log(forms)
     return { forms, teams }
   } catch (error) {
     console.error("Error fetching forms and teams:", error)
@@ -425,7 +422,6 @@ export const getTeamForms = async (teamId: string) => {
       },
     })
 
-    console.log(teamForms)
     return teamForms
   } catch (error) {
     console.error("Error fetching team forms:", error)

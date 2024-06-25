@@ -71,7 +71,6 @@ const setPublishForm = async ({
 
 const copyLinkToClipboard = async ({ formId }: { formId: string }) => {
   const url = `${env.NEXT_PUBLIC_APP_URL}/f/${formId}`;
-  console.log(url);
   await navigator.clipboard.writeText(url);
   toast({
     title: "Copied to clipboard",

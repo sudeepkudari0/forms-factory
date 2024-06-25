@@ -24,7 +24,6 @@ import { fields } from "@/lib/db/schema";
 import { cn } from "@/lib/utils";
 
 import { UploadDropzone } from "@/lib/uploadthing";
-import { Icons } from "./icons";
 import { Button } from "./ui/button";
 import { Calendar } from "./ui/calendar";
 import { Checkbox } from "./ui/checkbox";
@@ -38,6 +37,7 @@ import {
   FormMessage,
 } from "./ui/form";
 import { Input } from "./ui/input";
+import { LoadingButton } from "./ui/loading-button";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import {
   Select,
@@ -603,30 +603,26 @@ export const FormRenderer = ({
                 return null;
             }
           })}
-          <div className="flex justify-end space-x-2">
-            <Button
-              disabled={isSubmitting}
-              className="bg-gradient-to-r from-[#0077B6] to-[#00BCD4]"
-              onClick={() => form.handleSubmit(onSubmit)}
-            >
-              {isSubmitting ? (
-                <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-              ) : null}
-              {formData?.submitText}
-            </Button>
-            <Button
+          <div className="flex justify-end space-x-4">
+            <LoadingButton
               disabled={isDraftLoading}
               className="bg-gradient-to-r from-[#0077B6] to-[#00BCD4]"
               onClick={() => {
                 setIsDraft(true);
                 form.handleSubmit(onSubmit);
               }}
+              loading={isDraftLoading}
             >
-              {isDraftLoading ? (
-                <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-              ) : null}
               Draft
-            </Button>
+            </LoadingButton>
+            <LoadingButton
+              disabled={isSubmitting}
+              className="bg-gradient-to-r from-[#0077B6] to-[#00BCD4]"
+              onClick={() => form.handleSubmit(onSubmit)}
+              loading={isSubmitting}
+            >
+              {formData?.submitText}
+            </LoadingButton>
           </div>
         </fieldset>
       </form>
