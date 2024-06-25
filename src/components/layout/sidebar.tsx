@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import { cn } from "@/lib/utils"
-import type { SideNavItem } from "@/types"
-import { Icon } from "@iconify/react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { useState } from "react"
+import { cn } from "@/lib/utils";
+import type { SideNavItem } from "@/types";
+import { Icon } from "@iconify/react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
 
 const SideNav = ({ SideNavItems }: { SideNavItems: SideNavItem[] }) => {
   return (
@@ -13,30 +13,31 @@ const SideNav = ({ SideNavItems }: { SideNavItems: SideNavItem[] }) => {
       <div className="flex w-full flex-col space-y-6">
         <Link
           href="/"
-          className="flex h-[80px] w-full flex-row items-center justify-center space-x-3 border-b md:justify-start md:px-6"
+          className="flex font-heading text-2xl h-[80px] w-full flex-row items-center justify-center space-x-3 border-b md:justify-start md:px-6"
         >
-          <div className="bg-[url('/logo-2.jpg')] h-[40px] w-[150px] bg-contain bg-center items-center justify-center space-x-3 border-b  md:h-[80px] md:w-[300px] dark:bg-[url('/logo-2-dark.png')]" />
+          Tr Forms Factory
+          {/* <div className=" h-[40px] w-[150px] bg-contain bg-center items-center justify-center space-x-3 border-b  md:h-[80px] md:w-[300px]" /> */}
         </Link>
 
         <div className="flex flex-col space-y-2  md:px-6 ">
           {SideNavItems.map((item, idx) => {
-            return <MenuItem key={idx} item={item} />
+            return <MenuItem key={idx} item={item} />;
           })}
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default SideNav
+export default SideNav;
 
 const MenuItem = ({ item }: { item: SideNavItem }) => {
-  const pathname = usePathname()
-  const [subMenuOpen, setSubMenuOpen] = useState(false)
+  const pathname = usePathname();
+  const [subMenuOpen, setSubMenuOpen] = useState(false);
 
   const toggleSubMenu = () => {
-    setSubMenuOpen(!subMenuOpen)
-  }
+    setSubMenuOpen(!subMenuOpen);
+  };
 
   return (
     <div className="">
@@ -66,11 +67,13 @@ const MenuItem = ({ item }: { item: SideNavItem }) => {
                   <Link
                     key={idx}
                     href={subItem.path}
-                    className={`${subItem.path === pathname ? "font-bold" : ""}`}
+                    className={`${
+                      subItem.path === pathname ? "font-bold" : ""
+                    }`}
                   >
                     <span>{subItem.title}</span>
                   </Link>
-                )
+                );
               })}
             </div>
           )}
@@ -88,5 +91,5 @@ const MenuItem = ({ item }: { item: SideNavItem }) => {
         </Link>
       )}
     </div>
-  )
-}
+  );
+};

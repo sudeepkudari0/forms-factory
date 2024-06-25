@@ -21,11 +21,6 @@ export const SUPER_ADMIN_ITEMS: SideNavItem[] = [
     icon: <Icon icon="lucide:home" width="20" height="20" />,
   },
   {
-    title: "Admin",
-    path: "/super-admin/admin",
-    icon: <Icon icon="lucide:user-cog" width="20" height="20" />,
-  },
-  {
     title: "Users",
     path: "/super-admin/users",
     icon: <Icon icon="lucide:users" width="20" height="20" />,

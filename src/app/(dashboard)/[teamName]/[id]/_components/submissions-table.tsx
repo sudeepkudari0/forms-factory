@@ -1,8 +1,5 @@
 "use client";
-import type { ColumnDef } from "@tanstack/react-table";
 
-import { getSubmissionForUserInteam } from "@/actions/submissions";
-import Loading from "@/app/(auth)/loading";
 import { DataTable } from "@/components/ui/data-table";
 import { cn, dateFormatter } from "@/lib/utils";
 import {
@@ -10,7 +7,7 @@ import {
   type SubmissionAccess,
   SubmissionStatus,
 } from "@prisma/client";
-import { useQuery } from "@tanstack/react-query";
+import type { ColumnDef } from "@tanstack/react-table";
 import { CircleIcon, EyeIcon } from "lucide-react";
 import Link from "next/link";
 
@@ -18,19 +15,11 @@ export type SubmissionWithFormAccess = Submission & {
   submissionAccesses: SubmissionAccess[];
 };
 
-export const SubmissionsTable = ({ formId }: { formId: string }) => {
-  const { data: submissions, isLoading: isSubmissionsLoading } = useQuery({
-    queryKey: ["submissionswithformaccess", formId],
-    queryFn: async () => {
-      const data = await getSubmissionForUserInteam(formId);
-      return data;
-    },
-  });
-
-  if (isSubmissionsLoading) {
-    return <Loading />;
-  }
-
+export const SubmissionsTable = ({
+  submissions,
+}: {
+  submissions: Submission[];
+}) => {
   const columns = () => {
     const allKeys = submissions
       ?.reduce<string[]>((keys, submission) => {
@@ -42,33 +31,32 @@ export const SubmissionsTable = ({ formId }: { formId: string }) => {
       .filter((key) => key !== "fileName");
     const uniqueKeys = [...new Set(allKeys)];
 
-    const dynamicColumns: ColumnDef<SubmissionWithFormAccess>[] =
-      uniqueKeys.map((key) => ({
-        header: key,
-        accessorFn: (row: any) => {
-          const data = JSON.parse(row.data);
-          return data[key];
-        },
-        cell: ({ cell }) => {
-          const value = cell.getValue() as string;
+    const dynamicColumns: ColumnDef<Submission>[] = uniqueKeys.map((key) => ({
+      header: key,
+      accessorFn: (row: any) => {
+        const data = JSON.parse(row.data);
+        return data[key];
+      },
+      cell: ({ cell }) => {
+        const value = cell.getValue() as string;
 
-          if (value?.startsWith("https://utfs.io")) {
-            return (
-              <Link
-                href={value}
-                target="_blank"
-                className="font-bold text-blue-600"
-              >
-                <EyeIcon className="h-5 w-5" />
-              </Link>
-            );
-          }
+        if (value?.startsWith("https://utfs.io")) {
+          return (
+            <Link
+              href={value}
+              target="_blank"
+              className="font-bold text-blue-600"
+            >
+              <EyeIcon className="h-5 w-5" />
+            </Link>
+          );
+        }
 
-          return <p>{value}</p>;
-        },
-      }));
+        return <p>{value}</p>;
+      },
+    }));
 
-    const staticColumns: ColumnDef<SubmissionWithFormAccess>[] = [
+    const staticColumns: ColumnDef<Submission>[] = [
       {
         accessorKey: "status",
         header: "Status",

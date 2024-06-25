@@ -30,7 +30,7 @@ const getForms = async () => {
 
     const formattedData = data.map((form) => ({
       ...form,
-      teams: form.teams.map((teamForm) => teamForm.team),
+      teams: form.teams ? form.teams.map((teamForm) => teamForm.team) : [],
     }));
 
     return formattedData;

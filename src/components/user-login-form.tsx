@@ -1,12 +1,5 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { signIn } from "next-auth/react";
-import { useSearchParams } from "next/navigation";
-import * as React from "react";
-import { useForm } from "react-hook-form";
-import type * as z from "zod";
-
 import { Icons } from "@/components/icons";
 import { buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,11 +7,26 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
 import { userLoginSchema } from "@/lib/validations/auth";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { signIn } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
+import * as React from "react";
+import { useForm } from "react-hook-form";
+import type * as z from "zod";
 // import { createSuperUser } from "@/actions/users"
 
 interface UserLoginFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 type FormData = z.infer<typeof userLoginSchema>;
+
+// const handleClick = async () => {
+//   const data = await createSuperUser({
+//     email: "ashdhar@thinkroman.com",
+//     password: "Superadmin@#123",
+//     name: "Dr Dhar",
+//   });
+//   console.log(data);
+// };
 
 export function UserAuthForm({ className, ...props }: UserLoginFormProps) {
   const {
@@ -127,6 +135,7 @@ export function UserAuthForm({ className, ...props }: UserLoginFormProps) {
             )}
             Sign In with Email
           </button>
+          {/* <Button onClick={handleClick}>Click me</Button> */}
         </div>
       </form>
     </div>

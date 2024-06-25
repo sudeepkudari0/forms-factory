@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { addField, updateField } from "@/actions/fields"
-import { zodResolver } from "@hookform/resolvers/zod"
+import { addField, updateField } from "@/actions/fields";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   AtSignIcon,
   CalendarIcon,
@@ -16,13 +16,13 @@ import {
   TypeIcon,
   Upload,
   XIcon,
-} from "lucide-react"
-import { useEffect, useState } from "react"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
-import { fields } from "@/lib/db/schema"
-import { cn } from "@/lib/utils"
+import { fields } from "@/lib/db/schema";
+import { cn } from "@/lib/utils";
 
 import {
   AlertDialog,
@@ -34,10 +34,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import type { Field } from "@prisma/client"
-import { Icons } from "./icons"
-import { Button, buttonVariants } from "./ui/button"
+} from "@/components/ui/alert-dialog";
+import type { Field } from "@prisma/client";
+import { Icons } from "./icons";
+import { Button, buttonVariants } from "./ui/button";
 import {
   Form,
   FormControl,
@@ -46,12 +46,18 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "./ui/form"
-import { Input } from "./ui/input"
-import { LoadingButton } from "./ui/loading-button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
-import { Switch } from "./ui/switch"
-import { useToast } from "./ui/use-toast"
+} from "./ui/form";
+import { Input } from "./ui/input";
+import { LoadingButton } from "./ui/loading-button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+import { Switch } from "./ui/switch";
+import { useToast } from "./ui/use-toast";
 
 const formSchema = z.object({
   id: z.string().optional(),
@@ -63,9 +69,9 @@ const formSchema = z.object({
   formId: z.string(),
   options: z.string().min(1).max(50).array().optional(),
   saved: z.boolean().default(false),
-})
+});
 
-type FormType = z.infer<typeof formSchema>
+type FormType = z.infer<typeof formSchema>;
 
 export const EditFieldForm = ({
   formId,
@@ -74,15 +80,15 @@ export const EditFieldForm = ({
   onDelete,
   setUnSaved,
 }: {
-  formId: string
-  field?: Field
-  onSubmitted?: (updatedField: Field) => void
-  onDelete: (fieldId: string) => void
-  setUnSaved: (unSaved: boolean) => void
+  formId: string;
+  field?: Field;
+  onSubmitted?: (updatedField: Field) => void;
+  onDelete: (fieldId: string) => void;
+  setUnSaved: (unSaved: boolean) => void;
 }) => {
-  const { toast } = useToast()
-  const [isLoading, setIsLoading] = useState(false)
-  const [isSaved, setIsSaved] = useState(fieldData?.saved || false)
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSaved, setIsSaved] = useState(fieldData?.saved || false);
 
   const form = useForm<FormType>({
     resolver: zodResolver(formSchema),
@@ -97,45 +103,45 @@ export const EditFieldForm = ({
       options: fieldData?.options?.length ? fieldData.options.split(",") : [],
       saved: true,
     },
-  })
+  });
 
   useEffect(() => {
     const subscription = form.watch((_value, { type }) => {
       if (type === "change") {
-        setUnSaved(true)
+        setUnSaved(true);
       }
-    })
-    return () => subscription.unsubscribe()
-  }, [form.watch, setUnSaved])
+    });
+    return () => subscription.unsubscribe();
+  }, [form.watch, setUnSaved]);
 
   async function onSubmit(values: FormType) {
-    setIsLoading(true)
-    const plainOptions = values.options?.join(",")
+    setIsLoading(true);
+    const plainOptions = values.options?.join(",");
     if (values.id) {
       const updatedField = await updateField({
         ...values,
         options: plainOptions,
         id: values.id!,
-      })
+      });
       if (onSubmitted && updatedField) {
-        onSubmitted(updatedField)
-        setIsSaved(true)
-        setUnSaved(false)
+        onSubmitted(updatedField);
+        setIsSaved(true);
+        setUnSaved(false);
       }
     } else {
-      const updatedField = await addField({ ...values, options: plainOptions })
+      const updatedField = await addField({ ...values, options: plainOptions });
       if (onSubmitted) {
-        onSubmitted(updatedField)
-        setIsSaved(true)
-        setUnSaved(false)
+        onSubmitted(updatedField);
+        setIsSaved(true);
+        setUnSaved(false);
       }
     }
 
     toast({
       title: "Field saved",
       description: "Your field has been saved.",
-    })
-    setIsLoading(false)
+    });
+    setIsLoading(false);
   }
 
   return (
@@ -155,11 +161,13 @@ export const EditFieldForm = ({
                     {...field}
                     type="text"
                     id="label"
-                    className="focus:ring-3 peer block w-full appearance-none border-2 bg-transparent text-sm focus:border-blue-600 focus:outline-none"
+                    className={cn(
+                      "focus:ring-3 peer block w-full appearance-none rounded-lg border-2 bg-transparent px-2.5 pb-1.5 pt-3 text-sm  focus:border-blue-600 focus:outline-none"
+                    )}
                     disabled={isSaved}
                     onChange={(e) => {
-                      field.onChange(e)
-                      setUnSaved(true)
+                      field.onChange(e);
+                      setUnSaved(true);
                     }}
                     placeholder=" "
                   />
@@ -195,8 +203,8 @@ export const EditFieldForm = ({
                     )}
                     disabled={isSaved}
                     onChange={(e) => {
-                      field.onChange(e)
-                      setUnSaved(true)
+                      field.onChange(e);
+                      setUnSaved(true);
                     }}
                     placeholder=" "
                   />
@@ -211,7 +219,9 @@ export const EditFieldForm = ({
                   </label>
                 </div>
               </FormControl>
-              <FormDescription>Text displayed inside the field.</FormDescription>
+              <FormDescription>
+                Text displayed inside the field.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -230,8 +240,8 @@ export const EditFieldForm = ({
                     className="focus:ring-3 peer block w-full appearance-none rounded-lg border-2 bg-transparent px-2.5 pb-1.5 pt-3 text-sm  focus:border-blue-600 focus:outline-none"
                     disabled={isSaved}
                     onChange={(e) => {
-                      field.onChange(e)
-                      setUnSaved(true)
+                      field.onChange(e);
+                      setUnSaved(true);
                     }}
                     placeholder=" "
                   />
@@ -258,8 +268,8 @@ export const EditFieldForm = ({
             <FormItem className="flex flex-col items-start justify-start rounded-lg p-3">
               <Select
                 onValueChange={(value) => {
-                  field.onChange(value)
-                  setUnSaved(true)
+                  field.onChange(value);
+                  setUnSaved(true);
                 }}
                 defaultValue={field.value}
                 disabled={isSaved}
@@ -357,12 +367,13 @@ export const EditFieldForm = ({
                   <OptionsForm
                     options={field.value || []}
                     onChange={(options) => {
-                      field.onChange(options)
+                      field.onChange(options);
                     }}
                   />
                 </FormControl>
                 <FormDescription>
-                  Enter one option per line. The first option will be selected by default.
+                  Enter one option per line. The first option will be selected
+                  by default.
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -379,8 +390,8 @@ export const EditFieldForm = ({
                   <Switch
                     checked={field.value}
                     onCheckedChange={(e) => {
-                      field.onChange(e)
-                      setUnSaved(true)
+                      field.onChange(e);
+                      setUnSaved(true);
                     }}
                     disabled={isSaved}
                   />
@@ -397,7 +408,9 @@ export const EditFieldForm = ({
           className="mt-3"
           disabled={isSaved}
         >
-          {!isLoading && <Icons.check className={cn(isSaved ? "text-green-600" : "")} />}
+          {!isLoading && (
+            <Icons.check className={cn(isSaved ? "text-green-600" : "")} />
+          )}
         </LoadingButton>
         <Button
           variant={"ghost"}
@@ -405,8 +418,8 @@ export const EditFieldForm = ({
           className="mt-3"
           disabled={!isSaved}
           onClick={() => {
-            setIsSaved(false)
-            setUnSaved(true)
+            setIsSaved(false);
+            setUnSaved(true);
           }}
         >
           <Icons.edit className={cn(isSaved ? "text-blue-600" : "")} />
@@ -422,7 +435,8 @@ export const EditFieldForm = ({
               <AlertDialogHeader>
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  You are going to delete this field, it will be <b> deleted </b>
+                  You are going to delete this field, it will be{" "}
+                  <b> deleted </b>
                   permanently.
                 </AlertDialogDescription>
                 <AlertDialogFooter>
@@ -440,37 +454,37 @@ export const EditFieldForm = ({
         )}
       </form>
     </Form>
-  )
-}
+  );
+};
 
 interface OptionsFormProps {
-  options: string[]
-  onChange: (options: string[]) => void
+  options: string[];
+  onChange: (options: string[]) => void;
 }
 
-const optionsFormSchema = z.object({ option: z.string().min(1).max(50) })
-type OptionsForm = z.infer<typeof optionsFormSchema>
+const optionsFormSchema = z.object({ option: z.string().min(1).max(50) });
+type OptionsForm = z.infer<typeof optionsFormSchema>;
 
 const OptionsForm = ({ onChange, options: initData }: OptionsFormProps) => {
   const form = useForm<OptionsForm>({
     resolver: zodResolver(optionsFormSchema),
-  })
+  });
 
-  const [options, setOptions] = useState<string[]>(initData || [])
+  const [options, setOptions] = useState<string[]>(initData || []);
 
   const onSubmit = async (data: OptionsForm) => {
     // if (!form.formState.isValid) return
-    setOptions([...options, data.option])
-    form.reset({ option: "" })
-  }
+    setOptions([...options, data.option]);
+    form.reset({ option: "" });
+  };
 
   const removeOption = (index: number) => {
-    setOptions(options.filter((_, i) => i !== index))
-  }
+    setOptions(options.filter((_, i) => i !== index));
+  };
 
   useEffect(() => {
-    onChange(options)
-  }, [options])
+    onChange(options);
+  }, [options]);
 
   return (
     <div className="space-y-2">
@@ -490,7 +504,10 @@ const OptionsForm = ({ onChange, options: initData }: OptionsFormProps) => {
       <div className="space-y-2">
         <FormItem>
           <div className="">
-            <Input placeholder={`Add option ${options.length + 1}`} {...form.register("option")} />
+            <Input
+              placeholder={`Add option ${options.length + 1}`}
+              {...form.register("option")}
+            />
           </div>
         </FormItem>
 
@@ -500,5 +517,5 @@ const OptionsForm = ({ onChange, options: initData }: OptionsFormProps) => {
         </Button>
       </div>
     </div>
-  )
-}
+  );
+};
