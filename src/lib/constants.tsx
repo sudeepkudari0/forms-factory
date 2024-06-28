@@ -33,4 +33,9 @@ export const USER_ITEMS: SideNavItem[] = [
     path: "/api-keys",
     icon: <Icon icon="lucide:key" width="20" height="20" />,
   },
+  {
+    title: "Webhooks",
+    path: "/webhooks",
+    icon: <Icon icon="lucide:webhook" width="20" height="20" />,
+  },
 ];

@@ -1,57 +1,59 @@
-import dayjs from "dayjs"
-import Link from "next/link"
-import { notFound } from "next/navigation"
+import dayjs from "dayjs";
+import Link from "next/link";
+import { notFound } from "next/navigation";
 
-import { EmptyPlaceholder } from "@/components/empty-placeholder"
-import { DashboardHeader } from "@/components/header"
-import { Icons } from "@/components/icons"
-import { SecretInput } from "@/components/secret-input"
-import { DashboardShell } from "@/components/shell"
-import { TypographyH4, TypographyInlineCode } from "@/components/typography"
-import { Badge } from "@/components/ui/badge"
-import { buttonVariants } from "@/components/ui/button"
-import { DataTable } from "@/components/ui/data-table"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { StatusBadge } from "@/components/ui/status-badge"
-import { db } from "@/lib/db"
-import { cn } from "@/lib/utils"
+import { EmptyPlaceholder } from "@/components/empty-placeholder";
+import { DashboardHeader } from "@/components/header";
+import { Icons } from "@/components/icons";
+import { SecretInput } from "@/components/secret-input";
+import { DashboardShell } from "@/components/shell";
+import { TypographyH4, TypographyInlineCode } from "@/components/typography";
+import { buttonVariants } from "@/components/ui/button";
+import { DataTable } from "@/components/ui/data-table";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { db } from "@/lib/db";
+import { cn } from "@/lib/utils";
 
-import { columns } from "./columns"
+import { columns } from "./columns";
 
 const getWebhook = async ({ id }: { id: string }) => {
-  const res = await await db.webhook.findFirst({
+  const res = await db.webhook.findFirst({
     where: {
       id,
       deleted: false,
     },
     include: {
-      form: true,
       webhookEvents: {
         orderBy: { createdAt: "desc" },
       },
     },
-  })
+  });
 
   if (!res) {
-    notFound()
+    notFound();
   }
 
-  return res
-}
+  return res;
+};
 
 const Webhook = async ({
   params: { webhookId },
 }: {
-  params: { webhookId: string }
+  params: { webhookId: string };
 }) => {
-  const webhook = await getWebhook({ id: webhookId })
+  const webhook = await getWebhook({ id: webhookId });
 
   return (
     <DashboardShell>
       <div>
         <Link
           className={cn(buttonVariants({ variant: "link" }), "-ml-2")}
-          href={`/forms/${webhook.formId}/webhooks`}
+          href={"/webhooks"}
         >
           <Icons.arrowLeft className="mr-2 h-4 w-4" /> Webhooks
         </Link>
@@ -67,10 +69,6 @@ const Webhook = async ({
           <StatusBadge variant={webhook.enabled ? "success" : "error"}>
             {webhook.enabled ? "Enabled" : "Disabled"}
           </StatusBadge>
-        </div>
-        <div className="space-y-2">
-          <TypographyH4>Listening for</TypographyH4>
-          <Badge>submission.created</Badge>
         </div>
         <div className="space-y-2">
           <TypographyH4 className="inline-flex items-center">
@@ -104,7 +102,7 @@ const Webhook = async ({
         )}
       </div>
     </DashboardShell>
-  )
-}
+  );
+};
 
-export default Webhook
+export default Webhook;

@@ -4,7 +4,7 @@ import { headers } from "next/headers"
 import { env } from "@/env.mjs"
 import { db } from "@/lib/db"
 import { postToEnpoint } from "@/lib/events"
-import type { EventType } from "@/lib/events/types"
+import type { EventType } from "@prisma/client"
 
 const r = new Receiver({
   currentSigningKey: env.QSTASH_CURRENT_SIGNING_KEY || "",
@@ -46,10 +46,7 @@ async function retryEvents() {
   const now = new Date()
   const eventsToProcess = await db.webhookEvent.findMany({
     where: {
-      AND: [
-        { nextAttempt: { lte: new Date() } }, // Use new Date() for 'now'
-        { status: { equals: "attempting" } },
-      ],
+      AND: [{ nextAttempt: { lte: new Date() } }, { status: { equals: "attempting" } }],
     },
     include: {
       webhook: true,
@@ -62,12 +59,11 @@ async function retryEvents() {
   const results = await Promise.all(
     eventsToProcess.map(async (event) => {
       const postRes = await postToEnpoint({
-        formId: event.webhook.formId,
+        userId: event.webhook.userId,
         endpoint: event.webhook.endpoint,
-        event: event.event as EventType,
-        data: event.submission.data as string,
+        event: event.eventType as EventType,
+        data: event.eventData as string,
         webhookSecret: event.webhook.secretKey,
-        submissionId: event.submissionId,
       })
 
       if (postRes?.status === 200) {

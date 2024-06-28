@@ -1,5 +1,6 @@
 import {} from "@/actions/forms";
 import { DashboardHeader } from "@/components/header";
+import NotFound from "@/components/layout/not-found";
 import { DashboardShell } from "@/components/shell";
 import { getCurrentUser } from "@/lib/session";
 import { UserRole, UserStatus } from "@prisma/client";
@@ -7,7 +8,11 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import FormsTableWithFilter from "./_components/forms-table-with-filter";
 
-const UserPage = async () => {
+const UserPage = async ({
+  params: { teamName },
+}: {
+  params: { teamName: string };
+}) => {
   const user = await getCurrentUser();
   if (!user?.id) {
     return redirect("/login");
@@ -20,6 +25,10 @@ const UserPage = async () => {
   }
   const cookieStore = cookies();
   const tname = cookieStore.get("tname");
+
+  if (tname?.value !== teamName) {
+    return <NotFound />;
+  }
 
   return (
     <DashboardShell>

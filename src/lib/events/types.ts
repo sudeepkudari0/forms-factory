@@ -1,5 +1,5 @@
+import { EventType } from "@prisma/client"
 import { z } from "zod"
 
-export const eventSchema = z.enum(["form.submission"])
-export const eventArraySchema = eventSchema.array()
-export type EventType = z.infer<typeof eventSchema>
+export const EventTypeSchema = z.nativeEnum(EventType)
+export type EventTypeSchema = z.infer<typeof EventTypeSchema>

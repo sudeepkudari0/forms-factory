@@ -1,22 +1,22 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { type ReactNode, useEffect, useRef, useState } from "react"
+import type React from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
-import { cn } from "@/lib/utils"
-import type { SideNavItem } from "@/types"
-import { Icon } from "@iconify/react"
-import { motion, useCycle } from "framer-motion"
-import { useAtom } from "jotai"
-import { atoms } from "../atoms/atom"
+import { cn } from "@/lib/utils";
+import type { SideNavItem } from "@/types";
+import { Icon } from "@iconify/react";
+import { motion, useCycle } from "framer-motion";
+import { useAtom } from "jotai";
+import { atoms } from "../atoms/atom";
 
 type MenuItemWithSubMenuProps = {
-  item: SideNavItem
-  toggleOpen: () => void
-}
+  item: SideNavItem;
+  toggleOpen: () => void;
+};
 
 const sidebar = {
   open: (height = 1000) => ({
@@ -35,22 +35,24 @@ const sidebar = {
       damping: 40,
     },
   },
-}
+};
 
 const HeaderMobile = ({ SideNavItems }: { SideNavItems: SideNavItem[] }) => {
-  const pathname = usePathname()
-  const containerRef = useRef(null)
-  const { height } = useDimensions(containerRef)
-  const [isOpen, toggleOpen] = useCycle(false, true)
+  const pathname = usePathname();
+  const containerRef = useRef(null);
+  const { height } = useDimensions(containerRef);
+  const [isOpen, toggleOpen] = useCycle(false, true);
 
-  const [darkMode, _setDarkMode] = useAtom(atoms.darkModeAtom)
+  const [darkMode, _setDarkMode] = useAtom(atoms.darkModeAtom);
 
   return (
     <motion.nav
       initial={false}
       animate={isOpen ? "open" : "closed"}
       custom={height}
-      className={`fixed inset-0 z-50 w-full md:hidden ${isOpen ? "" : "pointer-events-none"}`}
+      className={`fixed inset-0 z-50 w-full md:hidden ${
+        isOpen ? "" : "pointer-events-none"
+      }`}
       ref={containerRef}
     >
       <motion.div
@@ -62,7 +64,7 @@ const HeaderMobile = ({ SideNavItems }: { SideNavItems: SideNavItem[] }) => {
         className="absolute grid max-h-screen w-full gap-3 overflow-y-auto px-10 py-16"
       >
         {SideNavItems.map((item, idx) => {
-          const isLastItem = idx === SideNavItems.length - 1
+          const isLastItem = idx === SideNavItems.length - 1;
 
           return (
             <div key={idx} className="w-full">
@@ -83,25 +85,41 @@ const HeaderMobile = ({ SideNavItems }: { SideNavItems: SideNavItem[] }) => {
                 </MenuItem>
               )}
 
-              {!isLastItem && <MenuItem className="my-3 h-px w-full bg-gray-300" />}
+              {!isLastItem && (
+                <MenuItem className="my-3 h-px w-full bg-gray-300" />
+              )}
             </div>
-          )
+          );
         })}
       </motion.ul>
-      <MenuToggle toggle={toggleOpen} classnames={darkMode ? "white" : "black"} />
+      <MenuToggle
+        toggle={toggleOpen}
+        classnames={darkMode ? "white" : "black"}
+      />
     </motion.nav>
-  )
-}
+  );
+};
 
-export default HeaderMobile
+export default HeaderMobile;
 
-const MenuToggle = ({ toggle, classnames }: { toggle: any; classnames: any }) => (
+const MenuToggle = ({
+  toggle,
+  classnames,
+}: {
+  toggle: any;
+  classnames: any;
+}) => (
   <button
     type="button"
     onClick={toggle}
     className={cn("pointer-events-auto absolute right-4 top-[14px] z-30")}
   >
-    <svg width="23" height="23" viewBox="0 0 23 23" className={cn("text-white")}>
+    <svg
+      width="23"
+      height="23"
+      viewBox="0 0 23 23"
+      className={cn("text-white")}
+    >
       <Path
         stroke={cn(classnames)}
         variants={{
@@ -127,29 +145,37 @@ const MenuToggle = ({ toggle, classnames }: { toggle: any; classnames: any }) =>
       />
     </svg>
   </button>
-)
+);
 
 const Path = (props: any) => (
-  <motion.path fill="transparent" strokeWidth="2" strokeLinecap="round" {...props} />
-)
+  <motion.path
+    fill="transparent"
+    strokeWidth="2"
+    strokeLinecap="round"
+    {...props}
+  />
+);
 
 const MenuItem = ({
   className,
   children,
 }: {
-  className?: string
-  children?: ReactNode
+  className?: string;
+  children?: ReactNode;
 }) => {
   return (
     <motion.li variants={MenuItemVariants} className={className}>
       {children}
     </motion.li>
-  )
-}
+  );
+};
 
-const MenuItemWithSubMenu: React.FC<MenuItemWithSubMenuProps> = ({ item, toggleOpen }) => {
-  const pathname = usePathname()
-  const [subMenuOpen, setSubMenuOpen] = useState(false)
+const MenuItemWithSubMenu: React.FC<MenuItemWithSubMenuProps> = ({
+  item,
+  toggleOpen,
+}) => {
+  const pathname = usePathname();
+  const [subMenuOpen, setSubMenuOpen] = useState(false);
 
   return (
     <>
@@ -160,7 +186,9 @@ const MenuItemWithSubMenu: React.FC<MenuItemWithSubMenuProps> = ({ item, toggleO
           onClick={() => setSubMenuOpen(!subMenuOpen)}
         >
           <div className="flex w-full flex-row items-center justify-between">
-            <span className={`${pathname.includes(item.path) ? "font-bold" : ""}`}>
+            <span
+              className={`${pathname.includes(item.path) ? "font-bold" : ""}`}
+            >
               {item.title}
             </span>
             <div className={`${subMenuOpen && "rotate-180"}`}>
@@ -178,19 +206,21 @@ const MenuItemWithSubMenu: React.FC<MenuItemWithSubMenuProps> = ({ item, toggleO
                   <Link
                     href={subItem.path}
                     onClick={() => toggleOpen()}
-                    className={` ${subItem.path === pathname ? "font-bold" : ""}`}
+                    className={` ${
+                      subItem.path === pathname ? "font-bold" : ""
+                    }`}
                   >
                     {subItem.title}
                   </Link>
                 </MenuItem>
-              )
+              );
             })}
           </>
         )}
       </div>
     </>
-  )
-}
+  );
+};
 
 const MenuItemVariants = {
   open: {
@@ -208,7 +238,7 @@ const MenuItemVariants = {
       duration: 0.02,
     },
   },
-}
+};
 
 const variants = {
   open: {
@@ -217,18 +247,18 @@ const variants = {
   closed: {
     transition: { staggerChildren: 0.01, staggerDirection: -1 },
   },
-}
+};
 
 const useDimensions = (ref: any) => {
-  const dimensions = useRef({ width: 0, height: 0 })
+  const dimensions = useRef({ width: 0, height: 0 });
 
   useEffect(() => {
     if (ref.current) {
-      dimensions.current.width = ref.current.offsetWidth
-      dimensions.current.height = ref.current.offsetHeight
+      dimensions.current.width = ref.current.offsetWidth;
+      dimensions.current.height = ref.current.offsetHeight;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ref])
+  }, [ref]);
 
-  return dimensions.current
-}
+  return dimensions.current;
+};

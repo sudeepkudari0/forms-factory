@@ -1,14 +1,12 @@
-import Link from "next/link"
+import Link from "next/link";
 
-import { DashboardHeader } from "@/components/header"
-import { Icons } from "@/components/icons"
-import { DashboardShell } from "@/components/shell"
-import { buttonVariants } from "@/components/ui/button"
-import { db } from "@/lib/db"
-import { cn } from "@/lib/utils"
-
-import { FormNav } from "./_components/form-nav"
-import { SubmissionsTable } from "./_components/submissions-table"
+import { DashboardHeader } from "@/components/header";
+import { Icons } from "@/components/icons";
+import { DashboardShell } from "@/components/shell";
+import { buttonVariants } from "@/components/ui/button";
+import { db } from "@/lib/db";
+import { cn } from "@/lib/utils";
+import { SubmissionsTable } from "./_components/submissions-table";
 
 const getForm = async ({ id }: { id: string }) => {
   const form = await db.form.findFirst({
@@ -16,22 +14,25 @@ const getForm = async ({ id }: { id: string }) => {
     include: {
       submissions: true,
     },
-  })
+  });
 
   if (!form) {
-    throw new Error("Form not found")
+    throw new Error("Form not found");
   }
 
-  return form
-}
+  return form;
+};
 
 const Form = async ({ params: { id } }: { params: { id: string } }) => {
-  const form = await getForm({ id })
+  const form = await getForm({ id });
 
   return (
     <DashboardShell>
       <div>
-        <Link className={cn(buttonVariants({ variant: "link" }), "-ml-2")} href={"/super-admin"}>
+        <Link
+          className={cn(buttonVariants({ variant: "link" }), "-ml-2")}
+          href={"/super-admin"}
+        >
           <Icons.arrowLeft className="mr-2 h-4 w-4" />
           All forms
         </Link>
@@ -43,10 +44,9 @@ const Form = async ({ params: { id } }: { params: { id: string } }) => {
           </Link>
         </div>
       </DashboardHeader>
-      <FormNav formId={id} />
       <SubmissionsTable formId={form.id} />
     </DashboardShell>
-  )
-}
+  );
+};
 
-export default Form
+export default Form;

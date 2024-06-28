@@ -13,7 +13,7 @@ interface UserLayoutProps {
   children?: React.ReactNode;
 }
 
-export default async function UserLayout({ children }: UserLayoutProps) {
+export default async function WebhookLayout({ children }: UserLayoutProps) {
   const user = await getCurrentUser();
   if (!user?.id) {
     return redirect("/login");
@@ -24,6 +24,7 @@ export default async function UserLayout({ children }: UserLayoutProps) {
   if (user?.status !== UserStatus.ACTIVE) {
     return redirect("/unauthorized");
   }
+
   return (
     <div className="flex">
       <SideNav SideNavItems={USER_ITEMS} />
