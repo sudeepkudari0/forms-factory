@@ -1,7 +1,6 @@
 "use client";
 
 import CreateteamForm from "@/app/(dashboard)/[teamName]/_components/create-team-form";
-import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -30,27 +29,41 @@ type teams = UserTeam & {
   team: Teams;
 };
 
-const Header = ({ user, teams }: { user?: User; teams?: teams[] }) => {
+const Header = ({ user, teams = [] }: { user?: User; teams?: teams[] }) => {
   const scrolled = useScroll(5);
   const selectedLayout = useSelectedLayoutSegment();
   const [selectedteam, setSelectedteam] = useState<string | null>(null);
+  const [selectedTeamName, setSelectedTeamName] = useState<string | null>(null);
   const [teamOpen, setteamOpen] = useState(false);
   const router = useRouter();
-
   useEffect(() => {
     const initialTeam = Cookies.get("tid") || "";
+    console.log("Initial Team ID from cookies:", initialTeam);
     setSelectedteam(initialTeam);
-  }, []);
+    if (initialTeam && teams.length > 0) {
+      const initialTeamData = teams.find((team) => team.teamId === initialTeam);
+      if (initialTeamData) {
+        console.log("Initial Team Data:", initialTeamData);
+        setSelectedTeamName(initialTeamData.team.name);
+      } else {
+        console.log("No matching team found for initial team ID.");
+      }
+    }
+  }, [teams]);
 
   useEffect(() => {
-    if (selectedteam) {
-      const selectedTeamData = teams?.find((team) => team.id === selectedteam);
+    if (selectedteam && teams.length > 0) {
+      const selectedTeamData = teams.find((team) => team.id === selectedteam);
       if (selectedTeamData) {
+        console.log("Selected Team Data:", selectedTeamData);
+        setSelectedTeamName(selectedTeamData.team.name);
         const tname = selectedTeamData.team.name.replace(/\s+/g, "-");
         router.refresh();
         router.push(`/${tname}`);
         Cookies.set("tid", selectedteam, { path: "/" });
         Cookies.set("tname", tname, { path: "/" });
+      } else {
+        console.log("No matching team found for selected team ID.");
       }
     }
   }, [selectedteam, teams, router]);
@@ -71,24 +84,18 @@ const Header = ({ user, teams }: { user?: User; teams?: teams[] }) => {
           <div>
             <Popover open={teamOpen} onOpenChange={setteamOpen}>
               <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
+                <div
                   aria-expanded={teamOpen}
-                  className="w-[200px] justify-between overflow-hidden"
+                  className="w-[200px] justify-between overflow-hidden px-4 py-2 border border-gray-300 rounded-md flex items-center cursor-pointer"
                 >
                   <span className="truncate">
-                    {selectedteam
-                      ? teams?.find((team) => team.id === selectedteam)?.team
-                          .name
-                      : "select team"}
+                    {selectedTeamName || "Select team"}
                   </span>
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
+                </div>
               </PopoverTrigger>
               <PopoverContent className="w-[200px] p-0">
                 <Command>
-                  {/* <CommandInput placeholder="Search team..." /> */}
                   <CommandEmpty>No team found.</CommandEmpty>
                   <CommandGroup>
                     <CommandList>
