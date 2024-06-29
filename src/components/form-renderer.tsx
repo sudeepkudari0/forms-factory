@@ -13,7 +13,7 @@ import {
 } from "@prisma/client";
 import { format } from "date-fns";
 import type { InferModel } from "drizzle-orm";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, ChevronsUpDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -24,6 +24,7 @@ import { fields } from "@/lib/db/schema";
 import { cn } from "@/lib/utils";
 
 import { UploadDropzone } from "@/lib/uploadthing";
+import { ModeToggle } from "./mode-toggle";
 import { Button } from "./ui/button";
 import { Calendar } from "./ui/calendar";
 import { Checkbox } from "./ui/checkbox";
@@ -204,428 +205,439 @@ export const FormRenderer = ({
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
-        <fieldset
-          className="space-y-8"
-          disabled={submissionStatus !== SubmissionStatus.DRAFT}
-        >
-          {formData?.fields.map((fieldItem) => {
-            switch (fieldItem.type) {
-              case "text":
-                return (
-                  <FormField
-                    key={fieldItem.id}
-                    control={form.control}
-                    name={fieldItem.label}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{fieldItem.label}</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder={fieldItem.placeholder || undefined}
-                            required={fieldItem.required || false}
-                            {...field}
-                            value={field.value as string}
-                          />
-                        </FormControl>
-                        {fieldItem.description && (
-                          <FormDescription>
-                            {fieldItem.description}
-                          </FormDescription>
-                        )}
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                );
-              case "textarea":
-                return (
-                  <FormField
-                    key={fieldItem.id}
-                    control={form.control}
-                    name={fieldItem.label}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{fieldItem.label}</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            {...field}
-                            value={field.value as string}
-                            required={fieldItem.required}
-                          />
-                        </FormControl>
-                        {fieldItem.description && (
-                          <FormDescription>
-                            {fieldItem.description}
-                          </FormDescription>
-                        )}
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                );
-              case "email":
-                return (
-                  <FormField
-                    key={fieldItem.id}
-                    control={form.control}
-                    name={fieldItem.label}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{fieldItem.label}</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder={fieldItem.placeholder || undefined}
-                            required={fieldItem.required || false}
-                            {...field}
-                            value={field.value as string}
-                            type="email"
-                            icon={"atSign"}
-                            autoComplete="email"
-                          />
-                        </FormControl>
-                        {fieldItem.description && (
-                          <FormDescription>
-                            {fieldItem.description}
-                          </FormDescription>
-                        )}
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                );
-              case "checkbox":
-                return (
-                  <FormField
-                    key={fieldItem.id}
-                    control={form.control}
-                    name={fieldItem.label}
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 p-4 pl-0">
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value as boolean}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                        <div className="space-y-1 leading-none">
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="absolute top-0 right-10">
+        <ModeToggle />
+      </div>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <fieldset
+            className="space-y-8"
+            disabled={submissionStatus !== SubmissionStatus.DRAFT}
+          >
+            {formData?.fields.map((fieldItem) => {
+              switch (fieldItem.type) {
+                case "text":
+                  return (
+                    <FormField
+                      key={fieldItem.id}
+                      control={form.control}
+                      name={fieldItem.label}
+                      render={({ field }) => (
+                        <FormItem>
                           <FormLabel>{fieldItem.label}</FormLabel>
-                          <FormDescription>
-                            {fieldItem.description}
-                          </FormDescription>
-                        </div>
-                      </FormItem>
-                    )}
-                  />
-                );
-              case "number":
-                return (
-                  <FormField
-                    key={fieldItem.id}
-                    control={form.control}
-                    name={fieldItem.label}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{fieldItem.label}</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder={fieldItem.placeholder || undefined}
-                            {...field}
-                            required={fieldItem.required || false}
-                            value={field.value as string}
-                            icon="hash"
-                            type="number"
-                          />
-                        </FormControl>
-                        {fieldItem.description && (
-                          <FormDescription>
-                            {fieldItem.description}
-                          </FormDescription>
-                        )}
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                );
-              case "url":
-                return (
-                  <FormField
-                    key={fieldItem.id}
-                    control={form.control}
-                    name={fieldItem.label}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{fieldItem.label}</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder={fieldItem.placeholder || undefined}
-                            required={fieldItem.required || false}
-                            {...field}
-                            icon="link"
-                            value={field.value as string}
-                            type="url"
-                            autoComplete="url"
-                          />
-                        </FormControl>
-                        {fieldItem.description && (
-                          <FormDescription>
-                            {fieldItem.description}
-                          </FormDescription>
-                        )}
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                );
-              case "tel":
-                return (
-                  <FormField
-                    key={fieldItem.id}
-                    control={form.control}
-                    name={fieldItem.label}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{fieldItem.label}</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder={fieldItem.placeholder || undefined}
-                            required={fieldItem.required || false}
-                            {...field}
-                            icon="phone"
-                            value={field.value as string}
-                            type="tel"
-                            autoComplete="tel"
-                          />
-                        </FormControl>
-                        {fieldItem.description && (
-                          <FormDescription>
-                            {fieldItem.description}
-                          </FormDescription>
-                        )}
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                );
-              case "date":
-                return (
-                  <FormField
-                    key={fieldItem.id}
-                    control={form.control}
-                    name={fieldItem.label}
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>{fieldItem.label}</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant={"outline"}
-                                className={cn(
-                                  "justify-start pl-3 text-left font-normal",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                              >
-                                <CalendarIcon className="mr-2 h-4 w-4 opacity-50" />
-                                {field.value ? (
-                                  format(field.value as Date, "PPP")
-                                ) : (
-                                  <span>Pick a date</span>
-                                )}
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={field.value as Date}
-                              onSelect={field.onChange}
-                              disabled={(date) =>
-                                date > new Date() ||
-                                date < new Date("1900-01-01")
-                              }
-                              initialFocus
-                            />
-                          </PopoverContent>
-                        </Popover>
-                        <FormDescription>
-                          {fieldItem.description}
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                );
-
-              case "radio":
-                return (
-                  <FormField
-                    key={fieldItem.id}
-                    control={form.control}
-                    name={fieldItem.label}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{fieldItem.label}</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value as string}
-                        >
                           <FormControl>
-                            <SelectTrigger required={fieldItem.required}>
-                              <SelectValue
-                                placeholder={fieldItem.placeholder}
-                              />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {fieldItem.options
-                              ?.split(",")
-                              .map((option, index) => (
-                                <SelectItem key={index} value={option}>
-                                  {option}
-                                </SelectItem>
-                              ))}
-                          </SelectContent>
-                        </Select>
-                        <FormDescription>
-                          {fieldItem.description}
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                );
-              case "time":
-                return (
-                  <FormField
-                    key={fieldItem.id}
-                    control={form.control}
-                    name={fieldItem.label}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{fieldItem.label}</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder={fieldItem.placeholder || undefined}
-                            required={fieldItem.required || false}
-                            {...field}
-                            icon="clock"
-                            value={field.value as string}
-                            type="time"
-                          />
-                        </FormControl>
-                        {fieldItem.description && (
-                          <FormDescription>
-                            {fieldItem.description}
-                          </FormDescription>
-                        )}
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                );
-              case "upload":
-                return (
-                  <FormField
-                    key={fieldItem.id}
-                    control={form.control}
-                    name={fieldItem.label}
-                    render={({ field: _ }) => (
-                      <FormItem>
-                        <FormLabel>{fieldItem.label}</FormLabel>
-                        <FormControl>
-                          <div>
-                            <UploadDropzone
-                              endpoint="fileUpload"
-                              config={{
-                                mode: "auto",
-                              }}
-                              appearance={{
-                                button: {
-                                  padding: "15px",
-                                  borderRadius: "4px",
-                                  fontSize: "15px",
-                                  color: "blue",
-                                  backgroundColor: "white",
-                                  border: "1px solid",
-                                  borderColor: "gray",
-                                },
-                              }}
-                              className="w-full p-2"
-                              onClientUploadComplete={async (res) => {
-                                if (res) {
-                                  setFileDetails((prevDetails) => ({
-                                    ...prevDetails,
-                                    [fieldItem.id]: {
-                                      fileName: res[0].name,
-                                      fileSize: res[0].size,
-                                      url: res[0].url,
-                                    },
-                                  }));
-                                  form.setValue(fieldItem.label, res[0].url); // Save URL in form state
-                                }
-                              }}
-                              onUploadError={() => {
-                                console.log("onUploadError");
-                              }}
+                            <Input
+                              placeholder={fieldItem.placeholder || undefined}
+                              required={fieldItem.required || false}
+                              {...field}
+                              value={field.value as string}
                             />
-                            {fileDetails[fieldItem.id] && (
-                              <>
-                                <div className="flex space-x-5 pl-1 text-sm font-medium">
-                                  <dt className="pt-2">File Name: </dt>
-                                  <dd className="pt-2">
-                                    {fileDetails[fieldItem.id].fileName}
-                                  </dd>
-                                </div>
-                                <div className="flex space-x-8 pl-1 text-sm font-medium">
-                                  <dt className="">File Size:</dt>
-                                  <dd className="">
-                                    {fileDetails[fieldItem.id].fileSize}
-                                  </dd>
-                                </div>
-                              </>
-                            )}
+                          </FormControl>
+                          {fieldItem.description && (
+                            <FormDescription>
+                              {fieldItem.description}
+                            </FormDescription>
+                          )}
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  );
+                case "textarea":
+                  return (
+                    <FormField
+                      key={fieldItem.id}
+                      control={form.control}
+                      name={fieldItem.label}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{fieldItem.label}</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              {...field}
+                              value={field.value as string}
+                              required={fieldItem.required}
+                            />
+                          </FormControl>
+                          {fieldItem.description && (
+                            <FormDescription>
+                              {fieldItem.description}
+                            </FormDescription>
+                          )}
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  );
+                case "email":
+                  return (
+                    <FormField
+                      key={fieldItem.id}
+                      control={form.control}
+                      name={fieldItem.label}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{fieldItem.label}</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder={fieldItem.placeholder || undefined}
+                              required={fieldItem.required || false}
+                              {...field}
+                              value={field.value as string}
+                              type="email"
+                              icon={"atSign"}
+                              autoComplete="email"
+                            />
+                          </FormControl>
+                          {fieldItem.description && (
+                            <FormDescription>
+                              {fieldItem.description}
+                            </FormDescription>
+                          )}
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  );
+                case "checkbox":
+                  return (
+                    <FormField
+                      key={fieldItem.id}
+                      control={form.control}
+                      name={fieldItem.label}
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 p-4 pl-0">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value as boolean}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <div className="space-y-1 leading-none">
+                            <FormLabel>{fieldItem.label}</FormLabel>
+                            <FormDescription>
+                              {fieldItem.description}
+                            </FormDescription>
                           </div>
-                        </FormControl>
-                        {fieldItem.description && (
+                        </FormItem>
+                      )}
+                    />
+                  );
+                case "number":
+                  return (
+                    <FormField
+                      key={fieldItem.id}
+                      control={form.control}
+                      name={fieldItem.label}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{fieldItem.label}</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder={fieldItem.placeholder || undefined}
+                              {...field}
+                              required={fieldItem.required || false}
+                              value={field.value as string}
+                              icon="hash"
+                              type="number"
+                            />
+                          </FormControl>
+                          {fieldItem.description && (
+                            <FormDescription>
+                              {fieldItem.description}
+                            </FormDescription>
+                          )}
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  );
+                case "url":
+                  return (
+                    <FormField
+                      key={fieldItem.id}
+                      control={form.control}
+                      name={fieldItem.label}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{fieldItem.label}</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder={fieldItem.placeholder || undefined}
+                              required={fieldItem.required || false}
+                              {...field}
+                              icon="link"
+                              value={field.value as string}
+                              type="url"
+                              autoComplete="url"
+                            />
+                          </FormControl>
+                          {fieldItem.description && (
+                            <FormDescription>
+                              {fieldItem.description}
+                            </FormDescription>
+                          )}
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  );
+                case "tel":
+                  return (
+                    <FormField
+                      key={fieldItem.id}
+                      control={form.control}
+                      name={fieldItem.label}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{fieldItem.label}</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder={fieldItem.placeholder || undefined}
+                              required={fieldItem.required || false}
+                              {...field}
+                              icon="phone"
+                              value={field.value as string}
+                              type="tel"
+                              autoComplete="tel"
+                            />
+                          </FormControl>
+                          {fieldItem.description && (
+                            <FormDescription>
+                              {fieldItem.description}
+                            </FormDescription>
+                          )}
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  );
+                case "date":
+                  return (
+                    <FormField
+                      key={fieldItem.id}
+                      control={form.control}
+                      name={fieldItem.label}
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <FormLabel>{fieldItem.label}</FormLabel>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant={"outline"}
+                                  className={cn(
+                                    "justify-start pl-3 text-left font-normal",
+                                    !field.value && "text-muted-foreground"
+                                  )}
+                                >
+                                  <CalendarIcon className="mr-2 h-4 w-4 opacity-50" />
+                                  {field.value ? (
+                                    format(field.value as Date, "PPP")
+                                  ) : (
+                                    <span>Pick a date</span>
+                                  )}
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent
+                              className="w-auto p-0"
+                              align="start"
+                            >
+                              <Calendar
+                                mode="single"
+                                selected={field.value as Date}
+                                onSelect={field.onChange}
+                                disabled={(date) =>
+                                  date > new Date() ||
+                                  date < new Date("1900-01-01")
+                                }
+                                initialFocus
+                              />
+                            </PopoverContent>
+                          </Popover>
                           <FormDescription>
                             {fieldItem.description}
                           </FormDescription>
-                        )}
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                );
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  );
 
-              default:
-                return null;
-            }
-          })}
-          <div className="flex justify-end space-x-4">
-            <LoadingButton
-              disabled={isDraftLoading}
-              className="bg-gradient-to-r from-[#0077B6] to-[#00BCD4]"
-              onClick={() => {
-                setIsDraft(true);
-                form.handleSubmit(onSubmit);
-              }}
-              loading={isDraftLoading}
-            >
-              Draft
-            </LoadingButton>
-            <LoadingButton
-              disabled={isSubmitting}
-              className="bg-gradient-to-r from-[#0077B6] to-[#00BCD4]"
-              onClick={() => form.handleSubmit(onSubmit)}
-              loading={isSubmitting}
-            >
-              {formData?.submitText}
-            </LoadingButton>
-          </div>
-        </fieldset>
-      </form>
-    </Form>
+                case "radio":
+                  return (
+                    <FormField
+                      key={fieldItem.id}
+                      control={form.control}
+                      name={fieldItem.label}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{fieldItem.label}</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value as string}
+                          >
+                            <FormControl>
+                              <SelectTrigger required={fieldItem.required}>
+                                <SelectValue
+                                  placeholder={fieldItem.placeholder}
+                                />
+                                <ChevronsUpDown className="ml-2 h-4 w-4" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {fieldItem.options
+                                ?.split(",")
+                                .map((option, index) => (
+                                  <SelectItem key={index} value={option}>
+                                    {option}
+                                  </SelectItem>
+                                ))}
+                            </SelectContent>
+                          </Select>
+                          <FormDescription>
+                            {fieldItem.description}
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  );
+                case "time":
+                  return (
+                    <FormField
+                      key={fieldItem.id}
+                      control={form.control}
+                      name={fieldItem.label}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{fieldItem.label}</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder={fieldItem.placeholder || undefined}
+                              required={fieldItem.required || false}
+                              {...field}
+                              icon="clock"
+                              value={field.value as string}
+                              type="time"
+                            />
+                          </FormControl>
+                          {fieldItem.description && (
+                            <FormDescription>
+                              {fieldItem.description}
+                            </FormDescription>
+                          )}
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  );
+                case "upload":
+                  return (
+                    <FormField
+                      key={fieldItem.id}
+                      control={form.control}
+                      name={fieldItem.label}
+                      render={({ field: _ }) => (
+                        <FormItem>
+                          <FormLabel>{fieldItem.label}</FormLabel>
+                          <FormControl>
+                            <div>
+                              <UploadDropzone
+                                endpoint="fileUpload"
+                                config={{
+                                  mode: "auto",
+                                }}
+                                appearance={{
+                                  button: {
+                                    padding: "15px",
+                                    borderRadius: "4px",
+                                    fontSize: "15px",
+                                    color: "blue",
+                                    backgroundColor: "white",
+                                    border: "1px solid",
+                                    borderColor: "gray",
+                                  },
+                                }}
+                                className="w-full p-2"
+                                onClientUploadComplete={async (res) => {
+                                  if (res) {
+                                    setFileDetails((prevDetails) => ({
+                                      ...prevDetails,
+                                      [fieldItem.id]: {
+                                        fileName: res[0].name,
+                                        fileSize: res[0].size,
+                                        url: res[0].url,
+                                      },
+                                    }));
+                                    form.setValue(fieldItem.label, res[0].url); // Save URL in form state
+                                  }
+                                }}
+                                onUploadError={() => {
+                                  console.log("onUploadError");
+                                }}
+                              />
+                              {fileDetails[fieldItem.id] && (
+                                <>
+                                  <div className="flex space-x-5 pl-1 text-sm font-medium">
+                                    <dt className="pt-2">File Name: </dt>
+                                    <dd className="pt-2">
+                                      {fileDetails[fieldItem.id].fileName}
+                                    </dd>
+                                  </div>
+                                  <div className="flex space-x-8 pl-1 text-sm font-medium">
+                                    <dt className="">File Size:</dt>
+                                    <dd className="">
+                                      {fileDetails[fieldItem.id].fileSize}
+                                    </dd>
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                          </FormControl>
+                          {fieldItem.description && (
+                            <FormDescription>
+                              {fieldItem.description}
+                            </FormDescription>
+                          )}
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  );
+
+                default:
+                  return null;
+              }
+            })}
+            <div className="flex justify-end space-x-4 pb-4">
+              <LoadingButton
+                type="submit"
+                disabled={isDraftLoading}
+                className="bg-gradient-to-r from-[#0077B6] to-[#00BCD4]"
+                onClick={() => {
+                  setIsDraft(true);
+                  form.handleSubmit(onSubmit);
+                }}
+                loading={isDraftLoading}
+              >
+                Draft
+              </LoadingButton>
+              <LoadingButton
+                type="submit"
+                disabled={isSubmitting}
+                className="bg-gradient-to-r from-[#0077B6] to-[#00BCD4]"
+                onClick={() => form.handleSubmit(onSubmit)}
+                loading={isSubmitting}
+              >
+                {formData?.submitText}
+              </LoadingButton>
+            </div>
+          </fieldset>
+        </form>
+      </Form>
+    </div>
   );
 };

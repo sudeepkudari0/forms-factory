@@ -1,25 +1,22 @@
-"use client"
+"use client";
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import type { Form as Forms } from "@prisma/client"
-import { format } from "date-fns"
-import type { InferModel } from "drizzle-orm"
-import { CalendarIcon } from "lucide-react"
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import validator from "validator"
-import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod";
+import type { Form as Forms } from "@prisma/client";
+import { format } from "date-fns";
+import type { InferModel } from "drizzle-orm";
+import { CalendarIcon } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import validator from "validator";
+import { z } from "zod";
 
-import { fields } from "@/lib/db/schema"
-import { cn } from "@/lib/utils"
-
-import { getForm } from "@/actions/forms"
-import { UploadDropzone } from "@/lib/uploadthing"
-import { useQuery } from "@tanstack/react-query"
-import { Icons } from "./icons"
-import { Button } from "./ui/button"
-import { Calendar } from "./ui/calendar"
-import { Checkbox } from "./ui/checkbox"
+import { fields } from "@/lib/db/schema";
+import { UploadDropzone } from "@/lib/uploadthing";
+import { cn } from "@/lib/utils";
+import { Icons } from "./icons";
+import { Button } from "./ui/button";
+import { Calendar } from "./ui/calendar";
+import { Checkbox } from "./ui/checkbox";
 import {
   Form,
   FormControl,
@@ -28,88 +25,99 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "./ui/form"
-import { Input } from "./ui/input"
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
-import { Textarea } from "./ui/textarea"
+} from "./ui/form";
+import { Input } from "./ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+import { Textarea } from "./ui/textarea";
 
-type Field = InferModel<typeof fields, "select">
+type Field = InferModel<typeof fields, "select">;
 
 type FormWithFields = Forms & {
-  fields: Field[]
-}
+  fields: Field[];
+};
 
 interface FormRendererProps {
-  // form: FormWithFields
-  formId: string
-  preview?: boolean
+  formData: FormWithFields;
+  preview?: boolean;
 }
 
-const fieldTypeSchema = z.enum(fields.type.enumValues)
-type FieldType = z.infer<typeof fieldTypeSchema>
+const fieldTypeSchema = z.enum(fields.type.enumValues);
+type FieldType = z.infer<typeof fieldTypeSchema>;
 
 // build validtion schema from form fields using zod. i.e. if field.type === "email" then add z.string().email() to schema. If its required then add .required()
 const generateZodSchema = (fieldType: FieldType, required: boolean) => {
-  let type: z.ZodType<any, any> | undefined
+  let type: z.ZodType<any, any> | undefined;
   switch (fieldType) {
     case "text":
-      type = z.string()
-      break
+      type = z.string();
+      break;
     case "number":
-      type = z.string()
-      break
+      type = z.string();
+      break;
     case "email":
-      type = z.string().email()
-      break
+      type = z.string().email();
+      break;
     case "textarea":
-      type = z.string().max(512)
-      break
+      type = z.string().max(512);
+      break;
     case "checkbox":
-      type = z.boolean()
-      break
+      type = z.boolean();
+      break;
     case "url":
-      type = z.string().url()
-      break
+      type = z.string().url();
+      break;
     case "tel":
-      type = z.string().refine(validator.isMobilePhone)
-      break
+      type = z.string().refine(validator.isMobilePhone);
+      break;
     case "date":
-      type = z.date()
-      break
+      type = z.date();
+      break;
     case "upload":
-      type = z.string()
-      break
+      type = z.string();
+      break;
     // Add more field types and their corresponding schema definitions here
     default:
       // Default to treating unknown field types as strings
-      type = z.string()
+      type = z.string();
   }
 
   if (!required) {
-    type = type.optional()
+    type = type.optional();
   }
 
-  return type
-}
+  return type;
+};
 
-const generateFormSchema = (formData: FormWithFields | undefined, fileName: string) => {
+const generateFormSchema = (
+  formData: FormWithFields | undefined,
+  fileName: string
+) => {
   if (!formData) {
-    return z.object({})
+    return z.object({});
   }
   const fieldSchemas = formData.fields.map((field) => {
-    const fieldSchema = generateZodSchema(field.type as FieldType, field.required)
+    const fieldSchema = generateZodSchema(
+      field.type as FieldType,
+      field.required
+    );
 
     return {
       [field.label]: fieldSchema,
-    }
-  })
+    };
+  });
 
   // Create an object with additional properties
   const formObject = {
     filename: fileName,
     title: "HihIhih",
-  }
+  };
 
   return z
     .object({
@@ -118,7 +126,7 @@ const generateFormSchema = (formData: FormWithFields | undefined, fileName: stri
         return {
           ...acc,
           ...fieldSchema,
-        }
+        };
       }, {}),
     })
     .superRefine((data) => {
@@ -126,45 +134,28 @@ const generateFormSchema = (formData: FormWithFields | undefined, fileName: stri
       return {
         ...data,
         ...formObject,
-      }
-    })
-}
+      };
+    });
+};
 
-export const FormRenderer = ({ formId }: FormRendererProps) => {
-  const [fileName, setFileName] = useState<string>("")
-  const [fileSize, setFileSize] = useState<number>()
+export const FormRenderer = ({ formData }: FormRendererProps) => {
+  const [fileName, setFileName] = useState<string>("");
+  const [fileSize, setFileSize] = useState<number>();
 
-  const {
-    data: formData,
-    isPending: _isFormPending,
-    isFetching: _,
-  } = useQuery({
-    queryKey: ["form", formId],
-    queryFn: async () => {
-      const data = await getForm({ id: formId })
-      return data
-    },
-  })
-
-  const formSchema = generateFormSchema(formData, fileName)
+  const formSchema = generateFormSchema(formData, fileName);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-  })
-  // const _router = useRouter()
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function onSubmit(_values: any) {
-    // const _updatedValues = {
-    // 	...values,
-    // 	fileName: fileName,
-    // }
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     setTimeout(() => {
-      alert("Preview mode")
-      setIsSubmitting(false)
-    }, 1000)
+      alert("Preview mode");
+      setIsSubmitting(false);
+    }, 1000);
   }
-
+  console.log(formData);
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -188,13 +179,15 @@ export const FormRenderer = ({ formId }: FormRendererProps) => {
                         />
                       </FormControl>
                       {fieldItem.description && (
-                        <FormDescription>{fieldItem.description}</FormDescription>
+                        <FormDescription>
+                          {fieldItem.description}
+                        </FormDescription>
                       )}
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              )
+              );
             case "textarea":
               return (
                 <FormField
@@ -212,13 +205,15 @@ export const FormRenderer = ({ formId }: FormRendererProps) => {
                         />
                       </FormControl>
                       {fieldItem.description && (
-                        <FormDescription>{fieldItem.description}</FormDescription>
+                        <FormDescription>
+                          {fieldItem.description}
+                        </FormDescription>
                       )}
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              )
+              );
             case "email":
               return (
                 <FormField
@@ -240,13 +235,15 @@ export const FormRenderer = ({ formId }: FormRendererProps) => {
                         />
                       </FormControl>
                       {fieldItem.description && (
-                        <FormDescription>{fieldItem.description}</FormDescription>
+                        <FormDescription>
+                          {fieldItem.description}
+                        </FormDescription>
                       )}
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              )
+              );
             case "checkbox":
               return (
                 <FormField
@@ -263,12 +260,14 @@ export const FormRenderer = ({ formId }: FormRendererProps) => {
                       </FormControl>
                       <div className="space-y-1 leading-none">
                         <FormLabel>{fieldItem.label}</FormLabel>
-                        <FormDescription>{fieldItem.description}</FormDescription>
+                        <FormDescription>
+                          {fieldItem.description}
+                        </FormDescription>
                       </div>
                     </FormItem>
                   )}
                 />
-              )
+              );
             case "number":
               return (
                 <FormField
@@ -289,13 +288,15 @@ export const FormRenderer = ({ formId }: FormRendererProps) => {
                         />
                       </FormControl>
                       {fieldItem.description && (
-                        <FormDescription>{fieldItem.description}</FormDescription>
+                        <FormDescription>
+                          {fieldItem.description}
+                        </FormDescription>
                       )}
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              )
+              );
             case "url":
               return (
                 <FormField
@@ -317,13 +318,15 @@ export const FormRenderer = ({ formId }: FormRendererProps) => {
                         />
                       </FormControl>
                       {fieldItem.description && (
-                        <FormDescription>{fieldItem.description}</FormDescription>
+                        <FormDescription>
+                          {fieldItem.description}
+                        </FormDescription>
                       )}
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              )
+              );
             case "tel":
               return (
                 <FormField
@@ -345,13 +348,15 @@ export const FormRenderer = ({ formId }: FormRendererProps) => {
                         />
                       </FormControl>
                       {fieldItem.description && (
-                        <FormDescription>{fieldItem.description}</FormDescription>
+                        <FormDescription>
+                          {fieldItem.description}
+                        </FormDescription>
                       )}
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              )
+              );
             case "date":
               return (
                 <FormField
@@ -385,7 +390,9 @@ export const FormRenderer = ({ formId }: FormRendererProps) => {
                             mode="single"
                             selected={field.value as Date}
                             onSelect={field.onChange}
-                            disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                            disabled={(date) =>
+                              date > new Date() || date < new Date("1900-01-01")
+                            }
                             initialFocus
                           />
                         </PopoverContent>
@@ -395,7 +402,7 @@ export const FormRenderer = ({ formId }: FormRendererProps) => {
                     </FormItem>
                   )}
                 />
-              )
+              );
 
             case "radio":
               return (
@@ -406,18 +413,23 @@ export const FormRenderer = ({ formId }: FormRendererProps) => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>{fieldItem.label}</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value as string}>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value as string}
+                      >
                         <FormControl>
                           <SelectTrigger required={fieldItem.required}>
                             <SelectValue placeholder={fieldItem.placeholder} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {fieldItem.options?.split(",").map((option, index) => (
-                            <SelectItem key={index} value={option}>
-                              {option}
-                            </SelectItem>
-                          ))}
+                          {fieldItem.options
+                            ?.split(",")
+                            .map((option, index) => (
+                              <SelectItem key={index} value={option}>
+                                {option}
+                              </SelectItem>
+                            ))}
                         </SelectContent>
                       </Select>
                       <FormDescription>{fieldItem.description}</FormDescription>
@@ -425,7 +437,7 @@ export const FormRenderer = ({ formId }: FormRendererProps) => {
                     </FormItem>
                   )}
                 />
-              )
+              );
             case "time":
               return (
                 <FormField
@@ -446,13 +458,15 @@ export const FormRenderer = ({ formId }: FormRendererProps) => {
                         />
                       </FormControl>
                       {fieldItem.description && (
-                        <FormDescription>{fieldItem.description}</FormDescription>
+                        <FormDescription>
+                          {fieldItem.description}
+                        </FormDescription>
                       )}
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              )
+              );
             case "upload":
               return (
                 <div>
@@ -465,14 +479,14 @@ export const FormRenderer = ({ formId }: FormRendererProps) => {
                     className=" pt-2"
                     onClientUploadComplete={async (res) => {
                       if (res) {
-                        form.setValue(fieldItem.label, res[0].url)
-                        setFileName(res[0].name)
-                        const reSize = res[0].size
-                        setFileSize(reSize)
+                        form.setValue(fieldItem.label, res[0].url);
+                        setFileName(res[0].name);
+                        const reSize = res[0].size;
+                        setFileSize(reSize);
                       }
                     }}
                     onUploadError={() => {
-                      console.log("onUploadError")
+                      console.log("onUploadError");
                     }}
                   />
                   <div className="flex space-x-5 py-3 pl-1 text-sm font-medium text-white">
@@ -485,16 +499,18 @@ export const FormRenderer = ({ formId }: FormRendererProps) => {
                   </div>
                   <p>{fieldItem.description}</p>
                 </div>
-              )
+              );
             default:
-              return null
+              return null;
           }
         })}
         <Button disabled={isSubmitting} type="submit">
-          {isSubmitting ? <Icons.spinner className="mr-2 h-4 w-4 animate-spin" /> : null}
+          {isSubmitting ? (
+            <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+          ) : null}
           {formData?.submitText}
         </Button>
       </form>
     </Form>
-  )
-}
+  );
+};

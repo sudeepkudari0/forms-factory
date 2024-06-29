@@ -48,21 +48,25 @@ model User {
 }
 
 model Form {
-  id          String       @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  createdBy   String
-  title       String
-  description String?
-  submitText  String
-  published   Boolean      @default(false)
-  status      FormStatus   @default(PUBLIC)
-  archived    Boolean      @default(false)
-  userId      String?
-  fields      Field[]
-  users       UserForm[]
-  submissions Submission[]
-  teams       TeamForm[]
+  id              String       @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  createdBy       String
+  title           String
+  description     String?
+  headerText      String?
+  footerText      String?
+  formDescription String?
+  headerImage     String?
+  submitText      String
+  published       Boolean      @default(false)
+  status          FormStatus   @default(PUBLIC)
+  archived        Boolean      @default(false)
+  userId          String?
+  fields          Field[]
+  users           UserForm[]
+  submissions     Submission[]
+  teams           TeamForm[]
 }
 
 enum FormStatus {
@@ -241,7 +245,7 @@ enum UserStatus {
 enum fieldType {
   text
   checkbox
-  radio
+  dropdown
   select
   textarea
   email

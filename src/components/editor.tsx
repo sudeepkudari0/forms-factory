@@ -3,6 +3,7 @@
 import { addField, deleteField, updateReorderFields } from "@/actions/fields";
 import { setFormPublished } from "@/actions/forms";
 import { CSVUploadDialog } from "@/app/(editor)/forms/[id]/edit/_components/upload-csv";
+import { HeaderHelper } from "@/app/(form)/f/[id]/_components/header-helper";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,14 +20,17 @@ import type { Field, Form } from "@prisma/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { Reorder } from "framer-motion";
 import { CircleIcon, PlusCircleIcon, ShareIcon } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Typewriter } from "react-simple-typewriter";
 import { EditFieldForm } from "./edit-field-form";
+import { EditFormHeaders } from "./edit-form-headers";
 import { FormRenderer } from "./form-renderer-preview";
 import { Icons } from "./icons";
 import { ModeToggle } from "./mode-toggle";
+import { TypographyH1, TypographyMuted } from "./typography";
 import {
   Accordion,
   AccordionContent,
@@ -45,6 +49,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { LoadingButton } from "./ui/loading-button";
+import { Separator } from "./ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { toast } from "./ui/use-toast";
 
@@ -413,9 +418,71 @@ export const Editor = ({ form }: { form: FormWithFields }) => {
           </Reorder.Group>
         </TabsContent>
         <TabsContent value="preview">
-          <FormRenderer preview formId={form.id} />
+          <div>
+            {form.headerText && form.headerImage ? (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="overflow-y-auto h-[500px]">
+                  <FormRenderer preview formData={form} />
+                </div>
+                <div>
+                  {form.headerImage && (
+                    <Image
+                      src={form.headerImage}
+                      alt="Header Image"
+                      width={500}
+                      height={300}
+                      className="rounded-md max-h-[300px] p-4"
+                    />
+                  )}
+                  <TypographyH1 className="pt-6 text-center md:pt-0">
+                    <span>{form.headerText}</span>
+                  </TypographyH1>
+                  {form.formDescription && (
+                    <p className="text-md text-center text-gray-600">
+                      {form.formDescription}
+                    </p>
+                  )}
+                  {form.footerText && (
+                    <div className="mt-8 text-center">
+                      <TypographyMuted>{form.footerText}</TypographyMuted>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="container my-8 max-w-3xl">
+                <div className="space-y-8">
+                  <HeaderHelper />
+                  <TypographyH1 className="pt-6 md:pt-0">
+                    <div className="flex flex-row items-center justify-between">
+                      <div>
+                        <span>{form?.title}</span>
+                        <span className="text-lg text-gray-600 tracking-wide">
+                          &nbsp;(Form)
+                        </span>
+                      </div>
+                    </div>
+                  </TypographyH1>
+                </div>
+                <Separator className="mb-8 mt-4" />
+                <FormRenderer preview formData={form} />
+              </div>
+            )}
+            <div className="mt-8 flex justify-center text-center">
+              <Link href="/" target="_blank">
+                <TypographyMuted>
+                  built by{" "}
+                  <span className="heading font-heading text-foreground">
+                    ThinkRoman Ventures LLC
+                  </span>
+                </TypographyMuted>
+              </Link>
+            </div>
+          </div>
         </TabsContent>
-        <TabsContent value="headers">Hi</TabsContent>
+        <TabsContent value="headers">
+          <EditFormHeaders formData={form} />
+        </TabsContent>
       </Tabs>
     </div>
   );
