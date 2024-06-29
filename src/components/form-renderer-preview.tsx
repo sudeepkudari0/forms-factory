@@ -1,16 +1,14 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { Form as Forms } from "@prisma/client";
+import type { Field, Form as Forms, fieldType } from "@prisma/client";
 import { format } from "date-fns";
-import type { InferModel } from "drizzle-orm";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, ChevronsUpDown } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import validator from "validator";
 import { z } from "zod";
 
-import { fields } from "@/lib/db/schema";
 import { UploadDropzone } from "@/lib/uploadthing";
 import { cn } from "@/lib/utils";
 import { Icons } from "./icons";
@@ -36,8 +34,7 @@ import {
   SelectValue,
 } from "./ui/select";
 import { Textarea } from "./ui/textarea";
-
-type Field = InferModel<typeof fields, "select">;
+import MultipleSelector, { Option } from "./ui/multi-dropdown";
 
 type FormWithFields = Forms & {
   fields: Field[];
@@ -48,11 +45,8 @@ interface FormRendererProps {
   preview?: boolean;
 }
 
-const fieldTypeSchema = z.enum(fields.type.enumValues);
-type FieldType = z.infer<typeof fieldTypeSchema>;
-
 // build validtion schema from form fields using zod. i.e. if field.type === "email" then add z.string().email() to schema. If its required then add .required()
-const generateZodSchema = (fieldType: FieldType, required: boolean) => {
+const generateZodSchema = (fieldType: fieldType, required: boolean) => {
   let type: z.ZodType<any, any> | undefined;
   switch (fieldType) {
     case "text":
@@ -82,6 +76,17 @@ const generateZodSchema = (fieldType: FieldType, required: boolean) => {
     case "upload":
       type = z.string();
       break;
+    case "multi_dropdown":
+      type = z
+        .array(
+          z.object({
+            label: z.string(),
+            value: z.string(),
+            disable: z.boolean().optional(),
+          })
+        )
+        .optional();
+      break;
     // Add more field types and their corresponding schema definitions here
     default:
       // Default to treating unknown field types as strings
@@ -104,7 +109,7 @@ const generateFormSchema = (
   }
   const fieldSchemas = formData.fields.map((field) => {
     const fieldSchema = generateZodSchema(
-      field.type as FieldType,
+      field.type as fieldType,
       field.required
     );
 
@@ -155,7 +160,7 @@ export const FormRenderer = ({ formData }: FormRendererProps) => {
       setIsSubmitting(false);
     }, 1000);
   }
-  console.log(formData);
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -372,16 +377,16 @@ export const FormRenderer = ({ formData }: FormRendererProps) => {
                             <Button
                               variant={"outline"}
                               className={cn(
-                                "justify-start pl-3 text-left font-normal",
+                                "w-[240px] pl-3 text-left font-normal",
                                 !field.value && "text-muted-foreground"
                               )}
                             >
-                              <CalendarIcon className="mr-2 h-4 w-4 opacity-50" />
                               {field.value ? (
                                 format(field.value as Date, "PPP")
                               ) : (
-                                <span>Pick a date</span>
+                                <span>{fieldItem.placeholder}</span>
                               )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                             </Button>
                           </FormControl>
                         </PopoverTrigger>
@@ -391,20 +396,24 @@ export const FormRenderer = ({ formData }: FormRendererProps) => {
                             selected={field.value as Date}
                             onSelect={field.onChange}
                             disabled={(date) =>
-                              date > new Date() || date < new Date("1900-01-01")
+                              date < new Date("1900-01-01") ||
+                              date > new Date("2100-12-31")
                             }
                             initialFocus
                           />
                         </PopoverContent>
                       </Popover>
-                      <FormDescription>{fieldItem.description}</FormDescription>
+                      {fieldItem.description && (
+                        <FormDescription>
+                          {fieldItem.description}
+                        </FormDescription>
+                      )}
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               );
-
-            case "radio":
+            case "dropdown":
               return (
                 <FormField
                   key={fieldItem.id}
@@ -420,6 +429,7 @@ export const FormRenderer = ({ formData }: FormRendererProps) => {
                         <FormControl>
                           <SelectTrigger required={fieldItem.required}>
                             <SelectValue placeholder={fieldItem.placeholder} />
+                            <ChevronsUpDown className="ml-2 h-4 w-4" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -438,23 +448,28 @@ export const FormRenderer = ({ formData }: FormRendererProps) => {
                   )}
                 />
               );
-            case "time":
+            case "upload":
               return (
                 <FormField
                   key={fieldItem.id}
                   control={form.control}
                   name={fieldItem.label}
-                  render={({ field }) => (
+                  render={() => (
                     <FormItem>
                       <FormLabel>{fieldItem.label}</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder={fieldItem.placeholder || undefined}
-                          required={fieldItem.required || false}
-                          {...field}
-                          icon="clock"
-                          value={field.value as string}
-                          type="time"
+                        <UploadDropzone
+                          onClientUploadComplete={(res) => {
+                            // Do something with the response
+                            const fileUrl = res?.[0]?.url;
+                            setFileName(fileUrl);
+                            setFileSize(res?.[0]?.size);
+                          }}
+                          onUploadError={(error) => {
+                            // Do something with the error.
+                            console.log(error);
+                          }}
+                          endpoint={"profileImage"}
                         />
                       </FormControl>
                       {fieldItem.description && (
@@ -467,48 +482,49 @@ export const FormRenderer = ({ formData }: FormRendererProps) => {
                   )}
                 />
               );
-            case "upload":
+            case "multi_dropdown":
               return (
-                <div>
-                  <p>{fieldItem.label}</p>
-                  <UploadDropzone
-                    endpoint="fileUpload"
-                    config={{
-                      mode: "auto",
-                    }}
-                    className=" pt-2"
-                    onClientUploadComplete={async (res) => {
-                      if (res) {
-                        form.setValue(fieldItem.label, res[0].url);
-                        setFileName(res[0].name);
-                        const reSize = res[0].size;
-                        setFileSize(reSize);
-                      }
-                    }}
-                    onUploadError={() => {
-                      console.log("onUploadError");
-                    }}
-                  />
-                  <div className="flex space-x-5 py-3 pl-1 text-sm font-medium text-white">
-                    <dt className="pt-2">File Name: </dt>
-                    <dd className="pt-2">{fileName}</dd>
-                  </div>
-                  <div className="flex space-x-8 py-3 pl-1 text-sm font-medium text-white">
-                    <dt className="">File Size:</dt>
-                    <dd className="">{fileSize}</dd>
-                  </div>
-                  <p>{fieldItem.description}</p>
-                </div>
+                <FormField
+                  key={fieldItem.id}
+                  control={form.control}
+                  name={fieldItem.label}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{fieldItem.label}</FormLabel>
+                      <FormControl>
+                        <MultipleSelector
+                          options={JSON.parse(
+                            fieldItem.multipleOptions as string
+                          )}
+                          value={field.value as Option[]}
+                          onChange={(selected) => {
+                            field.onChange(selected);
+                          }}
+                        />
+                      </FormControl>
+                      {fieldItem.description && (
+                        <FormDescription>
+                          {fieldItem.description}
+                        </FormDescription>
+                      )}
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               );
             default:
               return null;
           }
         })}
-        <Button disabled={isSubmitting} type="submit">
+        <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? (
-            <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-          ) : null}
-          {formData?.submitText}
+            <>
+              <Icons.spinner className="mr-2 h-4 w-4 animate-spin" /> Please
+              wait
+            </>
+          ) : (
+            "Submit"
+          )}
         </Button>
       </form>
     </Form>

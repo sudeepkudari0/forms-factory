@@ -10,6 +10,8 @@ import {
   type Submission,
   type SubmissionAccess,
   SubmissionStatus,
+  fieldType,
+  Field,
 } from "@prisma/client";
 import { format } from "date-fns";
 import type { InferModel } from "drizzle-orm";
@@ -49,8 +51,7 @@ import {
 } from "./ui/select";
 import { Textarea } from "./ui/textarea";
 import { toast } from "./ui/use-toast";
-
-type Field = InferModel<typeof fields, "select">;
+import MultipleSelector, { Option } from "./ui/multi-dropdown";
 
 type FormWithFields = Forms & {
   fields: Field[];
@@ -63,11 +64,8 @@ interface FormRendererProps {
   submissionAccess?: SubmissionAccess[] | null;
 }
 
-const fieldTypeSchema = z.enum(fields.type.enumValues);
-type FieldType = z.infer<typeof fieldTypeSchema>;
-
 // build validtion schema from form fields using zod. i.e. if field.type === "email" then add z.string().email() to schema. If its required then add .required()
-const generateZodSchema = (fieldType: FieldType, required: boolean) => {
+const generateZodSchema = (fieldType: fieldType, required: boolean) => {
   let type: z.ZodType<any>;
   switch (fieldType) {
     case "text":
@@ -97,6 +95,17 @@ const generateZodSchema = (fieldType: FieldType, required: boolean) => {
     case "upload":
       type = z.string();
       break;
+    case "multi_dropdown":
+      type = z
+        .array(
+          z.object({
+            label: z.string(),
+            value: z.string(),
+            disable: z.boolean().optional(),
+          })
+        )
+        .optional();
+      break;
     // Add more field types and their corresponding schema definitions here
     default:
       // Default to treating unknown field types as strings
@@ -116,7 +125,7 @@ const generateFormSchema = (formData: FormWithFields | undefined) => {
   }
   const fieldSchemas = formData.fields.map((field) => {
     const fieldSchema = generateZodSchema(
-      field.type as FieldType,
+      field.type as fieldType,
       field.required
     );
 
@@ -466,7 +475,7 @@ export const FormRenderer = ({
                     />
                   );
 
-                case "radio":
+                case "dropdown":
                   return (
                     <FormField
                       key={fieldItem.id}
@@ -607,7 +616,36 @@ export const FormRenderer = ({
                       )}
                     />
                   );
-
+                case "multi_dropdown":
+                  return (
+                    <FormField
+                      key={fieldItem.id}
+                      control={form.control}
+                      name={fieldItem.label}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{fieldItem.label}</FormLabel>
+                          <FormControl>
+                            <MultipleSelector
+                              options={JSON.parse(
+                                fieldItem.multipleOptions as string
+                              )}
+                              value={field.value as Option[]}
+                              onChange={(selected) => {
+                                field.onChange(selected);
+                              }}
+                            />
+                          </FormControl>
+                          {fieldItem.description && (
+                            <FormDescription>
+                              {fieldItem.description}
+                            </FormDescription>
+                          )}
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  );
                 default:
                   return null;
               }

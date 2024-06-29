@@ -21,45 +21,70 @@ export async function addField(values: InsertField) {
   return data
 }
 
+type MultiOption = {
+  label: string;
+  value: string;
+  disable?: boolean;
+};
+
+type FormType = {
+  id: string;
+  label: string;
+  description: string;
+  placeholder: string;
+  required: boolean;
+  type: string;
+  formId?: string;
+  options: string[];
+  multi_options: MultiOption[];
+};
+
+
 interface UpdateField {
   id: string
   label?: string
   description?: string
-  type?: fieldType
+  type: fieldType
   placeholder?: string
   required?: boolean
   formId?: string
   options?: string
+  multi_options?: MultiOption[];
   saved?: boolean
   order?: number | null
   createdAt?: Date
   updatedAt?: Date
 }
 
+
 export async function updateField(values: UpdateField) {
   if (!values.id) {
-    throw new Error("values id is required")
+    throw new Error("values id is required");
   }
 
-  const { id, ...updateValues } = values
+  const { id, multi_options, ...updateValues } = values;
 
-  delete updateValues.createdAt
-  delete updateValues.updatedAt
+  delete updateValues.createdAt;
+  delete updateValues.updatedAt;
 
   try {
-    const data = await db.field.update({
+    const data: any = {
+      ...updateValues,
+      multipleOptions: multi_options ? JSON.stringify(multi_options) : null,
+    };
+
+    const updatedField = await db.field.update({
       where: { id },
-      data: {
-        ...updateValues,
-      },
-    })
-    revalidatePath(`/forms/${values.formId}/edit`)
-    return data
+      data,
+    });
+
+    revalidatePath(`/forms/${values.formId}/edit`);
+    return updatedField;
   } catch (error) {
-    console.error("Error updating field:", error)
-    throw new Error("Failed to update field")
+    console.error("Error updating field:", error);
+    throw new Error("Failed to update field");
   } finally {
-    await db.$disconnect()
+    await db.$disconnect();
   }
 }
 

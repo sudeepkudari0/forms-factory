@@ -38,15 +38,11 @@ const Header = ({ user, teams = [] }: { user?: User; teams?: teams[] }) => {
   const router = useRouter();
   useEffect(() => {
     const initialTeam = Cookies.get("tid") || "";
-    console.log("Initial Team ID from cookies:", initialTeam);
     setSelectedteam(initialTeam);
     if (initialTeam && teams.length > 0) {
       const initialTeamData = teams.find((team) => team.teamId === initialTeam);
       if (initialTeamData) {
-        console.log("Initial Team Data:", initialTeamData);
         setSelectedTeamName(initialTeamData.team.name);
-      } else {
-        console.log("No matching team found for initial team ID.");
       }
     }
   }, [teams]);
@@ -55,15 +51,12 @@ const Header = ({ user, teams = [] }: { user?: User; teams?: teams[] }) => {
     if (selectedteam && teams.length > 0) {
       const selectedTeamData = teams.find((team) => team.id === selectedteam);
       if (selectedTeamData) {
-        console.log("Selected Team Data:", selectedTeamData);
         setSelectedTeamName(selectedTeamData.team.name);
         const tname = selectedTeamData.team.name.replace(/\s+/g, "-");
         router.refresh();
         router.push(`/${tname}`);
         Cookies.set("tid", selectedteam, { path: "/" });
         Cookies.set("tname", tname, { path: "/" });
-      } else {
-        console.log("No matching team found for selected team ID.");
       }
     }
   }, [selectedteam]);

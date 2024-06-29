@@ -164,19 +164,20 @@ model VerificationToken {
 }
 
 model Field {
-  id          String     @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  type        fieldType?
-  label       String
-  placeholder String?
-  required    Boolean    @default(false)
-  description String?
-  saved       Boolean?   @default(false)
-  order       Int?
-  options     String?
-  formId      String     @db.ObjectId
-  form        Form       @relation(fields: [formId], references: [id])
+  id              String     @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  type            fieldType?
+  label           String
+  placeholder     String?
+  required        Boolean    @default(false)
+  description     String?
+  saved           Boolean?   @default(false)
+  order           Int?
+  options         String?
+  multipleOptions Json?
+  formId          String     @db.ObjectId
+  form            Form       @relation(fields: [formId], references: [id])
 }
 
 model Webhook {
@@ -246,6 +247,7 @@ enum fieldType {
   text
   checkbox
   dropdown
+  multi_dropdown
   select
   textarea
   email

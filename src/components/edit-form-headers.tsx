@@ -49,10 +49,9 @@ export const EditFormHeaders = ({ formData }: { formData: FormType }) => {
 
   async function onSubmit(values: formSchema) {
     setIsLoading(true);
-    const data = await createFormHeaders({
+    await createFormHeaders({
       ...values,
     });
-    console.log(data);
     toast({
       title: "Form Updated",
       description: "Your form has been updated.",

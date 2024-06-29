@@ -38,9 +38,25 @@ export const SubmissionsTable = ({
         return data[key];
       },
       cell: ({ cell }) => {
-        const value = cell.getValue() as string;
+        const value: any = cell.getValue();
 
-        if (value?.startsWith("https://utfs.io")) {
+        if (typeof value === "object" && value !== null) {
+          // Handle arrays of objects
+          if (Array.isArray(value)) {
+            return (
+              <>
+                {value.map((item, index) => (
+                  <p key={index}>{item.value}</p>
+                ))}
+              </>
+            );
+          } else if (value?.value) {
+            // Handle single object with `value` property
+            return <p>{value.value}</p>;
+          }
+        }
+
+        if (typeof value === "string" && value.startsWith("https://utfs.io")) {
           return (
             <Link
               href={value}

@@ -67,7 +67,6 @@ export async function createFormHeaders(values: {
   id: string
   headerImage?: string
 }) {
-  console.log(values)
   if (!values.id) {
     throw new Error("Invalid input: title, submitText, and userId are required.")
   }
