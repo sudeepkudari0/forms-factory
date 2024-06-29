@@ -85,7 +85,7 @@ export async function rotateWebhookSecretKey(values: RotateKey) {
     },
   })
 
-  revalidatePath(`/forms/${updatedWebhook?.userId}/webhooks/${updatedWebhook?.id}`)
+  revalidatePath(`/webhooks/${updatedWebhook?.id}`)
 
   return updatedWebhook
 }

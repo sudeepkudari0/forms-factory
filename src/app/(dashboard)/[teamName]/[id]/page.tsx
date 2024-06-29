@@ -19,12 +19,8 @@ interface UserFormPageProperties {
   };
 }
 
-const UserFormPage = async ({
-  params,
-  searchParams,
-}: UserFormPageProperties) => {
+const UserFormPage = async ({ params }: UserFormPageProperties) => {
   const { id, tname } = params;
-  const { fid } = searchParams;
   const form = await getForm({ id: id });
   const submissions = await getFormSubmissions({ id: id });
   return (

@@ -47,7 +47,7 @@ const Webhook = async ({
   params: { webhookId: string };
 }) => {
   const webhook = await getWebhook({ id: webhookId });
-
+  console.log(webhookId);
   return (
     <DashboardShell>
       <div>

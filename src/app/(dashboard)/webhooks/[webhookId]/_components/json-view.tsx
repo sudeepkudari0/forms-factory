@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Dialog,
   DialogContent,
@@ -25,7 +27,7 @@ const JsonDialog: React.FC<JsonDialogProps> = ({ jsonData }) => {
         <DialogHeader>
           <DialogTitle>JSON Data</DialogTitle>
         </DialogHeader>
-        <ReactJson src={jsonData as object} theme="monokai" />
+        <ReactJson src={JSON.parse(jsonData as string)} theme="monokai" />
       </DialogContent>
     </Dialog>
   );

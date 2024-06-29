@@ -56,7 +56,7 @@ async function triggerWebhooks({
           const webhookEvent = await db.webhookEvent.create({
             data: {
               eventType: event,
-              eventData: event,
+              eventData: data,
               webhookId: webhook.id,
             },
           })
