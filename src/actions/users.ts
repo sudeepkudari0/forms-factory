@@ -169,7 +169,7 @@ export const profileUpdate = async (values: {
   email: string
   whatsapp: string
 }) => {
-  return await db.user.update({
+  const data = await db.user.update({
     where: { id: values.userId },
     data: {
       name: values.name,
@@ -178,6 +178,10 @@ export const profileUpdate = async (values: {
       whatsapp: values.whatsapp,
     },
   })
+
+  revalidatePath("/[teamName]")
+
+  return data
 }
 
 export const profilePasswordUpdate = async (values: {
