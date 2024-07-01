@@ -24,7 +24,6 @@ export default async function WebhookLayout({ children }: UserLayoutProps) {
   if (user?.status !== UserStatus.ACTIVE) {
     return redirect("/unauthorized");
   }
-
   return (
     <div className="flex">
       <SideNav SideNavItems={USER_ITEMS} />

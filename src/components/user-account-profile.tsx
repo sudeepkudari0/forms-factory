@@ -70,6 +70,7 @@ export const ProfileForm = ({ user }: { user: User }) => {
 
   async function onSubmit(values: userSchema) {
     setIsLoading(true);
+    console.log(values);
     const data = await profileUpdate({ ...values });
     if (data) {
       setUserData(data);
@@ -81,6 +82,11 @@ export const ProfileForm = ({ user }: { user: User }) => {
     }
     setIsLoading(false);
   }
+
+  const handleAutoSubmit = (values: userSchema) => {
+    form.handleSubmit(onSubmit);
+  };
+
   return (
     <div>
       <Form {...form}>
@@ -130,6 +136,7 @@ export const ProfileForm = ({ user }: { user: User }) => {
                   if (res) {
                     form.setValue("image", res[0].url);
                     setUserData({ ...userData, image: res[0].url });
+                    handleAutoSubmit(form.getValues());
                   }
                   setIsOpen(false);
                 }}

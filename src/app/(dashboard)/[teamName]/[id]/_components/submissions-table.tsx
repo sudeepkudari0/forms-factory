@@ -50,7 +50,8 @@ export const SubmissionsTable = ({
                 ))}
               </>
             );
-          } else if (value?.value) {
+          }
+          if (value?.value) {
             // Handle single object with `value` property
             return <p>{value.value}</p>;
           }
