@@ -199,6 +199,7 @@ export const FormRenderer = ({
     await createFinalSubmission({
       submissionId: submission?.id as string,
       data: JSON.parse(JSON.stringify(values)),
+      formId: formData?.id as string,
     });
     toast({
       variant: "default",
@@ -206,7 +207,7 @@ export const FormRenderer = ({
       description: "Your submission has been submitted.",
     });
     setIsSubmitting(false);
-    router.push(`/f/${formData?.id}/success`);
+    // router.push(`/f/${formData?.id}/success`);
   }
 
   async function onSubmit(values: any) {
