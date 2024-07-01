@@ -36,6 +36,7 @@ const Header = ({ user, teams = [] }: { user?: User; teams?: teams[] }) => {
   const [selectedTeamName, setSelectedTeamName] = useState<string | null>(null);
   const [teamOpen, setteamOpen] = useState(false);
   const router = useRouter();
+
   useEffect(() => {
     const initialTeam = Cookies.get("tid") || "";
     setSelectedteam(initialTeam);
@@ -49,7 +50,9 @@ const Header = ({ user, teams = [] }: { user?: User; teams?: teams[] }) => {
 
   useEffect(() => {
     if (selectedteam && teams.length > 0) {
-      const selectedTeamData = teams.find((team) => team.id === selectedteam);
+      const selectedTeamData = teams.find(
+        (team) => team.teamId === selectedteam
+      );
       if (selectedTeamData) {
         setSelectedTeamName(selectedTeamData.team.name);
         const tname = selectedTeamData.team.name.replace(/\s+/g, "-");
@@ -94,8 +97,8 @@ const Header = ({ user, teams = [] }: { user?: User; teams?: teams[] }) => {
                     <CommandList>
                       {teams?.map((team) => (
                         <CommandItem
-                          key={team?.id}
-                          value={team?.id}
+                          key={team?.teamId}
+                          value={team?.teamId}
                           onSelect={(currentValue) => {
                             setSelectedteam(currentValue);
                             setteamOpen(false);
@@ -104,7 +107,7 @@ const Header = ({ user, teams = [] }: { user?: User; teams?: teams[] }) => {
                           <Check
                             className={cn(
                               "mr-2 h-4 w-4",
-                              selectedteam === team?.id
+                              selectedteam === team?.teamId
                                 ? "opacity-100"
                                 : "opacity-0"
                             )}

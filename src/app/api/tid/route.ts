@@ -14,8 +14,8 @@ const fetchTid = async () => {
       team: true,
     },
   })
-
-  const tid = userWithTeams[0].team.id
+  console.log(userWithTeams)
+  const tid = userWithTeams[0].teamId
   let tname = userWithTeams[0].team.name
   tname = tname.replace(/\s+/g, "-")
   return { tid, tname }
