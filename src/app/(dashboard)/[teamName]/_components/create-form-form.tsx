@@ -31,8 +31,8 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 const formSchema = z.object({
-  title: z.string().min(2).max(50),
-  description: z.string().max(512).optional(),
+  title: z.string().min(2),
+  description: z.string().optional(),
   submitText: z.string().min(2).max(50),
 });
 
