@@ -207,7 +207,7 @@ export const FormRenderer = ({
       description: "Your submission has been submitted.",
     });
     setIsSubmitting(false);
-    // router.push(`/f/${formData?.id}/success`);
+    router.push(`/f/${formData?.id}/success`);
   }
 
   async function onSubmit(values: any) {
