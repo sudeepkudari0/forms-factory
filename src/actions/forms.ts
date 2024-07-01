@@ -447,18 +447,35 @@ export const getTeamForms = async (teamId: string) => {
   if (!user) {
     throw new Error("User not authenticated")
   }
+  console.log(teamId)
   try {
-    const teamForms = await db.form.findMany({
+    // get all forms in that team
+    const teamForms = await db.teamForm.findMany({
       where: {
-        teams: {
-          some: {
-            teamId,
+        teamId: teamId,
+      },
+    })
+    console.log(teamForms)
+    // get the form ids
+    const formIds = teamForms.map((teamForm) => teamForm.formId)
+
+    // get the forms
+    const teamFormsWithForms = await db.form.findMany({
+      where: {
+        id: {
+          in: formIds,
+        },
+      },
+      include: {
+        fields: true,
+        submissions: {
+          include: {
+            submissionAccesses: true,
           },
         },
       },
     })
-
-    return teamForms
+    return teamFormsWithForms
   } catch (error) {
     console.error("Error fetching team forms:", error)
     return []
