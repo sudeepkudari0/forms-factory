@@ -38,26 +38,36 @@ export const createSubmission = async ({ formId }: { formId: string | undefined 
 }
 
 export const createFinalSubmission = async (data: {
-  submissionId: string
+  submissionId?: string
   data: object
+  formId: string
 }) => {
-  if (!data.submissionId) {
-    return null
-  }
   const cookieStore = cookies()
-  const update = await db.submission.update({
-    where: {
-      id: data.submissionId,
-    },
-    data: {
-      data: JSON.stringify(data?.data),
-      status: SubmissionStatus.SUBMITTED,
-    },
-  })
+  // biome-ignore lint/suspicious/noImplicitAnyLet: <explanation>
+  let update
+  if (data.submissionId) {
+    update = await db.submission.update({
+      where: {
+        id: data.submissionId,
+      },
+      data: {
+        data: JSON.stringify(data?.data),
+        status: SubmissionStatus.SUBMITTED,
+      },
+    })
+  } else {
+    update = await db.submission.create({
+      data: {
+        formId: data.formId,
+        data: JSON.stringify(data?.data),
+        status: SubmissionStatus.DRAFT,
+      },
+    })
+  }
 
   const user = await db.userForm.findFirst({
     where: {
-      formId: update.formId,
+      formId: update?.formId,
     },
   })
   const event = new Event(EventType.FORM_SUBMISSION)
