@@ -19,12 +19,8 @@ interface UserFormPageProperties {
   };
 }
 
-const UserFormPage = async ({
-  params,
-  searchParams,
-}: UserFormPageProperties) => {
+const UserFormPage = async ({ params }: UserFormPageProperties) => {
   const { id, tname } = params;
-  const { fid } = searchParams;
   const form = await getForm({ id: id });
   const submissions = await getFormSubmissions({ id: id });
   return (
@@ -32,7 +28,7 @@ const UserFormPage = async ({
       <div>
         <Link
           className={cn(buttonVariants({ variant: "link" }), "-ml-2")}
-          href={tname ? `/user/${tname}` : "/user"} // use tname if present
+          href={tname ? `/user/${tname}` : "/user"}
         >
           <Icons.arrowLeft className="mr-2 h-4 w-4" />
           All Forms

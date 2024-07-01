@@ -42,27 +42,31 @@ model User {
   forms              UserForm[]
   teams              UserTeam[]
   sessions           Session[]
+  webhooks           Webhook[]
   submissionAccesses SubmissionAccess[]
   apiKeys            ApiKey[]
 }
 
 model Form {
-  id          String       @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  createdBy   String
-  title       String
-  description String?
-  submitText  String
-  published   Boolean      @default(false)
-  status      FormStatus   @default(PUBLIC)
-  archived    Boolean      @default(false)
-  userId      String?
-  fields      Field[]
-  users       UserForm[]
-  submissions Submission[]
-  webhooks    Webhook[]
-  teams       TeamForm[]
+  id              String       @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  createdBy       String
+  title           String
+  description     String?
+  headerText      String?
+  footerText      String?
+  formDescription String?
+  headerImage     String?
+  submitText      String
+  published       Boolean      @default(false)
+  status          FormStatus   @default(PUBLIC)
+  archived        Boolean      @default(false)
+  userId          String?
+  fields          Field[]
+  users           UserForm[]
+  submissions     Submission[]
+  teams           TeamForm[]
 }
 
 enum FormStatus {
@@ -160,48 +164,56 @@ model VerificationToken {
 }
 
 model Field {
-  id          String     @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  type        fieldType?
-  label       String
-  placeholder String?
-  required    Boolean    @default(false)
-  description String?
-  saved       Boolean?   @default(false)
-  order       Int?
-  options     String?
-  formId      String     @db.ObjectId
-  form        Form       @relation(fields: [formId], references: [id])
+  id              String     @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  type            fieldType?
+  label           String
+  placeholder     String?
+  required        Boolean    @default(false)
+  description     String?
+  saved           Boolean?   @default(false)
+  order           Int?
+  options         String?
+  multipleOptions Json?
+  formId          String     @db.ObjectId
+  form            Form       @relation(fields: [formId], references: [id])
 }
 
 model Webhook {
   id            String         @id @default(auto()) @map("_id") @db.ObjectId
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @default(now())
-  formId        String         @db.ObjectId
+  userId        String         @db.ObjectId
   deleted       Boolean        @default(false)
   endpoint      String
-  events        Json
+  eventTypes    EventType[]
   enabled       Boolean        @default(true)
   secretKey     String
-  form          Form           @relation(fields: [formId], references: [id])
+  user          User           @relation(fields: [userId], references: [id])
   webhookEvents WebhookEvent[]
+}
+
+enum EventType {
+  FORM_SUBMISSION
+  OTHER
 }
 
 model WebhookEvent {
   id           String             @id @default(auto()) @map("_id") @db.ObjectId
   createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @default(now())
   webhookId    String             @db.ObjectId
-  submissionId String             @db.ObjectId
-  event        String
+  submissionId String?            @db.ObjectId
+  eventType    EventType
+  eventData    Json
   statusCode   Int?
   status       WebhookEventStatus @default(attempting)
   lastAttempt  DateTime?
   nextAttempt  DateTime?
   attemptCount Int                @default(0)
   webhook      Webhook            @relation(fields: [webhookId], references: [id])
-  submission   Submission         @relation(fields: [submissionId], references: [id])
+  submission   Submission?        @relation(fields: [submissionId], references: [id])
 }
 
 model Feedback {
@@ -234,7 +246,8 @@ enum UserStatus {
 enum fieldType {
   text
   checkbox
-  radio
+  dropdown
+  multi_dropdown
   select
   textarea
   email

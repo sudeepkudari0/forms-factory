@@ -1,59 +1,18 @@
 "use client";
-
-import CreateteamForm from "@/app/(dashboard)/[teamName]/_components/create-team-form";
-import { Button } from "@/components/ui/button";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import {} from "@/components/ui/command";
+import {} from "@/components/ui/popover";
 import useScroll from "@/hooks/use-scroll";
 import { cn } from "@/lib/utils";
-import { type Teams, UserRole, type UserTeam } from "@prisma/client";
-import Cookies from "js-cookie";
-import { Check, ChevronsUpDown, PlusCircleIcon } from "lucide-react";
+import {} from "lucide-react";
 import type { User } from "next-auth";
-import { useRouter, useSelectedLayoutSegment } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useSelectedLayoutSegment } from "next/navigation";
 import { ModeToggle } from "../mode-toggle";
 import { UserAccountNav } from "../user-account-nav";
 import { UserNav } from "../user-nav";
 
-type teams = UserTeam & {
-  team: Teams;
-};
-
-const Header = ({ user, teams }: { user?: User; teams?: teams[] }) => {
+const Header = ({ user }: { user?: User }) => {
   const scrolled = useScroll(5);
   const selectedLayout = useSelectedLayoutSegment();
-  const [selectedteam, setSelectedteam] = useState<string | null>(null);
-  const [teamOpen, setteamOpen] = useState(false);
-  const router = useRouter();
-
-  useEffect(() => {
-    const initialTeam = Cookies.get("tid") || "";
-    setSelectedteam(initialTeam);
-  }, []);
-
-  useEffect(() => {
-    if (selectedteam) {
-      const selectedTeamData = teams?.find((team) => team.id === selectedteam);
-      if (selectedTeamData) {
-        const tname = selectedTeamData.team.name.replace(/\s+/g, "-");
-        router.refresh();
-        router.push(`/${tname}`);
-        Cookies.set("tid", selectedteam, { path: "/" });
-        Cookies.set("tname", tname, { path: "/" });
-      }
-    }
-  }, [selectedteam, teams, router]);
 
   return (
     <div
@@ -66,71 +25,8 @@ const Header = ({ user, teams }: { user?: User; teams?: teams[] }) => {
         }
       )}
     >
-      <div className="flex h-[79px] items-center justify-between px-4">
-        {user?.role !== UserRole.SUPER_ADMIN && (
-          <div>
-            <Popover open={teamOpen} onOpenChange={setteamOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={teamOpen}
-                  className="w-[200px] justify-between overflow-hidden"
-                >
-                  <span className="truncate">
-                    {selectedteam
-                      ? teams?.find((team) => team.id === selectedteam)?.team
-                          .name
-                      : "select team"}
-                  </span>
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-[200px] p-0">
-                <Command>
-                  {/* <CommandInput placeholder="Search team..." /> */}
-                  <CommandEmpty>No team found.</CommandEmpty>
-                  <CommandGroup>
-                    <CommandList>
-                      {teams?.map((team) => (
-                        <CommandItem
-                          key={team?.id}
-                          value={team?.id}
-                          onSelect={(currentValue) => {
-                            setSelectedteam(currentValue);
-                            setteamOpen(false);
-                          }}
-                        >
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4",
-                              selectedteam === team?.id
-                                ? "opacity-100"
-                                : "opacity-0"
-                            )}
-                          />
-                          {team?.team.name}
-                        </CommandItem>
-                      ))}
-                      <CommandItem>
-                        <CreateteamForm
-                          trigger={
-                            <div className="rounded flex flex-row h-7 items-center justify-center w-full font-semibold py-2 cursor-pointer">
-                              Create team
-                              <PlusCircleIcon className="ml-2 h-4 w-4" />
-                            </div>
-                          }
-                          userId={user?.id || ""}
-                        />
-                      </CommandItem>
-                    </CommandList>
-                  </CommandGroup>
-                </Command>
-              </PopoverContent>
-            </Popover>
-          </div>
-        )}
-        <div className="mr-4 hidden space-x-2 md:flex md:items-center md:justify-center">
+      <div className="flex h-[50px] md:h-[79px] items-center justify-end px-4">
+        <div className="mr-4 hidden space-x-2 md:flex md:items-end md:justify-end">
           <ModeToggle />
           {user ? <UserAccountNav userData={user} /> : <UserNav />}
         </div>

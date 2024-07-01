@@ -1,11 +1,16 @@
-"use client"
+"use client";
 
-import { setWebhookDeleted, setWebhookEnabled } from "@/actions/webhooks"
-import type { ColumnDef } from "@tanstack/react-table"
-import dayjs from "dayjs"
-import type { InferModel } from "drizzle-orm"
-import { CircleIcon, EyeIcon, EyeOffIcon, MoreHorizontal, Trash2 } from "lucide-react"
-import Link from "next/link"
+import { setWebhookDeleted, setWebhookEnabled } from "@/actions/webhooks";
+import type { ColumnDef } from "@tanstack/react-table";
+import dayjs from "dayjs";
+import {
+  CircleIcon,
+  EyeIcon,
+  EyeOffIcon,
+  MoreHorizontal,
+  Trash2,
+} from "lucide-react";
+import Link from "next/link";
 
 import {
   AlertDialog,
@@ -17,9 +22,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { Button, buttonVariants } from "@/components/ui/button"
-import { DataTableColumnHeader } from "@/components/ui/data-column-header"
+} from "@/components/ui/alert-dialog";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { DataTableColumnHeader } from "@/components/ui/data-column-header";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,69 +33,69 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { toast } from "@/components/ui/use-toast"
-import type { webhooks } from "@/lib/db/schema"
-import { cn } from "@/lib/utils"
-
-type Webhook = InferModel<typeof webhooks, "select">
+} from "@/components/ui/dropdown-menu";
+import { toast } from "@/components/ui/use-toast";
+import { cn } from "@/lib/utils";
+import type { Webhook } from "@prisma/client";
 
 const triggerWebhookEnabled = async ({
   webhookId,
   enabled,
 }: {
-  webhookId: string
-  enabled: boolean
+  webhookId: string;
+  enabled: boolean;
 }) => {
   await setWebhookEnabled({
     id: webhookId,
     enabled,
-  })
+  });
   toast({
     title: `Webhook ${enabled ? "enabled" : "disabled"}`,
     description: `Webjook has been ${enabled ? "enabled" : "disabled"}`,
-  })
-}
+  });
+};
 
 const deleteWebhook = async ({
   webhookId,
   deleted,
 }: {
-  webhookId: string
-  deleted: boolean
+  webhookId: string;
+  deleted: boolean;
 }) => {
   await setWebhookDeleted({
     id: webhookId,
     deleted: deleted,
-  })
+  });
   toast({
     title: "Webhook deleted",
     description: "Webhook has been deleted permanently",
-  })
-}
+  });
+};
 
 export const columns: ColumnDef<Webhook>[] = [
   {
     accessorKey: "endpoint",
     header: "Endpoint",
     cell: ({ row }) => {
-      const webhook = row.original
+      const webhook = row.original;
 
       return (
         <Link
-          href={`/forms/${webhook.formId}/webhooks/${webhook.id}`}
+          href={`/webhooks/${webhook.id}`}
           className="decoration-muted-foreground truncate underline decoration-dashed underline-offset-4"
         >
           {webhook.endpoint}
         </Link>
-      )
+      );
     },
   },
   {
     accessorKey: "enabled",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Status" />,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Status" />
+    ),
     cell: ({ row }) => {
-      const webhook = row.original
+      const webhook = row.original;
 
       return (
         <div className="inline-flex items-center">
@@ -102,22 +107,24 @@ export const columns: ColumnDef<Webhook>[] = [
           />
           <span>{webhook.enabled ? "Enabled" : "Disabled"}</span>
         </div>
-      )
+      );
     },
   },
   {
     accessorKey: "createdAt",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Created at" />,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Created at" />
+    ),
     cell: ({ row }) => {
-      const form = row.original
+      const form = row.original;
 
-      return <div>{dayjs(form.createdAt).format("MMM D, YYYY")}</div>
+      return <div>{dayjs(form.createdAt).format("MMM D, YYYY")}</div>;
     },
   },
   {
     id: "actions",
     cell: ({ row }) => {
-      const webhook = row.original
+      const webhook = row.original;
 
       return (
         <AlertDialog>
@@ -136,7 +143,7 @@ export const columns: ColumnDef<Webhook>[] = [
                     triggerWebhookEnabled({
                       webhookId: webhook.id,
                       enabled: !webhook.enabled,
-                    })
+                    });
                   }}
                 >
                   {!webhook.enabled ? (
@@ -171,7 +178,9 @@ export const columns: ColumnDef<Webhook>[] = [
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                 <AlertDialogAction
                   className={buttonVariants({ variant: "destructive" })}
-                  onClick={() => deleteWebhook({ deleted: true, webhookId: webhook.id })}
+                  onClick={() =>
+                    deleteWebhook({ deleted: true, webhookId: webhook.id })
+                  }
                 >
                   Delete webhook
                 </AlertDialogAction>
@@ -179,7 +188,7 @@ export const columns: ColumnDef<Webhook>[] = [
             </AlertDialogHeader>
           </AlertDialogContent>
         </AlertDialog>
-      )
+      );
     },
   },
-]
+];

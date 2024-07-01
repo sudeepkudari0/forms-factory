@@ -1,10 +1,10 @@
 import { getTeams } from "@/actions/team";
 import BreadCrumb from "@/components/breadcrumb";
-import Header from "@/components/layout/header";
 import HeaderMobile from "@/components/layout/header-mobile";
 import MarginWidthWrapper from "@/components/layout/margin-width-wrapper";
 import PageWrapper from "@/components/layout/page-wrapper";
 import SideNav from "@/components/layout/sidebar";
+import Header from "@/components/layout/user-header";
 import { USER_ITEMS } from "@/lib/constants";
 import { getCurrentUser } from "@/lib/session";
 import { UserRole, UserStatus } from "@prisma/client";

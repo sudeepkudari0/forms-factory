@@ -2,18 +2,13 @@
 
 import type { SideNavItem } from "@/types";
 import { Icon } from "@iconify/react";
+import Cookies from "js-cookie";
 
 export const SUPER_ADMIN_ITEMS: SideNavItem[] = [
   {
     title: "Forms",
     path: "/super-admin",
     icon: <Icon icon="lucide:file-text" width="20" height="20" />,
-    // submenu: true,
-    // subMenuItems: [
-    //   { title: "All", path: "/projects" },
-    //   { title: "Web Design", path: "/projects/web-design" },
-    //   { title: "Graphic Design", path: "/projects/graphic-design" },
-    // ],
   },
   {
     title: "teams",
@@ -30,12 +25,17 @@ export const SUPER_ADMIN_ITEMS: SideNavItem[] = [
 export const USER_ITEMS: SideNavItem[] = [
   {
     title: "Forms",
-    path: "/user",
+    path: `/${Cookies.get("tname")}`,
     icon: <Icon icon="lucide:folder" width="20" height="20" />,
   },
   {
     title: "Api Keys",
     path: "/api-keys",
     icon: <Icon icon="lucide:key" width="20" height="20" />,
+  },
+  {
+    title: "Webhooks",
+    path: "/webhooks",
+    icon: <Icon icon="lucide:webhook" width="20" height="20" />,
   },
 ];

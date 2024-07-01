@@ -24,7 +24,6 @@ const fetchTid = async () => {
 export async function GET() {
   const cookieStore = cookies()
   const tdetails = await fetchTid()
-
   cookieStore.set("tid", tdetails.tid, { path: "/" })
   cookieStore.set("tname", tdetails.tname, { path: "/" })
 

@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache"
 import { db } from "@/lib/db"
 import { generateId } from "@/lib/id"
 import type { Webhook } from "@prisma/client"
+import { customAlphabet } from "nanoid"
 
 type EnableForm = Pick<Webhook, "id" | "enabled">
 export async function setWebhookEnabled(values: EnableForm) {
@@ -20,7 +21,7 @@ export async function setWebhookEnabled(values: EnableForm) {
     },
   })
 
-  revalidatePath(`/forms/${updatedWebhook?.formId}/webhooks`)
+  revalidatePath(`/forms/${updatedWebhook?.userId}/webhooks`)
 
   return updatedWebhook
 }
@@ -36,33 +37,34 @@ export async function setWebhookDeleted(values: DeleteForm) {
     },
   })
 
-  revalidatePath(`/forms/${updatedWebhook?.formId}/webhooks`)
+  revalidatePath(`/forms/${updatedWebhook?.userId}/webhooks`)
 
   return updatedWebhook
 }
 
-type CreateWebhook = Pick<Webhook, "formId" | "endpoint">
-export async function createWebhook(values: CreateWebhook) {
-  const whsec = `whsec_${generateId()}`
-  const id = generateId()
+type CreateWebhook = Pick<Webhook, "userId" | "endpoint" | "eventTypes">
+const nanoid = customAlphabet("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz", 3)
 
-  await db.webhook.create({
+export async function createWebhook(values: CreateWebhook) {
+  const generatedNanoid = nanoid()
+  const whsec = `whsec_${generatedNanoid}`
+
+  const data = await db.webhook.create({
     data: {
-      id,
-      formId: values.formId,
+      userId: values.userId,
       endpoint: values.endpoint,
       secretKey: whsec,
-      events: JSON.stringify(["submission.created"]),
+      eventTypes: values.eventTypes,
     },
   })
 
   const createdWebhook = await db.webhook.findFirst({
     where: {
-      id: id,
+      id: data.id,
     },
   })
 
-  revalidatePath(`/forms/${createdWebhook?.formId}/webhooks`)
+  revalidatePath("/webhooks")
 
   return createdWebhook
 }
@@ -83,7 +85,7 @@ export async function rotateWebhookSecretKey(values: RotateKey) {
     },
   })
 
-  revalidatePath(`/forms/${updatedWebhook?.formId}/webhooks/${updatedWebhook?.id}`)
+  revalidatePath(`/webhooks/${updatedWebhook?.id}`)
 
   return updatedWebhook
 }

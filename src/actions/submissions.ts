@@ -1,10 +1,10 @@
 "use server"
 
 import { db } from "@/lib/db"
+import { Event } from "@/lib/events"
 import { getCurrentUser } from "@/lib/session"
-import { SubmissionAccessRole, SubmissionStatus } from "@prisma/client"
+import { EventType, SubmissionAccessRole, SubmissionStatus } from "@prisma/client"
 import { cookies } from "next/headers"
-
 export const createSubmission = async ({ formId }: { formId: string | undefined }) => {
   const user = await getCurrentUser()
 
@@ -44,7 +44,7 @@ export const createFinalSubmission = async (data: {
   if (!data.submissionId) {
     return null
   }
-
+  const cookieStore = cookies()
   const update = await db.submission.update({
     where: {
       id: data.submissionId,
@@ -55,15 +55,21 @@ export const createFinalSubmission = async (data: {
     },
   })
 
+  const user = await db.userForm.findFirst({
+    where: {
+      formId: update.formId,
+    },
+  })
+  const event = new Event(EventType.FORM_SUBMISSION)
+
+  await event.emit({
+    userId: user?.userId as string,
+    data: JSON.stringify(data?.data),
+    submissionId: update.id,
+  })
+  cookieStore.delete("sid")
+  cookieStore.delete("fid")
   return update
-
-  // const event = new Event("submission.created")
-
-  // await event.emit({
-  //   formId: data.formId,
-  //   data: JSON.stringify(data?.data),
-  //   submissionId: id,
-  // })
 }
 export const createDraftSubmission = async (data: {
   data: object

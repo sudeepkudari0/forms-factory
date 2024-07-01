@@ -132,7 +132,7 @@ export const columns: ColumnDef<FormWithTeams>[] = [
           href={`/${form.tname}/${form.id}?fid=${form.fid}`}
           className="decoration-muted-foreground truncate underline decoration-dashed underline-offset-4"
         >
-          {form.title}
+          <div className="truncate max-w-[200px]">{form.title}</div>
         </Link>
       );
     },

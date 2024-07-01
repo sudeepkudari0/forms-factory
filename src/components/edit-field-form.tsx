@@ -1,6 +1,7 @@
 "use client";
 
 import { addField, updateField } from "@/actions/fields";
+import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   AtSignIcon,
@@ -21,9 +22,6 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { fields } from "@/lib/db/schema";
-import { cn } from "@/lib/utils";
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -35,7 +33,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import type { Field } from "@prisma/client";
+import { type Field, fieldType } from "@prisma/client";
 import { Icons } from "./icons";
 import { Button, buttonVariants } from "./ui/button";
 import {
@@ -59,19 +57,51 @@ import {
 import { Switch } from "./ui/switch";
 import { useToast } from "./ui/use-toast";
 
+const optionSchema = z.object({
+  label: z.string(),
+  value: z.string(),
+  disable: z.boolean().optional(),
+});
+const multiOptionsFormSchema = z.array(optionSchema);
+
 const formSchema = z.object({
   id: z.string().optional(),
   label: z.string().min(2).max(256),
   description: z.string().max(512).optional(),
-  type: z.enum(fields.type.enumValues),
+  type: z.nativeEnum(fieldType),
   placeholder: z.string().max(256).optional(),
   required: z.boolean(),
   formId: z.string(),
   options: z.string().min(1).max(50).array().optional(),
+  multi_options: z
+    .array(
+      z.object({
+        label: z.string(),
+        value: z.string(),
+        disable: z.boolean().optional(),
+      })
+    )
+    .optional(),
   saved: z.boolean().default(false),
 });
 
-type FormType = z.infer<typeof formSchema>;
+type MultiOption = {
+  label: string;
+  value: string;
+  disable?: boolean;
+};
+
+type FormType = {
+  id: string;
+  label: string;
+  description: string;
+  placeholder: string;
+  required: boolean;
+  type: fieldType;
+  formId: string;
+  options: string[];
+  multi_options: MultiOption[];
+};
 
 export const EditFieldForm = ({
   formId,
@@ -101,7 +131,7 @@ export const EditFieldForm = ({
       type: fieldData?.type || undefined,
       formId: fieldData?.formId || formId,
       options: fieldData?.options?.length ? fieldData.options.split(",") : [],
-      saved: true,
+      multi_options: (fieldData?.multipleOptions as MultiOption[]) || [],
     },
   });
 
@@ -117,19 +147,23 @@ export const EditFieldForm = ({
   async function onSubmit(values: FormType) {
     setIsLoading(true);
     const plainOptions = values.options?.join(",");
+    const multiDropdownOptions = values.multi_options || [];
+
+    const requestData = {
+      ...values,
+      options: plainOptions,
+      multi_options: multiDropdownOptions,
+    };
+
     if (values.id) {
-      const updatedField = await updateField({
-        ...values,
-        options: plainOptions,
-        id: values.id!,
-      });
+      const updatedField = await updateField(requestData);
       if (onSubmitted && updatedField) {
         onSubmitted(updatedField);
         setIsSaved(true);
         setUnSaved(false);
       }
     } else {
-      const updatedField = await addField({ ...values, options: plainOptions });
+      const updatedField = await addField(requestData);
       if (onSubmitted) {
         onSubmitted(updatedField);
         setIsSaved(true);
@@ -282,7 +316,7 @@ export const EditFieldForm = ({
                     <SelectValue placeholder="Select the fields type" />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent className="w-full px-2.5 pb-1.5 pt-3">
+                <SelectContent className="w-full h-[300px] overflow-y-auto px-2.5 pb-1.5 pt-3">
                   <SelectItem value="text">
                     <div className="flex items-center">
                       <TypeIcon className="mr-2 h-4 w-4" />
@@ -337,10 +371,16 @@ export const EditFieldForm = ({
                       <span>Checkbox</span>
                     </div>
                   </SelectItem>
-                  <SelectItem value="radio">
+                  <SelectItem value="dropdown">
                     <div className="flex items-center">
                       <CircleDotIcon className="mr-2 h-4 w-4" />
-                      <span>Single Choice</span>
+                      <span>Dropdown (Single Select)</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="multi_dropdown">
+                    <div className="flex items-center">
+                      <CircleDotIcon className="mr-2 h-4 w-4" />
+                      <span>Dropdown (Multi Select)</span>
                     </div>
                   </SelectItem>
                   <SelectItem value="upload">
@@ -356,7 +396,7 @@ export const EditFieldForm = ({
             </FormItem>
           )}
         />
-        {form.watch("type") === "radio" && (
+        {form.watch("type") === "dropdown" && (
           <FormField
             control={form.control}
             name={"options"}
@@ -366,6 +406,34 @@ export const EditFieldForm = ({
                 <FormControl>
                   <OptionsForm
                     options={field.value || []}
+                    onChange={(options) => {
+                      field.onChange(options);
+                    }}
+                  />
+                </FormControl>
+                <FormDescription>
+                  Enter one option per line. The first option will be selected
+                  by default.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+        {form.watch("type") === "multi_dropdown" && (
+          <FormField
+            control={form.control}
+            name={"multi_options"}
+            render={({ field }) => (
+              <FormItem className="flex flex-col items-center justify-center rounded-lg p-3">
+                <FormLabel>Options</FormLabel>
+                <FormControl>
+                  <MultiOptionsForm
+                    options={
+                      typeof field.value === "string"
+                        ? JSON.parse(field.value)
+                        : field.value || []
+                    }
                     onChange={(options) => {
                       field.onChange(options);
                     }}
@@ -512,6 +580,84 @@ const OptionsForm = ({ onChange, options: initData }: OptionsFormProps) => {
         </FormItem>
 
         <Button variant={"secondary"} onClick={form.handleSubmit(onSubmit)}>
+          <Icons.add className="mr-2 h-4 w-4" />
+          Add option
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+interface MultiOptionsFormProps {
+  options: {
+    label: string;
+    value: string;
+    disable?: boolean;
+  }[];
+  onChange: (
+    options: { label: string; value: string; disable?: boolean }[]
+  ) => void;
+}
+
+const multiOptionsSchema = z.object({
+  option: z.string(),
+});
+
+type MultiOptionsFormData = z.infer<typeof multiOptionsSchema>;
+
+const MultiOptionsForm = ({
+  onChange,
+  options: initData,
+}: MultiOptionsFormProps) => {
+  const form = useForm<MultiOptionsFormData>({
+    resolver: zodResolver(multiOptionsSchema),
+  });
+
+  const [options, setOptions] =
+    useState<{ label: string; value: string; disable?: boolean }[]>(initData);
+
+  const onSubmit = (data: MultiOptionsFormData) => {
+    const newOption = { label: data.option, value: data.option };
+    setOptions((prevOptions) => {
+      const updatedOptions = [...prevOptions, newOption];
+      onChange(updatedOptions);
+      return updatedOptions;
+    });
+    form.reset();
+  };
+
+  const removeOption = (index: number) => {
+    setOptions((prevOptions) => {
+      const updatedOptions = prevOptions.filter((_, i) => i !== index);
+      onChange(updatedOptions);
+      return updatedOptions;
+    });
+  };
+  return (
+    <div className="space-y-2">
+      <div className="flex flex-col gap-y-2 divide-y">
+        {options?.map((option, index) => (
+          <div
+            key={index}
+            className="flex items-center justify-between truncate text-xs font-medium"
+          >
+            <div>{option.label}</div>
+            <Button onClick={() => removeOption(index)} variant="ghost">
+              <XIcon className="h-4 w-4" />
+            </Button>
+          </div>
+        ))}
+      </div>
+      <div className="space-y-2">
+        <FormItem>
+          <div>
+            <Input
+              placeholder={`Add option ${options.length + 1}`}
+              {...form.register("option")}
+            />
+          </div>
+        </FormItem>
+        <Button variant="secondary" onClick={form.handleSubmit(onSubmit)}>
           <Icons.add className="mr-2 h-4 w-4" />
           Add option
         </Button>

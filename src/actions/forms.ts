@@ -60,6 +60,36 @@ export async function createForm(values: {
     throw error
   }
 }
+export async function createFormHeaders(values: {
+  formHeader?: string
+  formFooter?: string
+  formDescription?: string
+  id: string
+  headerImage?: string
+}) {
+  if (!values.id) {
+    throw new Error("Invalid input: title, submitText, and userId are required.")
+  }
+
+  try {
+    const form = await db.form.update({
+      where: { id: values.id },
+      data: {
+        headerText: values.formHeader,
+        footerText: values.formFooter,
+        formDescription: values.formDescription,
+        headerImage: values.headerImage,
+      },
+    })
+
+    revalidatePath("/super-admin")
+    revalidatePath("/user")
+    return form
+  } catch (error) {
+    console.error("Error updating form:", error)
+    throw error
+  }
+}
 
 export async function setFormPublished(values: {
   id: string

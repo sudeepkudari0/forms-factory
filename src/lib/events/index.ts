@@ -1,25 +1,25 @@
+import type { EventType } from "@prisma/client"
 import { db } from "../db"
-import { generateId } from "../id"
-import { type EventType, eventArraySchema } from "./types"
+import type { EventTypeSchema } from "./types"
 
 export class Event {
-  event: EventType
-  constructor(event: EventType) {
+  event: EventTypeSchema
+  constructor(event: EventTypeSchema) {
     this.event = event
   }
 
   async emit({
-    formId,
+    userId,
     data,
     submissionId,
   }: {
-    formId: string
+    userId: string
     data: string
-    submissionId: string
+    submissionId?: string
   }) {
-    console.log(`Emitting event ${this.event} for formId ${formId}`)
+    console.log(`Emitting event ${this.event} for user ${userId}.`)
     await triggerWebhooks({
-      formId,
+      userId,
       event: this.event,
       data,
       submissionId,
@@ -28,20 +28,20 @@ export class Event {
 }
 
 async function triggerWebhooks({
-  formId,
+  userId,
   event,
   data,
   submissionId,
 }: {
-  formId: string
+  userId: string
   event: EventType
   data: string
-  submissionId: string
+  submissionId?: string
 }) {
   try {
     const matchingWebhooks = await db.webhook.findMany({
       where: {
-        formId: formId,
+        userId: userId,
         deleted: false,
         enabled: true,
       },
@@ -51,30 +51,27 @@ async function triggerWebhooks({
 
     await Promise.all(
       matchingWebhooks.map(async (webhook) => {
-        const events = eventArraySchema.parse(JSON.parse(webhook.events as string))
-        if (events.includes(event)) {
-          const id = generateId()
-
-          await db.webhookEvent.create({
+        // const eventData = JSON.parse(webhook.eventTypes))
+        if (webhook.eventTypes.includes(event)) {
+          const webhookEvent = await db.webhookEvent.create({
             data: {
-              id: id,
-              event: event,
+              eventType: event,
+              eventData: data,
               webhookId: webhook.id,
-              submissionId,
             },
           })
           const postRes = await postToEnpoint({
             endpoint: webhook.endpoint,
             event,
             data,
-            submissionId,
-            formId,
+            userId,
             webhookSecret: webhook.secretKey,
+            submissionId: submissionId ?? undefined,
           })
 
           // update status in db
           await db.webhookEvent.update({
-            where: { id },
+            where: { id: webhookEvent.id },
             data: {
               statusCode: postRes?.status,
               status: postRes?.status === 200 ? "success" : "attempting",
@@ -98,24 +95,24 @@ export async function postToEnpoint({
   endpoint,
   event,
   data,
-  formId,
+  userId,
   submissionId,
   webhookSecret,
 }: {
-  formId: string
+  userId: string
   endpoint: string
   event: EventType
   data: string
-  submissionId: string
+  submissionId?: string
   webhookSecret: string
 }) {
   try {
     console.log(`Post to endpoint ${endpoint} for event ${event}`)
-    console.log({ data, event, formId, submissionId })
+    console.log({ data, event, userId, submissionId: submissionId ?? null })
     // make post request to webhook endpoint
     const res = await fetch(endpoint, {
       method: "POST",
-      body: JSON.stringify({ data, event, formId, submissionId }),
+      body: JSON.stringify({ data, event, userId, submissionId: submissionId ?? null }),
       headers: {
         "Content-Type": "application/json",
         "x-dorf-secret": webhookSecret,
