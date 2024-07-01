@@ -12,7 +12,6 @@ import type { User } from "next-auth";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 export function UserAccountNav({ userData }: { userData: User }) {
-  console.log(userData);
   return (
     <>
       <DropdownMenu>
