@@ -4,17 +4,17 @@ import {
   createDraftSubmission,
   createFinalSubmission,
 } from "@/actions/submissions";
+import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  type Field,
   type Form as Forms,
   type Submission,
   type SubmissionAccess,
   SubmissionStatus,
-  fieldType,
-  Field,
+  type fieldType,
 } from "@prisma/client";
 import { format } from "date-fns";
-import type { InferModel } from "drizzle-orm";
 import { CalendarIcon, ChevronsUpDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -22,11 +22,7 @@ import { useForm } from "react-hook-form";
 import validator from "validator";
 import { z } from "zod";
 
-import { fields } from "@/lib/db/schema";
-import { cn } from "@/lib/utils";
-
 import { UploadDropzone } from "@/lib/uploadthing";
-import { ModeToggle } from "./mode-toggle";
 import { Button } from "./ui/button";
 import { Calendar } from "./ui/calendar";
 import { Checkbox } from "./ui/checkbox";
@@ -41,6 +37,7 @@ import {
 } from "./ui/form";
 import { Input } from "./ui/input";
 import { LoadingButton } from "./ui/loading-button";
+import MultipleSelector, { type Option } from "./ui/multi-dropdown";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import {
   Select,
@@ -51,7 +48,6 @@ import {
 } from "./ui/select";
 import { Textarea } from "./ui/textarea";
 import { toast } from "./ui/use-toast";
-import MultipleSelector, { Option } from "./ui/multi-dropdown";
 
 type FormWithFields = Forms & {
   fields: Field[];
@@ -182,42 +178,48 @@ export const FormRenderer = ({
   // 	}
   // }, [submission])
 
+  // Separate functions for draft and final submission
+  async function handleDraftSubmit(values: any) {
+    setIsDraftLoading(true);
+    await createDraftSubmission({
+      submissionId: submission?.id as string,
+      data: JSON.parse(JSON.stringify(values)),
+      formId: formData?.id as string,
+    });
+    toast({
+      variant: "default",
+      title: "Success",
+      description: "Your submission has been saved as a draft.",
+    });
+    setIsDraftLoading(false);
+  }
+
+  async function handleFinalSubmit(values: any) {
+    setIsSubmitting(true);
+    await createFinalSubmission({
+      submissionId: submission?.id as string,
+      data: JSON.parse(JSON.stringify(values)),
+    });
+    toast({
+      variant: "default",
+      title: "Success",
+      description: "Your submission has been submitted.",
+    });
+    setIsSubmitting(false);
+    router.push(`/f/${formData?.id}/success`);
+  }
+
   async function onSubmit(values: any) {
     if (isDraft) {
-      setIsDraftLoading(true);
-      await createDraftSubmission({
-        submissionId: submission?.id as string,
-        data: JSON.parse(JSON.stringify(values)),
-        formId: formData?.id as string,
-      });
-      toast({
-        variant: "default",
-        title: "Success",
-        description: "Your submission has been saved as a draft.",
-      });
-      setIsDraftLoading(false);
-      setIsDraft(false);
+      await handleDraftSubmit(values);
     } else {
-      setIsSubmitting(true);
-      await createFinalSubmission({
-        submissionId: submission?.id as string,
-        data: JSON.parse(JSON.stringify(values)),
-      });
-      toast({
-        variant: "default",
-        title: "Success",
-        description: "Your submission has been submitted.",
-      });
-      setIsSubmitting(false);
-      router.push(`/f/${formData?.id}/success`);
+      await handleFinalSubmit(values);
     }
   }
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-      <div className="absolute top-0 right-10">
-        <ModeToggle />
-      </div>
+      <div className="absolute top-0 right-10">{/* <ModeToggle /> */}</div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <fieldset
@@ -652,12 +654,12 @@ export const FormRenderer = ({
             })}
             <div className="flex justify-end space-x-4 pb-4">
               <LoadingButton
-                type="submit"
+                type="button"
                 disabled={isDraftLoading}
                 className="bg-gradient-to-r from-[#0077B6] to-[#00BCD4]"
                 onClick={() => {
                   setIsDraft(true);
-                  form.handleSubmit(onSubmit);
+                  form.handleSubmit(onSubmit)();
                 }}
                 loading={isDraftLoading}
               >
@@ -667,7 +669,9 @@ export const FormRenderer = ({
                 type="submit"
                 disabled={isSubmitting}
                 className="bg-gradient-to-r from-[#0077B6] to-[#00BCD4]"
-                onClick={() => form.handleSubmit(onSubmit)}
+                onClick={() => {
+                  setIsDraft(false);
+                }}
                 loading={isSubmitting}
               >
                 {formData?.submitText}
