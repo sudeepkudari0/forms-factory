@@ -4,7 +4,7 @@ import HeaderMobile from "@/components/layout/header-mobile";
 import MarginWidthWrapper from "@/components/layout/margin-width-wrapper";
 import PageWrapper from "@/components/layout/page-wrapper";
 import SideNav from "@/components/layout/sidebar";
-import { USER_ITEMS } from "@/lib/constants";
+import { SUPER_ADMIN_ITEMS, USER_ITEMS } from "@/lib/constants";
 import { getCurrentUser } from "@/lib/session";
 import { UserRole, UserStatus } from "@prisma/client";
 import { redirect } from "next/navigation";
@@ -13,24 +13,30 @@ interface UserLayoutProps {
   children?: React.ReactNode;
 }
 
-export default async function ApiKeysLayout({ children }: UserLayoutProps) {
+export default async function ProfileLayout({ children }: UserLayoutProps) {
   const user = await getCurrentUser();
   if (!user?.id) {
     return redirect("/login");
   }
-  if (user?.role !== UserRole.USER) {
-    return redirect("/onboarding");
-  }
   if (user?.status !== UserStatus.ACTIVE) {
     return redirect("/unauthorized");
   }
+
   return (
     <div className="flex">
-      <SideNav SideNavItems={USER_ITEMS} />
+      <SideNav
+        SideNavItems={
+          user.role === UserRole.USER ? USER_ITEMS : SUPER_ADMIN_ITEMS
+        }
+      />
       <main className="flex-1">
         <MarginWidthWrapper>
           <Header user={user} />
-          <HeaderMobile SideNavItems={USER_ITEMS} />
+          <HeaderMobile
+            SideNavItems={
+              user.role === UserRole.USER ? USER_ITEMS : SUPER_ADMIN_ITEMS
+            }
+          />
           <PageWrapper>
             <BreadCrumb />
             {children}

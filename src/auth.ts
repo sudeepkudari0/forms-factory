@@ -1,5 +1,5 @@
 import { db } from "@/lib/db"
-import bcrypt from "bcrypt"
+import bcrypt from "bcryptjs"
 import NextAuth, { type NextAuthConfig, type User } from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 

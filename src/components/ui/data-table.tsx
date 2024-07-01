@@ -67,7 +67,7 @@ export function DataTable<TData, TValue>({
     <>
       <div>
         <div className="flex">
-          <div className="flex flex-1 items-center py-4">
+          <div className="flex flex-1 items-center py-4 mb-4">
             {searchColumn && (
               <Input
                 placeholder={`Filter ${searchColumn}...`}

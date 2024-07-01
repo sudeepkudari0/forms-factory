@@ -447,7 +447,6 @@ export const getTeamForms = async (teamId: string) => {
   if (!user) {
     throw new Error("User not authenticated")
   }
-  console.log(teamId)
   try {
     // get all forms in that team
     const teamForms = await db.teamForm.findMany({
@@ -455,7 +454,6 @@ export const getTeamForms = async (teamId: string) => {
         teamId: teamId,
       },
     })
-    console.log(teamForms)
     // get the form ids
     const formIds = teamForms.map((teamForm) => teamForm.formId)
 

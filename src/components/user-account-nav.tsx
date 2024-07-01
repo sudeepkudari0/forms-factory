@@ -7,12 +7,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { UserAvatar } from "@/components/user-avatar";
 import { env } from "@/env.mjs";
-import { UserRole } from "@prisma/client";
 import Cookies from "js-cookie";
 import type { User } from "next-auth";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 export function UserAccountNav({ userData }: { userData: User }) {
+  console.log(userData);
   return (
     <>
       <DropdownMenu>
@@ -37,13 +37,7 @@ export function UserAccountNav({ userData }: { userData: User }) {
             </div>
           </div>
           <DropdownMenuSeparator />
-          <Link
-            href={
-              userData.role === UserRole.USER
-                ? "/user/profile"
-                : "/super-admin/profile"
-            }
-          >
+          <Link href={"/profile"}>
             <DropdownMenuItem className="cursor-pointer w-full">
               Profile
             </DropdownMenuItem>
