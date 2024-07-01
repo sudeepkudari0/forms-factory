@@ -17,9 +17,9 @@ const fontHeading = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Tr Form Factory",
+  title: "Tr Forms Factory",
   description:
-    "TrDC is a datacenter from ThinkRoman designed to collect clinical data and enhance clinical care through the application of AI, ML, and data modeling",
+    "ThinkRoman Forms Factory: Revolutionize your workflow with custom, on-demand forms that integrate seamlessly into your processes",
   icons: {
     icon: "./favicon.ico",
   },
@@ -35,7 +35,7 @@ export default function RootLayout({
       <head>
         <meta
           name="keywords"
-          content="thinkroman forms factory, form factory, ThinkRoman Data Center, Forms Library"
+          content="Instant Innovation, On-Demand Creation ,Effortless Integration"
         />
         <link rel="canonical" href="https://forms.thinkroman.com" />
       </head>
