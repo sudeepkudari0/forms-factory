@@ -9,8 +9,8 @@ const Disclaimer = () => {
           </p>
         </div>
       </div>
-      <div className="relative px-4 sm:px-16">
-        <div className="prose text-gray-800 dark:text-white">
+      <div className="relative px-4 sm:px-16 lg:px-64">
+        <div className="prose">
           <h2 className="mb-2 text-xl font-bold text-gray-900 dark:text-white ">
             1. General Information
           </h2>

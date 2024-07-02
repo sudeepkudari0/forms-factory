@@ -3,16 +3,16 @@ const Policy = () => {
     <div className="flex flex-col items-center justify-center mt-4 overflow-hidden">
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="max-w-96 relative mx-auto pb-10 text-center">
-          <h1 className="mb-2 text-2xl font-bold sm:text-4xl">
+          <h1 className="mb-2 text-2xl font-bold text-primary sm:text-4xl">
             PRIVACY POLICY
           </h1>
-          <p className="mb-4 text-sm sm:text-base">
+          <p className="mb-4 text-sm text-primary sm:text-base">
             Effective Date: June 01, 2024
           </p>
         </div>
       </div>
-      <div className="relative px-4 sm:px-16">
-        <div className="prose text-gray-800 dark:text-white">
+      <div className="relative px-4 sm:px-16 lg:px-64">
+        <div className="prose">
           <h2 className="mb-2 text-xl font-bold text-gray-900 dark:text-white ">
             1. Information Collection
           </h2>
