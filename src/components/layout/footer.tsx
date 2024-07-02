@@ -14,6 +14,10 @@ const LINK_ITEMS = [
     href: "/contact",
     text: "Contact",
   },
+  {
+    href: "/disclaimer",
+    text: "Disclaimer",
+  },
 ];
 
 const SocialLinks = ({ classStyles }: { classStyles: string }) => {
