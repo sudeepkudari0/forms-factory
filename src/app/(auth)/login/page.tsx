@@ -65,7 +65,7 @@ export default async function LoginPage() {
                 </Link>{" "}
                 and{" "}
                 <Link
-                  href="/privacy"
+                  href="/policy"
                   className="hover:text-brand underline underline-offset-4"
                 >
                   Privacy Policy
@@ -95,7 +95,7 @@ export default async function LoginPage() {
                 </Link>{" "}
                 and{" "}
                 <Link
-                  href="/privacy"
+                  href="/policy"
                   className="hover:text-brand underline underline-offset-4"
                 >
                   Privacy Policy
