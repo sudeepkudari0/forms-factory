@@ -9,6 +9,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Invitation {
+  id        String       @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  email     String
+  token     String       @unique
+  teamId    String       @db.ObjectId
+  inviterId String       @db.ObjectId
+  status    InviteStatus @default(PENDING)
+  team      Teams        @relation(fields: [teamId], references: [id])
+  inviter   User         @relation(fields: [inviterId], references: [id])
+}
+
 model ApiKey {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   userId    String   @db.ObjectId
@@ -45,6 +58,7 @@ model User {
   webhooks           Webhook[]
   submissionAccesses SubmissionAccess[]
   apiKeys            ApiKey[]
+  sentInvitations    Invitation[]
 }
 
 model Form {
@@ -75,13 +89,14 @@ enum FormStatus {
 }
 
 model Teams {
-  id        String     @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @default(now())
-  published Boolean    @default(false)
-  name      String
-  forms     TeamForm[]
-  users     UserTeam[]
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @default(now())
+  published   Boolean      @default(false)
+  name        String
+  forms       TeamForm[]
+  users       UserTeam[]
+  invitations Invitation[]
 }
 
 model UserTeam {
@@ -267,4 +282,10 @@ enum SubmissionAccessRole {
 enum SubmissionStatus {
   DRAFT
   SUBMITTED
+}
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
 }

@@ -1,4 +1,5 @@
 import { db } from "@/lib/db"
+import type { fieldType } from "@prisma/client"
 import { type NextRequest, NextResponse } from "next/server"
 import Papa from "papaparse" // Import papaparse for CSV parsing
 import * as XLSX from "xlsx"
@@ -36,14 +37,13 @@ export async function POST(req: NextRequest) {
     })
 
     const fields = parsedData.data.map((row: any) => ({
-      label: row.label,
-      placeholder: row.placeholder,
-      required: row.required === "TRUE",
-      description: row.description,
-      saved: row.saved === "true",
+      label: row.LABEL,
+      required: row.REQUIRED === "YES",
+      description: row.DESCRIPTION,
+      saved: true,
       order: Number.parseInt(row.order, 10),
       options: row.options,
-      type: row.type,
+      type: row.TYPE.toLowerCase() as fieldType,
       formId,
     }))
 

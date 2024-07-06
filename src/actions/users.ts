@@ -8,6 +8,18 @@ import bcrypt from "bcrypt"
 import { revalidatePath } from "next/cache"
 import { createteam } from "./team"
 
+export async function getUserDetails(id: string) {
+  try {
+    return await db.user.findUnique({
+      where: {
+        id,
+      },
+    })
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 export const createSuperUser = async (values: {
   name: string
   email: string
@@ -405,5 +417,74 @@ export async function getteamsAndFormsNotAssociatedWithUser(userId: string) {
   } catch (error) {
     console.error("Error fetching teams and forms not associated with user:", error)
     throw error
+  }
+}
+
+export async function updateProfilePicture(fileUrl: string) {
+  try {
+    const user = await getCurrentUser()
+
+    await db.user.update({
+      where: {
+        id: user?.id,
+      },
+      data: {
+        image: fileUrl,
+      },
+    })
+    revalidatePath("/[teamName]")
+    revalidatePath("/profile")
+    revalidatePath("/super-admin")
+    revalidatePath("/api-keys")
+    revalidatePath("/webhooks")
+    return {
+      success: "Profile picture updated successfully",
+    }
+  } catch (error) {
+    console.error("Error updating profile picture: ", error)
+    return {
+      error: "Error updating profile picture",
+    }
+  }
+}
+
+export const getPresignedUrl = async (fileName: string) => {
+  const response = await fetch(
+    `https://api.thinkroman.com/v1/storage/r2.getPresignedUploadUrl?key=${fileName}`,
+    {
+      headers: {
+        Authorization: `Bearer ${process.env.S3_TOKEN}`,
+      },
+    }
+  )
+  if (response.ok) {
+    return await response.json()
+  }
+  throw new Error("Failed to get presigned URL")
+}
+
+export const deleteExistingProfilePicture = async () => {
+  const user = await getCurrentUser()
+  const profilePictureUrl = user?.image
+  if (profilePictureUrl) {
+    const fileName = new URL(profilePictureUrl).pathname.split("/").pop()
+
+    try {
+      const response = await fetch(
+        `https://api.thinkroman.com/v1/storage/r2.deleteObject?key=${fileName}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${process.env.S3_TOKEN}`,
+          },
+        }
+      )
+
+      if (!response.ok) {
+        throw new Error("Failed to delete file from S3")
+      }
+    } catch (error) {
+      console.error("Error deleting file from S3:", error)
+    }
   }
 }

@@ -1,6 +1,9 @@
 "use server"
 import { db } from "@/lib/db"
+import { sendInvitationEmail } from "@/lib/mail"
+import { getCurrentUser } from "@/lib/session"
 import { revalidatePath } from "next/cache"
+import { v4 as uuidv4 } from "uuid"
 
 export async function getteam() {
   try {
@@ -188,4 +191,101 @@ export const getTeams = async (teamId: string) => {
       team: true,
     },
   })
+}
+
+// For inviting users to team
+const token = uuidv4()
+
+export async function inviteUserToTeam(values: {
+  teamId: string
+  teamName: string
+  email: string
+}) {
+  const user = await getCurrentUser()
+
+  const { teamId, email, teamName } = values
+  if (!teamId || !email) {
+    throw new Error("Invalid input: teamId, email are required.")
+  }
+  try {
+    const inviteData = await db.invitation.create({
+      data: {
+        teamId,
+        email,
+        token,
+        inviterId: user?.id as string,
+      },
+    })
+
+    const link = `${process.env.NEXT_PUBLIC_APP_URL}/login?nextUrl=/invite?token=${token}`
+    const mail = await sendInvitationEmail(email, user?.name as string, teamName, link)
+    console.log(mail)
+
+    return inviteData
+  } catch (error) {
+    console.error("Error inviting user to team:", error)
+    throw error
+  }
+}
+
+export async function getInviteInfo(token: string): Promise<any> {
+  try {
+    const invite = await db.invitation.findUnique({
+      where: {
+        token,
+      },
+    })
+    if (!invite) {
+      return "Invalid token"
+    }
+    return invite
+  } catch (error) {
+    console.error("Error getting invite info:", error)
+    return error
+  }
+}
+
+// To accept the invite
+export async function invitationAccept(values: {
+  token: string
+}): Promise<any> {
+  const user = await getCurrentUser()
+  const { token } = values
+  if (!token) {
+    throw new Error("Invalid input: token is required.")
+  }
+  try {
+    const invite = await db.invitation.findUnique({
+      where: {
+        token,
+      },
+    })
+
+    if (!invite) {
+      return "Invalid token"
+    }
+
+    await db.userTeam.create({
+      data: {
+        userId: user?.id as string,
+        teamId: invite.teamId,
+      },
+    })
+
+    await db.invitation.deleteMany({
+      where: {
+        token,
+      },
+    })
+    return {
+      success: true,
+      message: "Successfully joined team.",
+    }
+  } catch (error) {
+    console.error("Error accepting invite:", error)
+    return {
+      success: false,
+      message: "Error joining team.",
+    }
+  }
 }

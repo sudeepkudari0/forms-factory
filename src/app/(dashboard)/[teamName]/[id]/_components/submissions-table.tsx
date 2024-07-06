@@ -1,6 +1,13 @@
 "use client";
 
 import { DataTable } from "@/components/ui/data-table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {} from "@/components/ui/tooltip";
 import { cn, dateFormatter } from "@/lib/utils";
 import {
   type Submission,
@@ -57,15 +64,26 @@ export const SubmissionsTable = ({
           }
         }
 
-        if (typeof value === "string" && value.startsWith("https://utfs.io")) {
+        if (typeof value === "string" && value.startsWith("https")) {
           return (
-            <Link
-              href={value}
-              target="_blank"
-              className="font-bold text-blue-600"
-            >
-              <EyeIcon className="h-5 w-5" />
-            </Link>
+            <TooltipProvider>
+              <Tooltip delayDuration={100}>
+                <TooltipTrigger>
+                  <Link
+                    href={value}
+                    target="_blank"
+                    className="font-bold text-blue-600"
+                  >
+                    <EyeIcon className="h-5 w-5" />
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <TooltipContent>
+                    <p>{value}</p>
+                  </TooltipContent>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           );
         }
 

@@ -4,6 +4,7 @@ import {
   createDraftSubmission,
   createFinalSubmission,
 } from "@/actions/submissions";
+import { getPresignedUrl } from "@/actions/users";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -21,8 +22,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import validator from "validator";
 import { z } from "zod";
-
-import { UploadDropzone } from "@/lib/uploadthing";
 import { Button } from "./ui/button";
 import { Calendar } from "./ui/calendar";
 import { Checkbox } from "./ui/checkbox";
@@ -162,6 +161,7 @@ export const FormRenderer = ({
   const [submissionStatus, _setSubmissionStatus] = useState<SubmissionStatus>(
     submission?.status || "DRAFT"
   );
+  const [uploading, setUploading] = useState(false);
   const parsedData = JSON.parse((submission?.data as string) || "{}");
   const formSchema = generateFormSchema(formData);
   const form = useForm<z.infer<typeof formSchema>>({
@@ -217,6 +217,48 @@ export const FormRenderer = ({
       await handleFinalSubmit(values);
     }
   }
+
+  const uploadToS3PresignedUrl = async (
+    file: any,
+    presignedUrl: string | URL | Request,
+    mimeType: any
+  ) => {
+    try {
+      const response = await fetch(presignedUrl, {
+        method: "PUT",
+        headers: {
+          "Content-Type": mimeType,
+        },
+        body: file,
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to upload file to S3");
+      }
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      throw error;
+    }
+  };
+
+  const uploadFileToS3 = async (pickedImage: File) => {
+    setUploading(true);
+    const file = pickedImage;
+    try {
+      const fileName = file.name;
+      const presignedData = await getPresignedUrl(fileName);
+      const presignedUrl = presignedData.presignedUrl;
+      await uploadToS3PresignedUrl(file, presignedUrl, file.type);
+
+      const publicUrl = presignedData.publicUrl;
+      return publicUrl;
+    } catch (error) {
+      console.error(error);
+      alert("Upload failed!");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -554,43 +596,30 @@ export const FormRenderer = ({
                       name={fieldItem.label}
                       render={({ field: _ }) => (
                         <FormItem>
-                          <FormLabel>{fieldItem.label}</FormLabel>
+                          <FormLabel>
+                            {fieldItem.label}
+                            <LoadingButton
+                              variant={"ghost"}
+                              loading={uploading}
+                            />{" "}
+                          </FormLabel>
                           <FormControl>
                             <div>
-                              <UploadDropzone
-                                endpoint="fileUpload"
-                                config={{
-                                  mode: "auto",
-                                }}
-                                appearance={{
-                                  button: {
-                                    padding: "15px",
-                                    borderRadius: "4px",
-                                    fontSize: "15px",
-                                    color: "blue",
-                                    backgroundColor: "white",
-                                    border: "1px solid",
-                                    borderColor: "gray",
-                                  },
-                                }}
-                                className="w-full p-2"
-                                onClientUploadComplete={async (res) => {
-                                  if (res) {
-                                    setFileDetails((prevDetails) => ({
-                                      ...prevDetails,
-                                      [fieldItem.id]: {
-                                        fileName: res[0].name,
-                                        fileSize: res[0].size,
-                                        url: res[0].url,
-                                      },
-                                    }));
-                                    form.setValue(fieldItem.label, res[0].url); // Save URL in form state
-                                  }
-                                }}
-                                onUploadError={() => {
-                                  console.log("onUploadError");
+                              <Input
+                                type="file"
+                                placeholder={fieldItem.placeholder || undefined}
+                                required={fieldItem.required || false}
+                                onChange={async (e: any) => {
+                                  setUploading(true);
+                                  const update = await uploadFileToS3(
+                                    e.target.files[0]
+                                  );
+                                  console.log(update);
+                                  form.setValue(fieldItem.label, update);
+                                  setUploading(false);
                                 }}
                               />
+
                               {fileDetails[fieldItem.id] && (
                                 <>
                                   <div className="flex space-x-5 pl-1 text-sm font-medium">

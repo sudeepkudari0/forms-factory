@@ -104,7 +104,7 @@ export const SubmissionsTable = ({ userId }: { userId: string }) => {
             : {};
         const value = cell.getValue() as string;
 
-        if (value?.startsWith("https://utfs.io")) {
+        if (value?.startsWith("https://")) {
           const fileName = data.fileName;
           return (
             <p>

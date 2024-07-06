@@ -7,7 +7,6 @@ import {
   AtSignIcon,
   CalendarIcon,
   CircleDotIcon,
-  ClockIcon,
   HashIcon,
   LinkIcon,
   PhoneIcon,
@@ -119,7 +118,7 @@ export const EditFieldForm = ({
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [isSaved, setIsSaved] = useState(fieldData?.saved || false);
-
+  console.log(fieldData);
   const form = useForm<FormType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -131,7 +130,9 @@ export const EditFieldForm = ({
       type: fieldData?.type || undefined,
       formId: fieldData?.formId || formId,
       options: fieldData?.options?.length ? fieldData.options.split(",") : [],
-      multi_options: (fieldData?.multipleOptions as MultiOption[]) || [],
+      multi_options:
+        (JSON.parse(fieldData?.multipleOptions as string) as MultiOption[]) ||
+        [],
     },
   });
 
@@ -152,6 +153,7 @@ export const EditFieldForm = ({
     const requestData = {
       ...values,
       options: plainOptions,
+      saved: true,
       multi_options: multiDropdownOptions,
     };
 
@@ -359,12 +361,12 @@ export const EditFieldForm = ({
                       <span>Date</span>
                     </div>
                   </SelectItem>
-                  <SelectItem value="time">
+                  {/* <SelectItem value="time">
                     <div className="flex items-center">
                       <ClockIcon className="mr-2 h-4 w-4" />
                       <span>Time</span>
                     </div>
-                  </SelectItem>
+                  </SelectItem> */}
                   <SelectItem value="checkbox">
                     <div className="flex items-center">
                       <ToggleLeftIcon className="mr-2 h-4 w-4" />
