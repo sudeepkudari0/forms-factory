@@ -23,7 +23,6 @@ import { Input } from "@/components/ui/input";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { toast } from "@/components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -45,7 +44,6 @@ export const InviteUserForm = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
   const form = useForm<formSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -85,7 +83,7 @@ export const InviteUserForm = ({
       </DialogTrigger>
       <DialogContent className="rounded font-sans sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Invite User</DialogTitle>
+          <DialogTitle>Invite Users</DialogTitle>
           <DialogDescription>
             Invite a user to join your team by entering their email address
             below. An invitation will be sent to the provided email.

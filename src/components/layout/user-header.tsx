@@ -138,7 +138,7 @@ const Header = ({ user, teams = [] }: { user?: User; teams?: teams[] }) => {
         <div className="mr-4 hidden space-x-2 md:flex md:items-center md:justify-center">
           <InviteUserForm
             trigger={
-              <Button className="rounded text-white font-bold bg-gradient-to-r from-[#0077B6] to-[#00BCD4] ">
+              <Button className="rounded text-white text-[15px] bg-gradient-to-r from-[#0077B6] to-[#00BCD4] ">
                 Invite
               </Button>
             }
