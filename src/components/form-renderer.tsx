@@ -152,9 +152,6 @@ export const FormRenderer = ({
   submission,
   submissionAccess: _,
 }: FormRendererProps) => {
-  const [fileDetails, setFileDetails] = useState<{
-    [key: string]: { fileName: string; fileSize: number; url: string };
-  }>({});
   const [isDraft, setIsDraft] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDraftLoading, setIsDraftLoading] = useState(false);
@@ -619,23 +616,6 @@ export const FormRenderer = ({
                                   setUploading(false);
                                 }}
                               />
-
-                              {fileDetails[fieldItem.id] && (
-                                <>
-                                  <div className="flex space-x-5 pl-1 text-sm font-medium">
-                                    <dt className="pt-2">File Name: </dt>
-                                    <dd className="pt-2">
-                                      {fileDetails[fieldItem.id].fileName}
-                                    </dd>
-                                  </div>
-                                  <div className="flex space-x-8 pl-1 text-sm font-medium">
-                                    <dt className="">File Size:</dt>
-                                    <dd className="">
-                                      {fileDetails[fieldItem.id].fileSize}
-                                    </dd>
-                                  </div>
-                                </>
-                              )}
                             </div>
                           </FormControl>
                           {fieldItem.description && (

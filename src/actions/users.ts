@@ -17,6 +17,7 @@ export async function getUserDetails(id: string) {
     })
   } catch (error) {
     console.log(error)
+    return []
   }
 }
 
