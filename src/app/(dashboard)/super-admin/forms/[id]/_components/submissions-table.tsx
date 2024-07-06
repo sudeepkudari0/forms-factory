@@ -1,10 +1,5 @@
 "use client";
 
-import type { ColumnDef } from "@tanstack/react-table";
-import Link from "next/link";
-import type React from "react";
-import { useEffect, useState } from "react";
-
 import {
   getAllSubmissionsForForm,
   getUsersForteam,
@@ -24,6 +19,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn, dateFormatter } from "@/lib/utils";
 import {
   type Submission,
@@ -31,8 +32,12 @@ import {
   type Teams,
   type User,
 } from "@prisma/client";
-import { CircleIcon } from "lucide-react";
+import type { ColumnDef } from "@tanstack/react-table";
+import { CircleIcon, EyeIcon } from "lucide-react";
 import { Check, ChevronsUpDown } from "lucide-react";
+import Link from "next/link";
+import type React from "react";
+import { useEffect, useState } from "react";
 import ExportButton from "./export-button";
 
 export const SubmissionsTable = ({ formId }: { formId: string }) => {
@@ -103,29 +108,49 @@ export const SubmissionsTable = ({ formId }: { formId: string }) => {
         const data = JSON.parse(row.data);
         return data[key];
       },
-      cell: ({ row, cell }) => {
-        const data =
-          typeof row.original.data === "string"
-            ? JSON.parse(row.original.data)
-            : {};
-        const value = cell.getValue() as string;
+      cell: ({ cell }) => {
+        const value: any = cell.getValue();
 
-        const _fileNameKey = `${key}_FileName` as keyof typeof data;
+        if (typeof value === "object" && value !== null) {
+          // Handle arrays of objects
+          if (Array.isArray(value)) {
+            return (
+              <>
+                {value.map((item, index) => (
+                  <p key={index}>{item.value}</p>
+                ))}
+              </>
+            );
+          }
+          if (value?.value) {
+            // Handle single object with `value` property
+            return <p>{value.value}</p>;
+          }
+        }
 
-        if (value?.startsWith("https://")) {
-          const fileName = data[key] as string;
+        if (typeof value === "string" && value.startsWith("https")) {
           return (
-            <p>
-              <Link
-                href={value}
-                target="_blank"
-                className="font-bold underline"
-              >
-                {fileName}
-              </Link>
-            </p>
+            <TooltipProvider>
+              <Tooltip delayDuration={100}>
+                <TooltipTrigger>
+                  <Link
+                    href={value}
+                    target="_blank"
+                    className="font-bold text-blue-600"
+                  >
+                    <EyeIcon className="h-5 w-5" />
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <TooltipContent>
+                    <p>{value}</p>
+                  </TooltipContent>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           );
         }
+
         return <p>{value}</p>;
       },
     }));

@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import {} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -21,8 +15,12 @@ import { useForm } from "react-hook-form";
 import PhoneInput from "react-phone-input-2";
 import * as z from "zod";
 import "react-phone-input-2/lib/style.css";
-import { profileUpdate } from "@/actions/users";
-import { UploadDropzone } from "@/lib/uploadthing";
+import {
+  deleteExistingProfilePicture,
+  getPresignedUrl,
+  profileUpdate,
+  updateProfilePicture,
+} from "@/actions/users";
 import type { User } from "@prisma/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -43,7 +41,7 @@ export type userSchema = z.infer<typeof userSchema>;
 
 export const ProfileForm = ({ user }: { user: User }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [userData, setUserData] = useState<User>(user);
   const queryClient = useQueryClient();
 
@@ -82,71 +80,75 @@ export const ProfileForm = ({ user }: { user: User }) => {
     setIsLoading(false);
   }
 
-  const handleAutoSubmit = () => {
-    form.handleSubmit(onSubmit)();
+  const uploadToS3PresignedUrl = async (
+    file: any,
+    presignedUrl: string | URL | Request,
+    mimeType: any
+  ) => {
+    try {
+      const response = await fetch(presignedUrl, {
+        method: "PUT",
+        headers: {
+          "Content-Type": mimeType,
+        },
+        body: file,
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to upload file to S3");
+      }
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      throw error;
+    }
+  };
+
+  const updateDatabaseWithImageUrl = async (imageUrl: string) => {
+    await deleteExistingProfilePicture();
+    await updateProfilePicture(imageUrl);
+    queryClient.invalidateQueries({ queryKey: ["userData"] });
+  };
+
+  const uploadImageToS3 = async (pickedImage: File) => {
+    setUploading(true);
+    const file = pickedImage;
+    try {
+      const fileName = file.name;
+      const presignedData = await getPresignedUrl(fileName);
+      const presignedUrl = presignedData.presignedUrl;
+      await uploadToS3PresignedUrl(file, presignedUrl, file.type);
+
+      const publicUrl = presignedData.publicUrl;
+
+      await updateDatabaseWithImageUrl(publicUrl);
+    } catch (error) {
+      console.error(error);
+      alert("Upload failed!");
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
-    <div>
+    <div className="w-full">
+      <div className="flex flex-col items-center p-1 w-full">
+        <UserAvatar user={user} className="h-24 w-24 cursor-pointer" />
+        <LoadingButton
+          loading={uploading}
+          variant={"ghost"}
+          className="text-sm mt-4 text-muted-foreground cursor-pointer hover:text-black  dark:text-white hover:bg-gray-100 px-1 rounded-md dark:hover:bg-zinc-800"
+        >
+          Change Profile Picture
+        </LoadingButton>
+        <Input
+          type="file"
+          onChange={(e: any) => uploadImageToS3(e.target.files[0])}
+          className=" text-sm p-1 absolute w-[200px] mt-1 -top-10 -left-[100px] opacity-0 rounded cursor-pointer text-muted-foreground hover:bg-gray-100 dark:hover:bg-gray-700"
+        />
+      </div>
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 z-50">
-          <Dialog
-            open={isOpen}
-            onOpenChange={(open) => {
-              setIsOpen(open);
-              form.reset();
-            }}
-          >
-            <DialogTrigger asChild>
-              <div className="flex flex-col items-center p-4">
-                <UserAvatar
-                  user={userData}
-                  className="h-24 w-24 cursor-pointer"
-                />
-                <p className="text-sm p-1 mt-4 rounded cursor-pointer text-muted-foreground hover:bg-gray-100 dark:hover:bg-gray-700">
-                  Change Profile Image{" "}
-                </p>
-              </div>
-            </DialogTrigger>
-            <DialogContent className="rounded sm:max-w-[500px]">
-              <DialogHeader>
-                <DialogTitle>Upload Image</DialogTitle>
-              </DialogHeader>
-              <UploadDropzone
-                endpoint="fileUpload"
-                config={{
-                  mode: "auto",
-                }}
-                appearance={{
-                  button: {
-                    cursor: "pointer",
-                    padding: "15px",
-                    borderRadius: "4px",
-                    fontSize: "15px",
-                    color: "#fff",
-                    backgroundColor: "#000",
-                    border: "none",
-                    outline: "none",
-                    transition: "all 0.2s ease-in-out",
-                  },
-                }}
-                className="p-2"
-                onClientUploadComplete={async (res) => {
-                  if (res) {
-                    form.setValue("image", res[0].url);
-                    setUserData({ ...userData, image: res[0].url });
-                    handleAutoSubmit();
-                  }
-                  setIsOpen(false);
-                }}
-                onUploadError={() => {
-                  console.log("onUploadError");
-                  setIsOpen(false);
-                }}
-              />
-            </DialogContent>
-          </Dialog>
-
           <FormField
             control={form.control}
             name="name"

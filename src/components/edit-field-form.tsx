@@ -7,7 +7,6 @@ import {
   AtSignIcon,
   CalendarIcon,
   CircleDotIcon,
-  ClockIcon,
   HashIcon,
   LinkIcon,
   PhoneIcon,
@@ -362,12 +361,12 @@ export const EditFieldForm = ({
                       <span>Date</span>
                     </div>
                   </SelectItem>
-                  <SelectItem value="time">
+                  {/* <SelectItem value="time">
                     <div className="flex items-center">
                       <ClockIcon className="mr-2 h-4 w-4" />
                       <span>Time</span>
                     </div>
-                  </SelectItem>
+                  </SelectItem> */}
                   <SelectItem value="checkbox">
                     <div className="flex items-center">
                       <ToggleLeftIcon className="mr-2 h-4 w-4" />
