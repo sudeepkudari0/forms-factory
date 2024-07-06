@@ -60,7 +60,7 @@ export const createFinalSubmission = async (data: {
       data: {
         formId: data.formId,
         data: JSON.stringify(data?.data),
-        status: SubmissionStatus.DRAFT,
+        status: SubmissionStatus.SUBMITTED,
       },
     })
   }
