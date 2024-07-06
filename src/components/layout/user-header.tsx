@@ -1,6 +1,7 @@
 "use client";
 
 import CreateteamForm from "@/app/(dashboard)/[teamName]/_components/create-team-form";
+import { InviteUserForm } from "@/app/(dashboard)/[teamName]/_components/invite-user-dialog";
 import {
   Command,
   CommandEmpty,
@@ -22,6 +23,7 @@ import type { User } from "next-auth";
 import { useRouter, useSelectedLayoutSegment } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ModeToggle } from "../mode-toggle";
+import { Button } from "../ui/button";
 import { UserAccountNav } from "../user-account-nav";
 import { UserNav } from "../user-nav";
 
@@ -134,6 +136,15 @@ const Header = ({ user, teams = [] }: { user?: User; teams?: teams[] }) => {
           </div>
         )}
         <div className="mr-4 hidden space-x-2 md:flex md:items-center md:justify-center">
+          <InviteUserForm
+            trigger={
+              <Button className="rounded text-white font-bold bg-gradient-to-r from-[#0077B6] to-[#00BCD4] ">
+                Invite
+              </Button>
+            }
+            teamId={selectedteam || ""}
+            teamName={selectedTeamName || ""}
+          />
           <ModeToggle />
           {user ? <UserAccountNav userData={user} /> : <UserNav />}
         </div>

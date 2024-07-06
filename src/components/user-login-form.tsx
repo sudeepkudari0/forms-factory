@@ -70,7 +70,7 @@ export function UserAuthForm({ className, ...props }: UserLoginFormProps) {
       return;
     }
     if (signInResult?.ok) {
-      window.location.href = searchParams?.get("from") || "/onboarding";
+      window.location.href = searchParams?.get("nextUrl") || "/onboarding";
       return;
     }
     setIsLoading(false);

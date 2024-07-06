@@ -8,6 +8,18 @@ import bcrypt from "bcrypt"
 import { revalidatePath } from "next/cache"
 import { createteam } from "./team"
 
+export async function getUserDetails(id: string) {
+  try {
+    return await db.user.findUnique({
+      where: {
+        id,
+      },
+    })
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 export const createSuperUser = async (values: {
   name: string
   email: string

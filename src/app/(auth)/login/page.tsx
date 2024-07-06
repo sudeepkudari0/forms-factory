@@ -5,17 +5,20 @@ import { getCurrentUser } from "@/lib/session";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { FaHouse } from "react-icons/fa6";
-
 export const metadata = {
   title: "Login",
   description: "Login to get started.",
 };
 
-export default async function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: { nextUrl?: string };
+}) {
   const user = await getCurrentUser();
-
+  const nextUrl = searchParams?.nextUrl || "/onboarding";
   if (user) {
-    return redirect("/onboarding");
+    return redirect(nextUrl);
   }
 
   return (
