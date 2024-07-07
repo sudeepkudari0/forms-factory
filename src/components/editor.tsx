@@ -22,6 +22,7 @@ import { Reorder } from "framer-motion";
 import { CircleIcon, PlusCircleIcon, ShareIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Typewriter } from "react-simple-typewriter";
@@ -90,7 +91,7 @@ export const Editor = ({ form }: { form: FormWithFields }) => {
     }
     copyLinkToClipboard({ formId: form.id });
   });
-
+  const router = useRouter();
   const [fields, setFields] = useState<Field[]>(form.fields || []);
   const [isLoading, setIsLoading] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -228,15 +229,12 @@ export const Editor = ({ form }: { form: FormWithFields }) => {
         )}
       >
         <div className="flex items-center md:space-x-10">
-          <Link
-            href="/onboarding"
-            className={cn(buttonVariants({ variant: "ghost" }))}
-          >
+          <Button variant={"ghost"} onClick={() => router.back()}>
             <>
               <Icons.chevronLeft className="mr-2 h-4 w-4" />
               Back
             </>
-          </Link>
+          </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
