@@ -109,3 +109,6 @@ body.dark {
   color: var(--selection-text-color);
 }
 
+.rdp-vhidden {
+  @apply hidden;
+}

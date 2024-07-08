@@ -11,6 +11,7 @@ import { z } from "zod";
 
 import { UploadDropzone } from "@/lib/uploadthing";
 import { cn } from "@/lib/utils";
+import { PopoverClose } from "@radix-ui/react-popover";
 import { Icons } from "./icons";
 import { Button } from "./ui/button";
 import { Calendar } from "./ui/calendar";
@@ -25,6 +26,7 @@ import {
   FormMessage,
 } from "./ui/form";
 import { Input } from "./ui/input";
+import MultipleSelector, { type Option } from "./ui/multi-dropdown";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import {
   Select,
@@ -34,7 +36,6 @@ import {
   SelectValue,
 } from "./ui/select";
 import { Textarea } from "./ui/textarea";
-import MultipleSelector, { Option } from "./ui/multi-dropdown";
 
 type FormWithFields = Forms & {
   fields: Field[];
@@ -391,16 +392,30 @@ export const FormRenderer = ({ formData }: FormRendererProps) => {
                           </FormControl>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value as Date}
-                            onSelect={field.onChange}
-                            disabled={(date) =>
-                              date < new Date("1900-01-01") ||
-                              date > new Date("2100-12-31")
-                            }
-                            initialFocus
-                          />
+                          <PopoverClose>
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              // disabled={(date) =
+                              //   date < new Date("1900-01-01") ||
+                              //   date > new Date("2100-12-31")
+                              // }
+                              classNames={{
+                                day_hidden: "invisible",
+                                dropdown:
+                                  "px-2 py-1.5 rounded-md bg-popover text-popover-foreground text-sm  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background",
+                                caption_dropdowns: "flex gap-3",
+                                vhidden: "hidden",
+                                caption_label: "hidden",
+                              }}
+                              initialFocus
+                              defaultMonth={field.value}
+                              captionLayout="dropdown-buttons"
+                              fromYear={1950}
+                              toYear={2030}
+                            />
+                          </PopoverClose>
                         </PopoverContent>
                       </Popover>
                       {fieldItem.description && (

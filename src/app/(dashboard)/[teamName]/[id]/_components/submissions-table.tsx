@@ -15,6 +15,7 @@ import {
   SubmissionStatus,
 } from "@prisma/client";
 import type { ColumnDef } from "@tanstack/react-table";
+import dayjs from "dayjs";
 import { CircleIcon, EyeIcon } from "lucide-react";
 import Link from "next/link";
 
@@ -64,6 +65,14 @@ export const SubmissionsTable = ({
           }
         }
 
+        // Check if the value is a date string
+        if (
+          typeof value === "string" &&
+          value.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/)
+        ) {
+          const formattedDate = dayjs(value).format("DD MMMM YYYY");
+          return <span>{formattedDate}</span>;
+        }
         if (typeof value === "string" && value.startsWith("https")) {
           return (
             <TooltipProvider>
@@ -147,7 +156,31 @@ export const SubmissionsTable = ({
       // },
     ];
 
-    return staticColumns.concat(dynamicColumns);
+    const actionColumn: ColumnDef<Submission>[] = [
+      {
+        id: "actions",
+        header: "Actions",
+        cell: ({ row }) => {
+          const submission = row.original;
+          return (
+            <div className="inline-flex items-center">
+              {submission.status === SubmissionStatus.SUBMITTED ? (
+                <Link
+                  target="_blank"
+                  href={`/f/${submission.formId}?sid=${submission.id}`}
+                >
+                  <EyeIcon className="h-5 w-5" />
+                </Link>
+              ) : (
+                <EyeIcon className="h-5 w-5 text-gray-400" />
+              )}
+            </div>
+          );
+        },
+      },
+    ];
+    const firstColumn = staticColumns.concat(dynamicColumns);
+    return firstColumn.concat(actionColumn);
   };
 
   return (

@@ -15,8 +15,9 @@ import {
   SubmissionStatus,
   type fieldType,
 } from "@prisma/client";
-import { format } from "date-fns";
-import { CalendarIcon, ChevronsUpDown } from "lucide-react";
+import dayjs from "dayjs";
+import { CalendarIcon, ChevronsUpDown, EyeIcon } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -25,6 +26,11 @@ import { z } from "zod";
 import { Button } from "./ui/button";
 import { Calendar } from "./ui/calendar";
 import { Checkbox } from "./ui/checkbox";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 import {
   Form,
   FormControl,
@@ -37,7 +43,7 @@ import {
 import { Input } from "./ui/input";
 import { LoadingButton } from "./ui/loading-button";
 import MultipleSelector, { type Option } from "./ui/multi-dropdown";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import {} from "./ui/popover";
 import {
   Select,
   SelectContent,
@@ -60,7 +66,11 @@ interface FormRendererProps {
 }
 
 // build validtion schema from form fields using zod. i.e. if field.type === "email" then add z.string().email() to schema. If its required then add .required()
-const generateZodSchema = (fieldType: fieldType, required: boolean) => {
+const generateZodSchema = (
+  fieldType: fieldType,
+  required: boolean,
+  isDraft: boolean
+) => {
   let type: z.ZodType<any>;
   switch (fieldType) {
     case "text":
@@ -101,27 +111,29 @@ const generateZodSchema = (fieldType: fieldType, required: boolean) => {
         )
         .optional();
       break;
-    // Add more field types and their corresponding schema definitions here
     default:
-      // Default to treating unknown field types as strings
       type = z.string();
   }
 
-  if (!required) {
+  if (!required || isDraft) {
     type = type.optional();
   }
 
   return type;
 };
 
-const generateFormSchema = (formData: FormWithFields | undefined) => {
+const generateFormSchema = (
+  formData: FormWithFields | undefined,
+  isDraft: boolean
+) => {
   if (!formData) {
     return z.object({});
   }
   const fieldSchemas = formData.fields.map((field) => {
     const fieldSchema = generateZodSchema(
       field.type as fieldType,
-      field.required
+      field.required,
+      isDraft
     );
 
     return {
@@ -131,7 +143,6 @@ const generateFormSchema = (formData: FormWithFields | undefined) => {
 
   return z
     .object({
-      // Dynamically generated Zod object schema based on the fields (unchanged)
       ...fieldSchemas.reduce((acc, fieldSchema, _index) => {
         return {
           ...acc,
@@ -140,7 +151,6 @@ const generateFormSchema = (formData: FormWithFields | undefined) => {
       }, {}),
     })
     .superRefine((data) => {
-      // Ensure title and fileName are preserved
       return {
         ...data,
       };
@@ -158,9 +168,12 @@ export const FormRenderer = ({
   const [submissionStatus, _setSubmissionStatus] = useState<SubmissionStatus>(
     submission?.status || "DRAFT"
   );
-  const [uploading, setUploading] = useState(false);
+  const [uploadingStates, setUploadingStates] = useState<
+    Record<string, boolean>
+  >({});
+
   const parsedData = JSON.parse((submission?.data as string) || "{}");
-  const formSchema = generateFormSchema(formData);
+  const formSchema = generateFormSchema(formData, isDraft);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -168,14 +181,6 @@ export const FormRenderer = ({
     },
   });
   const router = useRouter();
-
-  // useEffect(() => {
-  // 	if (submission) {
-  // 		const _parsedData = JSON.parse(submission?.data as string)
-  // 	}
-  // }, [submission])
-
-  // Separate functions for draft and final submission
   async function handleDraftSubmit(values: any) {
     setIsDraftLoading(true);
     await createDraftSubmission({
@@ -193,6 +198,7 @@ export const FormRenderer = ({
 
   async function handleFinalSubmit(values: any) {
     setIsSubmitting(true);
+    console.log(isDraft);
     await createFinalSubmission({
       submissionId: submission?.id as string,
       data: JSON.parse(JSON.stringify(values)),
@@ -238,8 +244,8 @@ export const FormRenderer = ({
     }
   };
 
-  const uploadFileToS3 = async (pickedImage: File) => {
-    setUploading(true);
+  const uploadFileToS3 = async (pickedImage: File, fieldName: string) => {
+    setUploadingStates((prev) => ({ ...prev, [fieldName]: true }));
     const file = pickedImage;
     try {
       const fileName = file.name;
@@ -248,12 +254,13 @@ export const FormRenderer = ({
       await uploadToS3PresignedUrl(file, presignedUrl, file.type);
 
       const publicUrl = presignedData.publicUrl;
+
       return publicUrl;
     } catch (error) {
       console.error(error);
       alert("Upload failed!");
     } finally {
-      setUploading(false);
+      setUploadingStates((prev) => ({ ...prev, [fieldName]: false }));
     }
   };
 
@@ -473,8 +480,8 @@ export const FormRenderer = ({
                       render={({ field }) => (
                         <FormItem className="flex flex-col">
                           <FormLabel>{fieldItem.label}</FormLabel>
-                          <Popover>
-                            <PopoverTrigger asChild>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
                               <FormControl>
                                 <Button
                                   variant={"outline"}
@@ -485,29 +492,41 @@ export const FormRenderer = ({
                                 >
                                   <CalendarIcon className="mr-2 h-4 w-4 opacity-50" />
                                   {field.value ? (
-                                    format(field.value as Date, "PPP")
+                                    dayjs(field.value).format("MMM D, YYYY")
                                   ) : (
                                     <span>Pick a date</span>
                                   )}
                                 </Button>
                               </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent
                               className="w-auto p-0"
                               align="start"
                             >
                               <Calendar
                                 mode="single"
-                                selected={field.value as Date}
+                                selected={field.value}
                                 onSelect={field.onChange}
-                                disabled={(date) =>
-                                  date > new Date() ||
-                                  date < new Date("1900-01-01")
-                                }
+                                // disabled={(date) =
+                                //   date < new Date("1900-01-01") ||
+                                //   date > new Date("2100-12-31")
+                                // }
+                                classNames={{
+                                  day_hidden: "invisible",
+                                  dropdown:
+                                    "px-2 py-1.5 rounded-md bg-popover text-popover-foreground text-sm  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background",
+                                  caption_dropdowns: "flex gap-3",
+                                  vhidden: "hidden",
+                                  caption_label: "hidden",
+                                }}
                                 initialFocus
+                                defaultMonth={field.value}
+                                captionLayout="dropdown-buttons"
+                                fromYear={1950}
+                                toYear={2030}
                               />
-                            </PopoverContent>
-                          </Popover>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                           <FormDescription>
                             {fieldItem.description}
                           </FormDescription>
@@ -593,27 +612,39 @@ export const FormRenderer = ({
                       name={fieldItem.label}
                       render={({ field: _ }) => (
                         <FormItem>
-                          <FormLabel>
-                            {fieldItem.label}
-                            <LoadingButton
-                              variant={"ghost"}
-                              loading={uploading}
-                            />{" "}
-                          </FormLabel>
+                          <div className="inline-flex">
+                            <FormLabel>
+                              {fieldItem.label}
+                              <LoadingButton
+                                variant={"ghost"}
+                                loading={uploadingStates[fieldItem.label]}
+                              />
+                              {_.value && (
+                                <div className="inline-flex">
+                                  <Link href={_.value} target="_blank">
+                                    <EyeIcon className="mr-2 h-4 w-4" />
+                                  </Link>
+                                </div>
+                              )}
+                            </FormLabel>
+                          </div>
                           <FormControl>
                             <div>
                               <Input
                                 type="file"
+                                disabled={
+                                  submission?.status ===
+                                  SubmissionStatus.SUBMITTED
+                                }
                                 placeholder={fieldItem.placeholder || undefined}
                                 required={fieldItem.required || false}
                                 onChange={async (e: any) => {
-                                  setUploading(true);
                                   const update = await uploadFileToS3(
-                                    e.target.files[0]
+                                    e.target.files[0],
+                                    fieldItem.label
                                   );
                                   console.log(update);
                                   form.setValue(fieldItem.label, update);
-                                  setUploading(false);
                                 }}
                               />
                             </div>
@@ -628,6 +659,7 @@ export const FormRenderer = ({
                       )}
                     />
                   );
+
                 case "multi_dropdown":
                   return (
                     <FormField
@@ -673,7 +705,7 @@ export const FormRenderer = ({
                 }}
                 loading={isDraftLoading}
               >
-                Draft
+                Save
               </LoadingButton>
               <LoadingButton
                 type="submit"
