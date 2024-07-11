@@ -1,23 +1,25 @@
 "use client";
-
-import { Icons } from "@/components/icons";
-import { buttonVariants } from "@/components/ui/button";
+import {} from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { PasswordInput } from "@/components/ui/password-input";
 import { toast } from "@/components/ui/use-toast";
-import { cn } from "@/lib/utils";
-import { userLoginSchema } from "@/lib/validations/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import * as React from "react";
 import { useForm } from "react-hook-form";
-import type * as z from "zod";
+import { z } from "zod";
+import { LoadingButton } from "./ui/loading-button";
 // import { createSuperUser } from "@/actions/users"
-
-interface UserLoginFormProps extends React.HTMLAttributes<HTMLDivElement> {}
-
-type FormData = z.infer<typeof userLoginSchema>;
 
 // const handleClick = async () => {
 //   const data = await createSuperUser({
@@ -28,17 +30,25 @@ type FormData = z.infer<typeof userLoginSchema>;
 //   console.log(data);
 // };
 
-export function UserAuthForm({ className, ...props }: UserLoginFormProps) {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormData>({
-    resolver: zodResolver(userLoginSchema),
-  });
+const formSchema = z.object({
+  email: z.string().email({
+    message: "Please enter a valid email address.",
+  }),
+  password: z.string().min(1, {
+    message: "Password is required.",
+  }),
+});
+export function UserAuthForm() {
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const searchParams = useSearchParams();
 
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
   React.useEffect(() => {
     const callbackError = searchParams?.get("error");
 
@@ -51,7 +61,7 @@ export function UserAuthForm({ className, ...props }: UserLoginFormProps) {
     }
   }, [searchParams]);
 
-  async function onSubmit(data: FormData) {
+  async function onSubmit(data: z.infer<typeof formSchema>) {
     setIsLoading(true);
     const signInResult = await signIn("credentials", {
       ...data,
@@ -79,65 +89,64 @@ export function UserAuthForm({ className, ...props }: UserLoginFormProps) {
   }
 
   return (
-    <div className={cn("grid gap-6 ", className)} {...props}>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="grid gap-2">
-          <div className="grid gap-1">
-            <Label className="sr-only" htmlFor="email">
-              Email
-            </Label>
-            <Input
-              id="email"
-              placeholder="Email"
-              type="text"
-              autoCapitalize="none"
-              autoComplete="email"
-              autoCorrect="off"
-              disabled={isLoading}
-              {...register("email")}
-            />
-            {errors?.email && (
-              <p className="px-1 text-xs text-red-600">
-                {errors.email.message?.toString()}
-              </p>
-            )}
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="block text-sm font-medium text-zinc-400">
+                Email
+              </FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Email"
+                  className="peer block w-full border-2 bg-transparent focus:outline-none focus:ring-3 appearance-none text-sm outline-none placeholder:text-zinc-500 dark:bg-zinc-950"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className=" block text-sm font-medium text-zinc-400">
+                Password
+              </FormLabel>
+              <FormControl>
+                <PasswordInput
+                  placeholder="Password"
+                  {...field}
+                  inputClassName="peer block w-full border-2 bg-transparent focus:outline-none focus:ring-3 appearance-none text-sm outline-none placeholder:text-zinc-500 dark:bg-zinc-950"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <div className="">
+          <div className="flex justify-end">
+            <Link
+              href="/forgot-password"
+              className="mb-2 text-sm text-blue-500 hover:underline"
+            >
+              Forgot Password?
+            </Link>
           </div>
-          <div className="grid gap-1">
-            <Label className="sr-only" htmlFor="password">
-              Password
-            </Label>
-            <Input
-              id="password"
-              placeholder="Password"
-              type="password"
-              autoCapitalize="none"
-              autoComplete="password"
-              autoCorrect="off"
-              disabled={isLoading}
-              {...register("password")}
-            />
-            {errors?.password && (
-              <p className="px-1 text-xs text-red-600">
-                {errors.password.message?.toString()}
-              </p>
-            )}
-          </div>
-          <button
+          <LoadingButton
             type="submit"
-            className={cn(
-              buttonVariants(),
-              "text-white font-bold mt-2 bg-gradient-to-r from-[#0077B6] to-[#00BCD4] "
-            )}
-            disabled={isLoading}
+            loading={isLoading}
+            className="rounded w-full text-sm text-white bg-gradient-to-r from-[#0077B6] to-[#00BCD4]"
           >
-            {isLoading && (
-              <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-            )}
-            Sign In with Email
-          </button>
-          {/* <Button onClick={handleClick}>Click me</Button> */}
+            Login
+          </LoadingButton>
         </div>
       </form>
-    </div>
+    </Form>
   );
 }

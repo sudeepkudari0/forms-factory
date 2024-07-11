@@ -59,3 +59,19 @@ export const downloadFile = async (url: string, filename: string) => {
   const blob = await data.blob()
   saveAs(blob, filename)
 }
+
+// To send OTP to email
+type OtpStore = {
+  [email: string]: string;
+};
+
+const otpStore: OtpStore = {};
+
+export function storeOtp(email: string, otp: string): void {
+  otpStore[email] = otp;
+  setTimeout(() => delete otpStore[email], 300000);
+}
+
+export function verifyOtp(email: string, otp: string): boolean {
+  return otpStore[email] === otp;
+}
