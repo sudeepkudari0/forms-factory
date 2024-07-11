@@ -88,3 +88,33 @@ export const sendInvitationEmail = async (
     console.error("Error sending invitation email:", error);
   }
 };
+
+export const sendOtpEmail = async (otp: string, email: string) => {
+  try {
+    await resendClient.emails.send({
+      from: fromEmail,
+      to: email,
+      reply_to: replyTo,
+      subject: "Tr Forms Factory Verification Code",
+      html: `
+          <div style="font-family: Arial, sans-serif; color: #333;">
+            <p>Hello,</p>
+            <p>Your verification code is:</p>
+            <br/>
+            <div style="text-align: center; margin: 20px;">
+              <span style="font-size: 24px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9; letter-spacing: 3px;">
+                ${otp}
+              </span>
+            </div>
+            <br/>
+            <p>Please enter this code in the required field to proceed.</p>
+            <p>If you did not request this code, please ignore this email or contact support if you have any questions.</p>
+            <p>Best regards,</p>
+            <p><strong>TrHeartLink</strong></p>
+          </div>
+        `,
+    });
+  } catch (error) {
+    console.error("Error sending notification email:", error);
+  }
+};
