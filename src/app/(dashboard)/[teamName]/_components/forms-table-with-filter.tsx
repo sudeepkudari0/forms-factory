@@ -66,7 +66,7 @@ const FormsTableWithFilter: React.FC<FormsTableWithFilterProps> = ({
       </div>
       {selectedTeam ? (
         <DataTable
-          columns={columns}
+          columns={columns(setReFetch)}
           data={filteredForms as any}
           searchColumn="title"
         />

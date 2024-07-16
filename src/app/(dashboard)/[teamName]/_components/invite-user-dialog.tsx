@@ -83,10 +83,12 @@ export const InviteUserForm = ({
       </DialogTrigger>
       <DialogContent className="rounded font-sans sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Invite Users</DialogTitle>
+          <DialogTitle className=" font-sans font-semibold">
+            Invite User
+          </DialogTitle>
           <DialogDescription>
-            Invite a user to join your team by entering their email address
-            below. An invitation will be sent to the provided email.
+            Invite a user to join your <b>{teamName}</b> by entering their email
+            address. An invitation will be sent to the provided email.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>

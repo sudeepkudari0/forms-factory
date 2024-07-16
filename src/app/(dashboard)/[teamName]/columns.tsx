@@ -38,6 +38,7 @@ import {
 } from "@prisma/client";
 import type { ColumnDef } from "@tanstack/react-table";
 import dayjs from "dayjs";
+import { SetStateAction } from "jotai";
 import {
   CircleIcon,
   CopyIcon,
@@ -77,13 +78,19 @@ const setPublishForm = async ({
   });
 };
 
-const duplicateForm = async (formId: string) => {
-  const data = await duplicateFormFields(formId);
-
-  toast({
-    title: "Form duplicated",
-    description: `Form has been duplicated with the title "${data?.title}"`,
-  });
+const duplicateForm = async (
+  formId: string,
+  teamId: string,
+  setRefetch: React.Dispatch<SetStateAction<boolean>>
+) => {
+  const data = await duplicateFormFields(formId, teamId);
+  if (data.success) {
+    setRefetch((prev) => !prev);
+    toast({
+      title: "Form duplicated",
+      description: `${data.message}`,
+    });
+  }
 };
 
 const setArchiveForm = async ({
@@ -120,7 +127,9 @@ const setFormPrivacy = async ({
   });
 };
 
-export const columns: ColumnDef<FormWithTeams>[] = [
+export const columns = (
+  setRefetch: React.Dispatch<React.SetStateAction<boolean>>
+): ColumnDef<FormWithTeams>[] => [
   {
     accessorKey: "title",
     header: "Title",
@@ -221,7 +230,6 @@ export const columns: ColumnDef<FormWithTeams>[] = [
     id: "actions",
     cell: ({ row }) => {
       const form = row.original;
-
       return (
         <AlertDialog>
           <DropdownMenu>
@@ -261,7 +269,9 @@ export const columns: ColumnDef<FormWithTeams>[] = [
                     <span>Edit form</span>
                   </DropdownMenuItem>
                 </Link>
-                <DropdownMenuItem onClick={() => duplicateForm(form.id)}>
+                <DropdownMenuItem
+                  onClick={() => duplicateForm(form.id, form.fid, setRefetch)}
+                >
                   <CopyIcon className="mr-2 h-4 w-4" />
                   <span>Duplicate form</span>
                 </DropdownMenuItem>

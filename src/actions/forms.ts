@@ -4,6 +4,7 @@ import { db } from "@/lib/db"
 import { getCurrentUser } from "@/lib/session"
 import { FormStatus, SubmissionAccessRole } from "@prisma/client"
 import { revalidatePath } from "next/cache"
+import { addFormsToteam } from "./team"
 
 export const getForm = async ({ id }: { id: string }) => {
   const form = await db.form.findFirst({
@@ -52,8 +53,7 @@ export async function createForm(values: {
     })
 
     revalidatePath("/super-admin")
-    revalidatePath("/user-plus")
-    revalidatePath("/admin")
+    revalidatePath("/[teamName]")
     return form
   } catch (error) {
     console.error("Error creating form:", error)
@@ -550,42 +550,51 @@ export const updateFormAccess = async (userIds: string[], submissionId: string) 
   return { added: usersToAdd, removed: usersToRemove }
 }
 
-export const duplicateFormFields = async (id: string) => {
-  const user = await getCurrentUser()
+export const duplicateFormFields = async (id: string, teamId: string) => {
+  try {
+    const user = await getCurrentUser();
 
-  // Fetch the form and its fields
-  const getForm = await db.form.findFirst({
-    where: { id },
-    include: { fields: true },
-  })
+    // Fetch the form and its fields
+    const getForm = await db.form.findFirst({
+      where: { id },
+      include: { fields: true },
+    });
 
-  if (!getForm) {
-    throw new Error("Form not found")
+    if (!getForm) {
+      return { success: false, message: "Form not found" };
+    }
+
+    // Create a new form with the copied details
+    const newForm = await db.form.create({
+      data: {
+        title: `${getForm.title}_copy`,
+        description: getForm.description,
+        submitText: getForm.submitText,
+        createdBy: user?.name as string,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    });
+
+    await addFormsToUser({ userId: user?.id as string, formIds: [newForm.id] });
+    await addFormsToteam({ teamId, formIds: [newForm.id] });
+
+    // Duplicate each field associated with the form
+    if (getForm.fields.length) {
+      const newFields = getForm.fields.map((field) => ({
+        ...field,
+        id: undefined,
+        formId: newForm.id,
+      }));
+
+      await db.field.createMany({ data: newFields });
+    }
+
+    revalidatePath("/super-admin");
+    return { success: true, message: "Form duplicated successfully" };
+  } catch (error) {
+    console.error("Error duplicating form fields:", error);
+    return { success: false, message: "Failed to duplicate form fields" };
   }
+};
 
-  // Create a new form with the copied details
-  const newForm = await db.form.create({
-    data: {
-      title: `${getForm.title}_copy`,
-      description: getForm.description,
-      submitText: getForm.submitText,
-      createdBy: user?.name as string,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-  })
-
-  // Duplicate each field associated with the form
-  if (getForm.fields.length) {
-    const newFields = getForm.fields.map((field) => ({
-      ...field,
-      id: undefined, // Let the database generate a new ID
-      formId: newForm.id, // Associate the field with the new form
-    }))
-
-    await db.field.createMany({ data: newFields })
-  }
-
-  revalidatePath("/super-admin")
-  return newForm
-}
