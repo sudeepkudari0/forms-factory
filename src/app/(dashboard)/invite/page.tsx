@@ -23,7 +23,6 @@ export default async function InvitePage({
 }) {
   const { token } = searchParams;
   const data = await getInviteInfo(token);
-  console.log(data);
   if (data === "Invalid token") {
     return (
       <div className="h-screen flex items-center justify-center">

@@ -52,14 +52,12 @@ export const InviteUserForm = ({
   });
 
   async function onSubmit(values: formSchema) {
-    console.log(values);
     setIsLoading(true);
     const data = await inviteUserToTeam({
       ...values,
       teamId,
       teamName,
     });
-    console.log(data);
     toast({
       title: "Invitation sent",
       description: "Your invitation has been created.",

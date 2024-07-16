@@ -16,7 +16,7 @@ import {
   type fieldType,
 } from "@prisma/client";
 import dayjs from "dayjs";
-import { CalendarIcon, ChevronsUpDown, EyeIcon } from "lucide-react";
+import { CalendarIcon, ChevronsUpDown, EyeIcon, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -53,6 +53,7 @@ import {
 } from "./ui/select";
 import { Textarea } from "./ui/textarea";
 import { toast } from "./ui/use-toast";
+import { FaSpinner } from "react-icons/fa6";
 
 type FormWithFields = Forms & {
   fields: Field[];
@@ -198,7 +199,6 @@ export const FormRenderer = ({
 
   async function handleFinalSubmit(values: any) {
     setIsSubmitting(true);
-    console.log(isDraft);
     await createFinalSubmission({
       submissionId: submission?.id as string,
       data: JSON.parse(JSON.stringify(values)),
@@ -266,7 +266,6 @@ export const FormRenderer = ({
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-      <div className="absolute top-0 right-10">{/* <ModeToggle /> */}</div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <fieldset
@@ -613,12 +612,13 @@ export const FormRenderer = ({
                       render={({ field: _ }) => (
                         <FormItem>
                           <div className="inline-flex">
-                            <FormLabel>
+                            <FormLabel className="flex flex-row items-center gap-2 justify-center">
                               {fieldItem.label}
-                              <LoadingButton
-                                variant={"ghost"}
-                                loading={uploadingStates[fieldItem.label]}
-                              />
+                              {uploadingStates[fieldItem.label] && (
+                                <Loader2
+                                  className={cn("h-4 w-4 animate-spin mr-2")}
+                                />
+                              )}
                               {_.value && (
                                 <div className="inline-flex">
                                   <Link href={_.value} target="_blank">
@@ -643,7 +643,6 @@ export const FormRenderer = ({
                                     e.target.files[0],
                                     fieldItem.label
                                   );
-                                  console.log(update);
                                   form.setValue(fieldItem.label, update);
                                 }}
                               />

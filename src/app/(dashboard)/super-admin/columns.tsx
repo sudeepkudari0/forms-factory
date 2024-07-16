@@ -65,15 +65,6 @@ const setPublishForm = async ({
   });
 };
 
-const duplicateForm = async (formId: string) => {
-  const data = await duplicateFormFields(formId);
-
-  toast({
-    title: "Form duplicated",
-    description: `Form has been duplicated with the title "${data?.title}"`,
-  });
-};
-
 const setArchiveForm = async ({
   formId,
   archived,
@@ -219,10 +210,6 @@ export const columns: ColumnDef<FormWithFields>[] = [
                     <span>Edit form</span>
                   </DropdownMenuItem>
                 </Link>
-                <DropdownMenuItem onClick={() => duplicateForm(form.id)}>
-                  <CopyIcon className="mr-2 h-4 w-4" />
-                  <span>Duplicate form</span>
-                </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <AlertDialogTrigger asChild>

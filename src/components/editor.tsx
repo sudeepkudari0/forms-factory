@@ -450,7 +450,6 @@ export const Editor = ({ form }: { form: FormWithFields }) => {
             ) : (
               <div className="container my-8 max-w-3xl">
                 <div className="space-y-8">
-                  <HeaderHelper />
                   <TypographyH1 className="pt-6 md:pt-0">
                     <div className="flex flex-row items-center justify-between">
                       <div>

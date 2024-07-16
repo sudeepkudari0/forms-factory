@@ -12,6 +12,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "utfs.io",
       },
+      {
+        protocol: "https",
+        hostname: "derma.houseofdharz.com",
+      }
     ],
   },
   redirects: async () => {

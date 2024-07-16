@@ -261,7 +261,7 @@ export const getteamFormsInUser = async (userId: string) => {
     const userFormIds = userForms.forms.map((userForm) => userForm.formId)
 
     if (userFormIds.length === 0) {
-      console.log(`No forms found for user with ID ${userId}`)
+      console.error(`No forms found for user with ID ${userId}`)
       return []
     }
 
@@ -287,7 +287,7 @@ export const getteamFormsInUser = async (userId: string) => {
     })
 
     if (teamsWithForms.length === 0) {
-      console.log(`No teams found with forms for user with ID ${userFormIds}`)
+      console.error(`No teams found with forms for user with ID ${userFormIds}`)
       return []
     }
     return teamsWithForms
@@ -504,14 +504,13 @@ export const getSharedSubmissions = async () => {
     })
     return data
   } catch (error) {
-    console.log(error)
+    console.error(error)
     return []
   }
 }
 
 export const updateFormAccess = async (userIds: string[], submissionId: string) => {
   if (!submissionId) {
-    console.log("Submission ID not provided")
     return null
   }
 

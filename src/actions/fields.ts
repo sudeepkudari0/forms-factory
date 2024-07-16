@@ -115,7 +115,7 @@ export async function updateReorderFields(values: Field[]) {
     const updatedFields = await Promise.all(updatePromises)
     return updatedFields
   } catch (error) {
-    console.log(error)
+    console.error(error)
     throw error
   }
 }

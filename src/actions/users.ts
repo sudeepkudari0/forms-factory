@@ -529,7 +529,6 @@ export async function inviteUser(values: {
     })
 
     const mail = await sendUserInvitationEmail(email, generatedNanoid)
-    console.log(mail)
 
     return inviteData
   } catch (error) {

@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Field, Form as Forms, fieldType } from "@prisma/client";
 import { format } from "date-fns";
-import { CalendarIcon, ChevronsUpDown } from "lucide-react";
+import { CalendarIcon, ChevronsUpDown, EyeIcon } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import validator from "validator";
@@ -36,6 +36,8 @@ import {
   SelectValue,
 } from "./ui/select";
 import { Textarea } from "./ui/textarea";
+import { LoadingButton } from "./ui/loading-button";
+import Link from "next/link";
 
 type FormWithFields = Forms & {
   fields: Field[];
@@ -469,23 +471,39 @@ export const FormRenderer = ({ formData }: FormRendererProps) => {
                   key={fieldItem.id}
                   control={form.control}
                   name={fieldItem.label}
-                  render={() => (
+                  render={({ field: _ }) => (
                     <FormItem>
-                      <FormLabel>{fieldItem.label}</FormLabel>
+                      <div className="inline-flex">
+                        <FormLabel>
+                          {fieldItem.label}
+                          <LoadingButton
+                            variant={"ghost"}
+                            // loading={uploadingStates[fieldItem.label]}
+                          />
+                          {_.value && (
+                            <div className="inline-flex">
+                              <Link href={_.value} target="_blank">
+                                <EyeIcon className="mr-2 h-4 w-4" />
+                              </Link>
+                            </div>
+                          )}
+                        </FormLabel>
+                      </div>
                       <FormControl>
-                        <UploadDropzone
-                          onClientUploadComplete={(res) => {
-                            // Do something with the response
-                            const fileUrl = res?.[0]?.url;
-                            setFileName(fileUrl);
-                            setFileSize(res?.[0]?.size);
-                          }}
-                          onUploadError={(error) => {
-                            // Do something with the error.
-                            console.log(error);
-                          }}
-                          endpoint={"profileImage"}
-                        />
+                        <div>
+                          <Input
+                            type="file"
+                            // disabled={
+                            //   submission?.status ===
+                            //   SubmissionStatus.SUBMITTED
+                            // }
+                            placeholder={fieldItem.placeholder || undefined}
+                            required={fieldItem.required || false}
+                            onChange={async () => {
+                              alert("Preview mode - upload");
+                            }}
+                          />
+                        </div>
                       </FormControl>
                       {fieldItem.description && (
                         <FormDescription>
