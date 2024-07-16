@@ -8,31 +8,42 @@ import { useForm } from "react-hook-form";
 import type * as z from "zod";
 
 import { createUser } from "@/actions/users";
-import { Icons } from "@/components/icons";
-import { buttonVariants } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
 import { userSignUpSchema } from "@/lib/validations/auth";
-
-interface UserSignUpFormProps extends React.HTMLAttributes<HTMLDivElement> {}
+import { LoadingButton } from "./ui/loading-button";
+import { PasswordInput } from "./ui/password-input";
+import { PhoneInput } from "./ui/phone-input";
 
 type FormData = z.infer<typeof userSignUpSchema>;
 
-export function UserSignUpForm({ className, ...props }: UserSignUpFormProps) {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormData>({
-    resolver: zodResolver(userSignUpSchema),
-  });
+export function UserSignUpForm({ token }: { token: string }) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const router = useRouter();
 
+  const form = useForm<FormData>({
+    resolver: zodResolver(userSignUpSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      whatsapp: "",
+      accessToken: token,
+      password: "",
+      confirmPassword: "",
+    },
+  });
+
   async function onSubmit(data: FormData) {
     setIsLoading(true);
+    console.log(data);
     try {
       const response = await createUser(data);
 
@@ -61,7 +72,6 @@ export function UserSignUpForm({ className, ...props }: UserSignUpFormProps) {
         description: "Account created successfully.",
       });
 
-      // Optionally, you can automatically sign in the user after sign-up
       const signInResult = await signIn("credentials", {
         redirect: false,
         email: data.email,
@@ -78,7 +88,7 @@ export function UserSignUpForm({ className, ...props }: UserSignUpFormProps) {
         return;
       }
 
-      router.push("/onboarding"); // Redirect to a welcome page or similar after sign-up
+      router.push("/onboarding");
     } catch (error) {
       console.log(error);
       toast({
@@ -91,124 +101,85 @@ export function UserSignUpForm({ className, ...props }: UserSignUpFormProps) {
   }
 
   return (
-    <div className={cn("grid gap-6", className)} {...props}>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="grid gap-2">
-          <div className="grid gap-1">
-            <Label className="sr-only" htmlFor="name">
-              Name
-            </Label>
-            <Input
-              id="name"
-              placeholder="Name"
-              type="text"
-              autoCapitalize="none"
-              autoComplete="name"
-              autoCorrect="off"
-              disabled={isLoading}
-              {...register("name")}
-            />
-            {errors?.name && (
-              <p className="px-1 text-xs text-red-600">
-                {errors.name.message?.toString()}
-              </p>
+    <div className={cn("grid gap-6")}>
+      <div className="flex flex-col space-y-2 text-center">
+        <h1 className="text-2xl font-semibold tracking-tight">Register</h1>
+        <p className="text-muted-foreground text-sm">
+          Enter your email to get started
+        </p>
+      </div>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <Input {...field} placeholder="Name" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
-          </div>
-          <div className="grid gap-1">
-            <Label className="sr-only" htmlFor="email">
-              Email
-            </Label>
-            <Input
-              id="email"
-              placeholder="Email"
-              type="text"
-              autoCapitalize="none"
-              autoComplete="email"
-              autoCorrect="off"
-              disabled={isLoading}
-              {...register("email")}
-            />
-            {errors?.email && (
-              <p className="px-1 text-xs text-red-600">
-                {errors.email.message?.toString()}
-              </p>
+          />
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <Input {...field} placeholder="Email" type="email" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
-          </div>
-          <div className="grid gap-1">
-            <Label className="sr-only" htmlFor="name">
-              Access Token
-            </Label>
-            <Input
-              id="name"
-              placeholder="Access Token"
-              type="text"
-              autoCapitalize="none"
-              autoComplete="name"
-              autoCorrect="off"
-              disabled={isLoading}
-              {...register("accessToken")}
-            />
-            {errors?.name && (
-              <p className="px-1 text-xs text-red-600">
-                {errors.accessToken?.message?.toString()}
-              </p>
+          />
+          <FormField
+            control={form.control}
+            name="whatsapp"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl className="w-full gap-2">
+                  <PhoneInput {...field} placeholder="Whatsapp Number" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
-          </div>
-          <div className="grid gap-1">
-            <Label className="sr-only" htmlFor="password">
-              Password
-            </Label>
-            <Input
-              id="password"
-              placeholder="Password"
-              type="password"
-              autoCapitalize="none"
-              autoComplete="new-password"
-              autoCorrect="off"
-              disabled={isLoading}
-              {...register("password")}
-            />
-            {errors?.password && (
-              <p className="px-1 text-xs text-red-600">
-                {errors.password.message?.toString()}
-              </p>
+          />
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <PasswordInput {...field} placeholder="Password" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
-          </div>
-          <div className="grid gap-1">
-            <Label className="sr-only" htmlFor="confirmPassword">
-              Confirm Password
-            </Label>
-            <Input
-              id="confirmPassword"
-              placeholder="Confirm Password"
-              type="password"
-              autoCapitalize="none"
-              autoComplete="new-password"
-              autoCorrect="off"
-              disabled={isLoading}
-              {...register("confirmPassword")}
-            />
-            {errors?.confirmPassword && (
-              <p className="px-1 text-xs text-red-600">
-                {errors.confirmPassword.message?.toString()}
-              </p>
+          />
+          <FormField
+            control={form.control}
+            name="confirmPassword"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <PasswordInput {...field} placeholder="Confirm Password" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
-          </div>
-          <button
+          />
+          <LoadingButton
             type="submit"
-            className={cn(
-              buttonVariants(),
-              "text-white font-bold mt-2 bg-gradient-to-r from-[#0077B6] to-[#00BCD4]"
-            )}
+            className="rounded text-white w-full font-semibold bg-gradient-to-r from-[#0077B6] to-[#00BCD4] "
             disabled={isLoading}
+            loading={isLoading}
           >
-            {isLoading && (
-              <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-            )}
-            Sign Up with Email
-          </button>
-        </div>
-      </form>
+            Sign up
+          </LoadingButton>
+        </form>
+      </Form>
     </div>
   );
 }

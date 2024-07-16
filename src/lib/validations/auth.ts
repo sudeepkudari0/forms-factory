@@ -7,10 +7,19 @@ export const userLoginSchema = z.object({
 
 export const userSignUpSchema = z
   .object({
-    name: z.string().min(1),
-    email: z.string().min(1),
-    accessToken: z.string().min(1),
-    password: z.string().min(1),
+    name: z.string().min(1, {
+      message: "Name is required",
+    }),
+    email: z.string().min(1, {
+      message: "Email is required",
+    }),
+    accessToken: z.string(),
+    whatsapp: z.string().min(1, {
+      message: "Whatsapp number is required",
+    }),
+    password: z.string().min(1, {
+      message: "Password is required",
+    }),
     confirmPassword: z.string().min(1),
   })
   .refine((data) => data.password === data.confirmPassword, {

@@ -1,5 +1,5 @@
 "use client";
-import {} from "@/components/ui/card";
+// import { createSuperUser } from "@/actions/users";
 import {
   Form,
   FormControl,
@@ -19,7 +19,6 @@ import * as React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { LoadingButton } from "./ui/loading-button";
-// import { createSuperUser } from "@/actions/users"
 
 // const handleClick = async () => {
 //   const data = await createSuperUser({
@@ -145,6 +144,13 @@ export function UserAuthForm() {
           >
             Login
           </LoadingButton>
+          {/* <button
+            type="button"
+            onClick={handleClick}
+            className="rounded w-full text-sm text-white bg-gradient-to-r from-[#0077B6] to-[#00BCD4]"
+          >
+            Clcikc
+          </button> */}
         </div>
       </form>
     </Form>
