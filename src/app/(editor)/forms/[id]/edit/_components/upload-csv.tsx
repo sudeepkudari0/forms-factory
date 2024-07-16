@@ -70,7 +70,7 @@ export const CSVUploadDialog = ({
         title: "Error",
         description: "Failed to upload CSV data",
       });
-      console.log(err);
+      console.error(err);
     },
   });
 

@@ -118,7 +118,6 @@ export const EditFieldForm = ({
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [isSaved, setIsSaved] = useState(fieldData?.saved || false);
-  console.log(fieldData);
   const form = useForm<FormType>({
     resolver: zodResolver(formSchema),
     defaultValues: {

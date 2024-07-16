@@ -199,7 +199,6 @@ export const FormRenderer = ({
 
   async function handleFinalSubmit(values: any) {
     setIsSubmitting(true);
-    console.log(isDraft);
     await createFinalSubmission({
       submissionId: submission?.id as string,
       data: JSON.parse(JSON.stringify(values)),
@@ -644,7 +643,6 @@ export const FormRenderer = ({
                                     e.target.files[0],
                                     fieldItem.label
                                   );
-                                  console.log(update);
                                   form.setValue(fieldItem.label, update);
                                 }}
                               />

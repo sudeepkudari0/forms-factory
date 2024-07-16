@@ -43,7 +43,6 @@ export function UserSignUpForm({ token }: { token: string }) {
 
   async function onSubmit(data: FormData) {
     setIsLoading(true);
-    console.log(data);
     try {
       const response = await createUser(data);
 
@@ -90,7 +89,7 @@ export function UserSignUpForm({ token }: { token: string }) {
 
       router.push("/onboarding");
     } catch (error) {
-      console.log(error);
+      console.error(error);
       toast({
         title: "Sign Up Error",
         description: "An error occurred during sign-up.",

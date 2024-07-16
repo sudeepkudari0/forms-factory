@@ -5,7 +5,6 @@ import type { User } from "@prisma/client";
 import { columns } from "../columns";
 
 export const SubmissionsTable = ({ users }: { users: User[] }) => {
-  console.log(users);
   return (
     <div className="overflow-hidden">
       <DataTable columns={columns} data={users || []} />

@@ -87,7 +87,6 @@ async function retryEvents() {
         lastAttempt: event.lastAttempt || now,
       })
 
-      console.log("generared info")
       console.log(
         "attempt",
         event?.attemptCount && event.attemptCount >= 1 ? event.attemptCount + 1 : 1
