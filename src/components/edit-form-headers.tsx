@@ -12,15 +12,16 @@ import {
 import { Input } from "@/components/ui/input";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Textarea } from "@/components/ui/textarea";
-import { UploadDropzone } from "@/lib/uploadthing";
-import { bytesToSize } from "@/utils/misc";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Form as FormType } from "@prisma/client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { toast } from "./ui/use-toast";
-
+import Image from "next/image";
+import { Loader2, UploadCloudIcon, XIcon } from "lucide-react";
+import { getPresignedUrl } from "@/actions/users";
+import { cn } from "@/lib/utils";
 const formSchema = z.object({
   id: z.string().min(2).max(50),
   headerImage: z.string(),
@@ -33,8 +34,15 @@ type formSchema = z.infer<typeof formSchema>;
 
 export const EditFormHeaders = ({ formData }: { formData: FormType }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [fileName, setFileName] = useState("");
-  const [fileSize, setFileSize] = useState("");
+  const [image, setImage] = useState<File | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | undefined>();
+  const [uploading, setUploading] = useState(false);
+
+  useEffect(() => {
+    if (formData.headerImage) {
+      setPreviewImage(formData.headerImage);
+    }
+  }, [formData.headerImage]);
 
   const form = useForm<formSchema>({
     resolver: zodResolver(formSchema),
@@ -47,6 +55,11 @@ export const EditFormHeaders = ({ formData }: { formData: FormType }) => {
     },
   });
 
+  const handleRemoveImage = () => {
+    setImage(null);
+    setPreviewImage(undefined);
+  };
+
   async function onSubmit(values: formSchema) {
     setIsLoading(true);
     await createFormHeaders({
@@ -58,6 +71,51 @@ export const EditFormHeaders = ({ formData }: { formData: FormType }) => {
     });
     setIsLoading(false);
   }
+
+  const uploadToS3PresignedUrl = async (
+    file: any,
+    presignedUrl: string | URL | Request,
+    mimeType: any
+  ) => {
+    try {
+      const response = await fetch(presignedUrl, {
+        method: "PUT",
+        headers: {
+          "Content-Type": mimeType,
+        },
+        body: file,
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to upload file to S3");
+      }
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      throw error;
+    }
+  };
+
+  const uploadImageToS3 = async (pickedImage: File) => {
+    setUploading(true);
+    setImage(pickedImage);
+    setPreviewImage(URL.createObjectURL(pickedImage));
+    const file = pickedImage;
+    try {
+      const fileName = file.name;
+      const presignedData = await getPresignedUrl(fileName);
+      const presignedUrl = presignedData.presignedUrl;
+      await uploadToS3PresignedUrl(file, presignedUrl, file.type);
+
+      const publicUrl = presignedData.publicUrl;
+      form.setValue("headerImage", publicUrl);
+    } catch (error) {
+      console.error(error);
+      alert("Upload failed!");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   return (
     <div className="container my-8 max-w-3xl">
       <Form {...form}>
@@ -111,52 +169,47 @@ export const EditFormHeaders = ({ formData }: { formData: FormType }) => {
             name="headerImage"
             render={() => (
               <FormItem>
-                <FormLabel>Header Image</FormLabel>
+                <FormLabel className="flex items-center gap-2 pt-2">
+                  Header Image{" "}
+                  {uploading && (
+                    <Loader2 className={cn("h-4 w-4 animate-spin mr-2")} />
+                  )}
+                </FormLabel>
                 <FormControl>
-                  <UploadDropzone
-                    endpoint="fileUpload"
-                    config={{
-                      mode: "auto",
-                    }}
-                    appearance={{
-                      button: {
-                        cursor: "pointer",
-                        padding: "15px",
-                        borderRadius: "4px",
-                        fontSize: "15px",
-                        color: "#fff",
-                        backgroundColor: "#000",
-                        border: "none",
-                        outline: "none",
-                        transition: "all 0.2s ease-in-out",
-                      },
-                    }}
-                    className="p-2"
-                    onClientUploadComplete={async (res) => {
-                      if (res) {
-                        setFileName(res[0].name);
-                        const size = bytesToSize(res[0].size);
-                        setFileSize(size);
-                        form.setValue("headerImage", res[0].url);
-                      }
-                    }}
-                    onUploadError={() => {
-                      console.log("onUploadError");
-                    }}
-                  />
+                  {previewImage ? (
+                    <div className="relative border">
+                      <Image
+                        src={previewImage as string}
+                        width={2000}
+                        height={2000}
+                        alt="ECG"
+                        className="h-[300px] object-contain object-center"
+                      />
+                      <button
+                        type="button"
+                        className="absolute top-2 right-5 bg-red-500"
+                        onClick={handleRemoveImage}
+                      >
+                        <XIcon className="h-5 w-5" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center h-[200px] border rounded-md">
+                      <UploadCloudIcon className=" absolute  h-12 w-12" />
+                      <p className=" pt-20 fontheading_c82e299b-module__dwMDXq__className text-lg">
+                        Upload Header Image
+                      </p>
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        className="absolute top-[-100px] right-[-100px] w-[400px] h-[200px] opacity-0 cursor-pointer"
+                        onChange={(e: any) =>
+                          uploadImageToS3(e.target.files[0])
+                        }
+                      />
+                    </div>
+                  )}
                 </FormControl>
-                {fileName && fileSize ? (
-                  <>
-                    <div className="flex space-x-5 pl-1 text-sm font-medium">
-                      <dt className="pt-2">File Name: </dt>
-                      <dd className="pt-2">{fileName}</dd>
-                    </div>
-                    <div className="flex space-x-8 pl-1 text-sm font-medium">
-                      <dt className="">File Size:</dt>
-                      <dd className="">{fileSize}</dd>
-                    </div>
-                  </>
-                ) : null}
                 <FormMessage />
               </FormItem>
             )}
@@ -165,7 +218,7 @@ export const EditFormHeaders = ({ formData }: { formData: FormType }) => {
             <LoadingButton
               type="submit"
               className="rounded text-white font-bold bg-gradient-to-r from-[#0077B6] to-[#00BCD4] "
-              disabled={isLoading}
+              disabled={isLoading || uploading}
               loading={isLoading}
             >
               Submit
