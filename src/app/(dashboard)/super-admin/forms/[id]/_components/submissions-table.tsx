@@ -5,20 +5,9 @@ import {
   getUsersForteam,
   getteamsForForm,
 } from "@/actions/submissions";
-import { Button } from "@/components/ui/button";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
+import {} from "@/components/ui/command";
 import { DataTable } from "@/components/ui/data-table";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import {} from "@/components/ui/popover";
 import {
   Tooltip,
   TooltipContent,
@@ -34,11 +23,10 @@ import {
 } from "@prisma/client";
 import type { ColumnDef } from "@tanstack/react-table";
 import { CircleIcon, EyeIcon } from "lucide-react";
-import { Check, ChevronsUpDown } from "lucide-react";
+import {} from "lucide-react";
 import Link from "next/link";
 import type React from "react";
 import { useEffect, useState } from "react";
-import ExportButton from "./export-button";
 
 export const SubmissionsTable = ({ formId }: { formId: string }) => {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
@@ -196,114 +184,6 @@ export const SubmissionsTable = ({ formId }: { formId: string }) => {
 
   return (
     <div className="overflow-hidden">
-      <div className="flex items-center justify-between">
-        <div className="flex gap-4">
-          <Popover open={teamOpen} onOpenChange={setteamOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                role="combobox"
-                aria-expanded={teamOpen}
-                className="w-[200px] justify-between"
-              >
-                {selectedteam
-                  ? teams.find((team) => team.id === selectedteam)?.name
-                  : "Filter team..."}
-
-                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-[200px] p-0">
-              <Command>
-                {/* <CommandInput placeholder="Search team..." /> */}
-                <CommandEmpty>No team found.</CommandEmpty>
-                <CommandGroup>
-                  <CommandList>
-                    {teams.map((team) => (
-                      <CommandItem
-                        key={team?.id}
-                        value={team?.id}
-                        onSelect={(currentValue) => {
-                          setSelectedteam(
-                            currentValue === selectedteam ? "" : currentValue
-                          );
-                          setteamOpen(false);
-                        }}
-                      >
-                        <Check
-                          className={cn(
-                            "mr-2 h-4 w-4",
-                            selectedteam === team?.id
-                              ? "opacity-100"
-                              : "opacity-0"
-                          )}
-                        />
-                        {team?.name}
-                      </CommandItem>
-                    ))}
-                  </CommandList>
-                </CommandGroup>
-              </Command>
-            </PopoverContent>
-          </Popover>
-
-          <Popover open={userOpen} onOpenChange={setUserOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                role="combobox"
-                aria-expanded={userOpen}
-                className="w-[200px] justify-between"
-              >
-                {selectedteam && selectedUser
-                  ? users.find((user) => user.id === selectedUser)?.name
-                  : "Filter user..."}
-
-                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-[200px] p-0">
-              <Command>
-                {/* <CommandInput placeholder="Search team..." /> */}
-                <CommandEmpty>No user found.</CommandEmpty>
-                <CommandGroup>
-                  <CommandList>
-                    {users.map((user) => (
-                      <CommandItem
-                        key={user?.id}
-                        value={user?.id}
-                        onSelect={(currentValue) => {
-                          setSelectedUser(
-                            currentValue === selectedUser ? "" : currentValue
-                          );
-                          setUserOpen(false);
-                        }}
-                      >
-                        <Check
-                          className={cn(
-                            "mr-2 h-4 w-4",
-                            selectedUser === user?.id
-                              ? "opacity-100"
-                              : "opacity-0"
-                          )}
-                        />
-                        {user?.name}
-                      </CommandItem>
-                    ))}
-                  </CommandList>
-                </CommandGroup>
-              </Command>
-            </PopoverContent>
-          </Popover>
-        </div>
-        <div>
-          <ExportButton
-            formId={formId}
-            selectedUser={selectedUser}
-            selectedteam={selectedteam}
-          />
-        </div>
-      </div>
       <DataTable columns={columns()} data={filteredSubmissions} />
     </div>
   );

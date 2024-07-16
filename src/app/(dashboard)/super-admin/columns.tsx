@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
-import type { Field, Form, Submission, Teams } from "@prisma/client";
+import type { Field, Form, Submission } from "@prisma/client";
 import type { ColumnDef } from "@tanstack/react-table";
 import dayjs from "dayjs";
 import {
@@ -46,7 +46,6 @@ import Link from "next/link";
 type FormWithFields = Form & {
   fields: Field[];
   submissions: Submission[];
-  teams: Teams[];
 };
 
 const setPublishForm = async ({
@@ -126,22 +125,6 @@ export const columns: ColumnDef<FormWithFields>[] = [
             )}
           />
           <span>{form.published ? "Published" : "Draft"}</span>
-        </div>
-      );
-    },
-  },
-  {
-    id: "teams",
-    accessorKey: "teams.length",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="team" />
-    ),
-    cell: ({ row }) => {
-      const form = row.original;
-      const teamName = form?.teams?.map((team) => team.name).join(", ");
-      return (
-        <div className="inline-flex items-center">
-          <span>{teamName}</span>
         </div>
       );
     },

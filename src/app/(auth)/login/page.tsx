@@ -1,10 +1,10 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UserAuthForm } from "@/components/user-login-form";
-import { UserSignUpForm } from "@/components/user-signup-form";
 import { getCurrentUser } from "@/lib/session";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { FaHouse } from "react-icons/fa6";
+import { SignUpAccessForm } from "../_components/sign-up-access-form";
 export const metadata = {
   title: "Login",
   description: "Login to get started.",
@@ -79,15 +79,7 @@ export default async function LoginPage({
           </TabsContent>
           <TabsContent value="signup" className="flex">
             <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
-              <div className="flex flex-col space-y-2 text-center">
-                <h1 className="text-2xl font-semibold tracking-tight">
-                  Register
-                </h1>
-                <p className="text-muted-foreground text-sm">
-                  Enter your email to get started
-                </p>
-              </div>
-              <UserSignUpForm />
+              <SignUpAccessForm />
               <p className="text-muted-foreground px-8 text-center text-sm">
                 By clicking continue, you agree to our{" "}
                 <Link

@@ -1,7 +1,5 @@
 "use client";
-
-import {} from "@/actions/forms";
-import { inviteUserToTeam } from "@/actions/team";
+import { inviteUser } from "@/actions/users";
 import {
   Dialog,
   DialogContent,
@@ -35,12 +33,8 @@ type formSchema = z.infer<typeof formSchema>;
 
 export const InviteUserForm = ({
   trigger,
-  teamId,
-  teamName,
 }: {
   trigger: React.ReactElement;
-  teamId: string;
-  teamName: string;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -54,10 +48,8 @@ export const InviteUserForm = ({
   async function onSubmit(values: formSchema) {
     console.log(values);
     setIsLoading(true);
-    const data = await inviteUserToTeam({
+    const data = await inviteUser({
       ...values,
-      teamId,
-      teamName,
     });
     console.log(data);
     toast({
@@ -83,12 +75,10 @@ export const InviteUserForm = ({
       </DialogTrigger>
       <DialogContent className="rounded font-sans sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle className=" font-sans font-semibold">
-            Invite User
-          </DialogTitle>
+          <DialogTitle>Invite Users</DialogTitle>
           <DialogDescription>
-            Invite a user to join your <b>{teamName}</b> by entering their email
-            address. An invitation will be sent to the provided email.
+            Invite user to join by entering their email address below. An
+            invitation mail will be sent to the provided email.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>

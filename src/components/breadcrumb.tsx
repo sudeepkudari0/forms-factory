@@ -77,11 +77,11 @@ const BreadCrumb = () => {
             <Fragment key={index}>
               <BreadcrumbItem>
                 {!isLastPath ? (
-                  <BreadcrumbLink asChild className="truncate w-[100px]">
+                  <BreadcrumbLink asChild className="truncate max-w-[100px]">
                     <Link href={href}>{link}</Link>
                   </BreadcrumbLink>
                 ) : (
-                  <BreadcrumbPage className="truncate w-[100px]">
+                  <BreadcrumbPage className="truncate max-w-[100px]">
                     {link}
                   </BreadcrumbPage>
                 )}

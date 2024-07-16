@@ -13,27 +13,16 @@ import { columns } from "./columns";
 
 const getForms = async () => {
   try {
-    const data = await db.form.findMany({
+    return await db.form.findMany({
       where: {
         archived: false,
       },
       include: {
         fields: true,
         submissions: true,
-        teams: {
-          include: {
-            team: true,
-          },
-        },
+        teams: true,
       },
     });
-
-    const formattedData = data.map((form) => ({
-      ...form,
-      teams: form.teams ? form.teams.map((teamForm) => teamForm.team) : [],
-    }));
-
-    return formattedData;
   } catch (error) {
     console.error("Error fetching forms:", error);
     throw error;

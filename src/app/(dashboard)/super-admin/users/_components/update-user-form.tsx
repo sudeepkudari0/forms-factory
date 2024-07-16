@@ -1,13 +1,6 @@
 "use client";
 
 import { updateUser } from "@/actions/users";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { type User, UserStatus } from "@prisma/client";
-import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import PhoneInput from "react-phone-input-2";
-import * as z from "zod";
-import "react-phone-input-2/lib/style.css";
 import {
   Dialog,
   DialogContent,
@@ -20,7 +13,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -28,6 +20,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { LoadingButton } from "@/components/ui/loading-button";
+import { PhoneInput } from "@/components/ui/phone-input";
 import {
   Select,
   SelectContent,
@@ -36,7 +29,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "@/components/ui/use-toast";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { type User, UserStatus } from "@prisma/client";
 import { useQueryClient } from "@tanstack/react-query";
+import React, { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 
 const userSchema = z.object({
   userId: z.string(),
@@ -107,7 +105,7 @@ const UpdateUserForm = ({
           onClick: () => setIsOpen(true),
         })}
       </DialogTrigger>
-      <DialogContent className="rounded sm:max-w-[500px]">
+      <DialogContent className="rounded sm:max-w-[360px]">
         <DialogHeader>
           <DialogTitle>Update User</DialogTitle>
           <DialogDescription>
@@ -148,31 +146,8 @@ const UpdateUserForm = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Whatsapp Number</FormLabel>
-                  <FormControl>
-                    <PhoneInput
-                      enableSearch
-                      autoFormat={false}
-                      containerStyle={{
-                        width: "100%",
-                        border: "0px solid #ebeaea",
-                        boxSizing: "border-box",
-                        backgroundColor: "#ccc9c9",
-                        borderRadius: "8px",
-                        marginBottom: "8px",
-                      }}
-                      buttonClass="border-none bg-white"
-                      inputStyle={{
-                        width: "100%",
-                        color: "black",
-                        border: "1px solid #ebeaea",
-                        boxSizing: "border-box",
-                        marginBottom: "8px",
-                      }}
-                      value={field.value}
-                      onChange={(e) => {
-                        field.onChange(e);
-                      }}
-                    />
+                  <FormControl className="">
+                    <PhoneInput {...field} className="gap-2" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -185,9 +160,6 @@ const UpdateUserForm = ({
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-1 shadow-sm">
                   <div className="space-y-0.5">
                     <FormLabel>Status</FormLabel>
-                    <FormDescription>
-                      {"User Status Description "}
-                    </FormDescription>
                   </div>
                   <Select
                     onValueChange={field.onChange}

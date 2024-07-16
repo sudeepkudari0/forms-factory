@@ -26,12 +26,12 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "@/components/ui/use-toast";
 import { generateSecurePassword } from "@/utils/misc";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import PhoneInput from "react-phone-input-2";
 import * as z from "zod";
 import "react-phone-input-2/lib/style.css";
-import { useQueryClient } from "@tanstack/react-query";
+import { PhoneInput } from "@/components/ui/phone-input";
 
 const userSchema = z.object({
   name: z.string().min(2).max(50),
@@ -39,7 +39,6 @@ const userSchema = z.object({
   whatsapp: z.string().min(10).max(15),
   password: z.string().max(512),
   preApproved: z.boolean().optional().default(false),
-  isPlusUser: z.boolean().optional().default(false),
   accessToken: z.string().min(2),
 });
 
@@ -58,7 +57,6 @@ const CreateUserForm = ({ trigger }: { trigger: React.ReactElement }) => {
       email: "",
       password: generateSecurePassword(),
       preApproved: false,
-      isPlusUser: false,
       accessToken: "secret",
     },
   });
@@ -90,7 +88,7 @@ const CreateUserForm = ({ trigger }: { trigger: React.ReactElement }) => {
           onClick: () => setIsOpen(true),
         })}
       </DialogTrigger>
-      <DialogContent className="rounded sm:max-w-[500px]">
+      <DialogContent className="rounded sm:max-w-[360px]">
         <DialogHeader>
           <DialogTitle>Create User</DialogTitle>
           <DialogDescription>
@@ -131,30 +129,8 @@ const CreateUserForm = ({ trigger }: { trigger: React.ReactElement }) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Whatsapp Number</FormLabel>
-                  <FormControl>
-                    <PhoneInput
-                      enableSearch
-                      autoFormat={false}
-                      containerStyle={{
-                        width: "100%",
-                        border: "0px solid #ebeaea",
-                        boxSizing: "border-box",
-                        backgroundColor: "#ccc9c9",
-                        borderRadius: "8px",
-                        marginBottom: "8px",
-                      }}
-                      buttonClass="border-none bg-white"
-                      inputStyle={{
-                        width: "100%",
-                        color: "black",
-                        border: "1px solid #ebeaea",
-                        boxSizing: "border-box",
-                        marginBottom: "8px",
-                      }}
-                      onChange={(e) => {
-                        field.onChange(e);
-                      }}
-                    />
+                  <FormControl className="">
+                    <PhoneInput {...field} className="gap-2" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -173,23 +149,6 @@ const CreateUserForm = ({ trigger }: { trigger: React.ReactElement }) => {
                     <PasswordInput readOnly {...field} />
                   </FormControl>
                   <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="isPlusUser"
-              render={({ field }) => (
-                <FormItem className="shadow- flex flex-row items-center justify-between rounded-lg border p-3">
-                  <div className="space-y-0.5">
-                    <FormLabel>Team Lead</FormLabel>
-                    <FormDescription>
-                      Give user access to create and fill forms
-                    </FormDescription>
-                  </div>
-                  <FormControl>
-                    <Switch onCheckedChange={field.onChange} />
-                  </FormControl>
                 </FormItem>
               )}
             />

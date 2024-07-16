@@ -1,10 +1,10 @@
 "use server"
-
-import { env } from "@/env.mjs"
 import { db } from "@/lib/db"
+import { sendUserInvitationEmail } from "@/lib/mail"
 import { getCurrentUser } from "@/lib/session"
 import { type User, UserRole, UserStatus } from "@prisma/client"
 import bcrypt from "bcrypt"
+import { customAlphabet } from "nanoid"
 import { revalidatePath } from "next/cache"
 import { createteam } from "./team"
 
@@ -51,9 +51,23 @@ export async function createUser(values: {
   email: string
   password: string
   accessToken: string
+  whatsapp: string
 }) {
   try {
-    if (values.accessToken !== env.SIGNUP_ACCESS_TOKEN) {
+    if (!values.accessToken) {
+      return {
+        status: "error",
+        error: "Invalid access token",
+      }
+    }
+
+    const checkToken = await db.userInvitation.findFirst({
+      where: {
+        token: values.accessToken,
+      },
+    })
+
+    if (!checkToken) {
       return {
         status: "error",
         error: "Invalid access token",
@@ -67,7 +81,7 @@ export async function createUser(values: {
         name: values.name,
         email: values.email,
         hashedPassword: hashedPassword,
-        whatsapp: "8596523652",
+        whatsapp: values.whatsapp,
         userRole: UserRole.USER,
         userStatus: UserStatus.ACTIVE,
       },
@@ -83,6 +97,12 @@ export async function createUser(values: {
         teamIds: [createTeam.id],
       })
     }
+
+    await db.userInvitation.deleteMany({
+      where: {
+        id: checkToken.id,
+      },
+    })
 
     return {
       status: "success",
@@ -250,9 +270,12 @@ export async function deleteUser(values: { userId: string }) {
   try {
     const { userId } = values
 
-    const deletedUser = await db.user.delete({
+    const deletedUser = await db.user.update({
       where: {
         id: userId,
+      },
+      data: {
+        userStatus: UserStatus.INACTIVE,
       },
     })
 
@@ -487,5 +510,54 @@ export const deleteExistingProfilePicture = async () => {
     } catch (error) {
       console.error("Error deleting file from S3:", error)
     }
+  }
+}
+
+const nanoid = customAlphabet("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz", 8)
+
+export async function inviteUser(values: {
+  email: string
+}) {
+  const { email } = values
+  const generatedNanoid = nanoid()
+  try {
+    const inviteData = await db.userInvitation.create({
+      data: {
+        token: generatedNanoid,
+        email,
+      },
+    })
+
+    const mail = await sendUserInvitationEmail(email, generatedNanoid)
+    console.log(mail)
+
+    return inviteData
+  } catch (error) {
+    console.error("Error inviting user to team:", error)
+    throw error
+  }
+}
+
+export async function checkUserInvitation(token: string) {
+  try {
+    const invitation = await db.userInvitation.findFirst({
+      where: {
+        token,
+      },
+    })
+    if (invitation) {
+      return {
+        success: true,
+        message: "User invitation found",
+      }
+    }
+
+    return {
+      success: false,
+      message: "Access token is invalid",
+    }
+  } catch (error) {
+    console.error("Error checking user invitation:", error)
+    throw error
   }
 }
