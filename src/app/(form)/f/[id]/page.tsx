@@ -4,6 +4,7 @@ import {
   TypographyH1,
   TypographyH2,
   TypographyMuted,
+  TypographyP,
 } from "@/components/typography";
 import { Separator } from "@/components/ui/separator";
 import { env } from "@/env.mjs";
@@ -87,17 +88,29 @@ const Form = async ({ params, searchParams }: FormPageProperties) => {
   const submissionAccess = await getSubmissionAccess(sid);
 
   return (
-    <div className="container my-8">
+    <div className="mx-3 md:container my-3 md:my-8">
       {form.headerText && form.headerImage ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 bg-[#00BCD4] rounded-md">
-          <div className="overflow-y-auto h-[calc(100vh-100px)] bg-background rounded-md pt-4 mt-4 ml-4 mb-4">
+        <div className="flex flex-col-reverse lg:flex-row bg-black dark:bg-white rounded-md">
+          <div
+            className="overflow-y-auto h-auto lg:w-1/2 md:h-[calc(100vh-100px)] rounded-sm bg-background pt-4 mr-2 lg:mr-0 lg:mt-2 ml-2 mb-2"
+            style={{
+              scrollbarWidth: "thin",
+              scrollbarColor: "gray",
+            }}
+          >
             <FormRenderer
               form={form}
               submission={submission}
               submissionAccess={submissionAccess}
             />
           </div>
-          <div className="bg-blue-900 flex flex-col justify-between rounded-md p-4">
+          <div
+            className="bg-white dark:bg-black md:h-[calc(100vh-100px)] overflow-y-auto flex flex-col lg:w-1/2 justify-between rounded-sm m-2"
+            style={{
+              scrollbarWidth: "thin",
+              scrollbarColor: "gray",
+            }}
+          >
             <div className="flex flex-col items-center">
               {form.headerImage && (
                 <Image
@@ -105,20 +118,20 @@ const Form = async ({ params, searchParams }: FormPageProperties) => {
                   alt="Header Image"
                   width={500}
                   height={300}
-                  className="max-h-[300px] w-full"
+                  className="max-h-[300px] w-full rounded-md object-contain"
                 />
               )}
-              <TypographyH2 className="mt-6 text-center text-zinc-100 md:pt-0 w-full truncate">
+              <TypographyH2 className="mt-6 text-center md:pt-0 w-full">
                 <span>{form.headerText}</span>
               </TypographyH2>
               {form.formDescription && (
-                <p className="text-md text-center text-gray-300 w-full truncate">
+                <TypographyP className="text-md px-3 text-justify text-gray-500 w-full">
                   {form.formDescription}
-                </p>
+                </TypographyP>
               )}
             </div>
             {form.footerText && (
-              <div className="mt-8 text-center flex flex-col items-center justify-center text-gray-200 w-full truncate">
+              <div className="mt-8 text-center flex flex-col items-center justify-center text-gray-200 w-full">
                 <TypographyMuted>{form.footerText}</TypographyMuted>
               </div>
             )}

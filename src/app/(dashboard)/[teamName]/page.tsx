@@ -32,7 +32,7 @@ const UserPage = async ({
 
   return (
     <DashboardShell>
-      <DashboardHeader heading="My Workspace" text="Fill and submit forms." />
+      <DashboardHeader heading="My Workspace" />
       <div className="overflow-hidden px-2">
         <FormsTableWithFilter user={user} tname={tname?.value} />
       </div>

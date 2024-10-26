@@ -8,7 +8,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {} from "@/components/ui/tooltip";
-import { cn, dateFormatter } from "@/lib/utils";
+import {} from "@/lib/utils";
 import {
   type Submission,
   type SubmissionAccess,
@@ -16,7 +16,7 @@ import {
 } from "@prisma/client";
 import type { ColumnDef } from "@tanstack/react-table";
 import dayjs from "dayjs";
-import { CircleIcon, EyeIcon } from "lucide-react";
+import { EyeIcon } from "lucide-react";
 import Link from "next/link";
 
 export type SubmissionWithFormAccess = Submission & {
@@ -100,61 +100,61 @@ export const SubmissionsTable = ({
       },
     }));
 
-    const staticColumns: ColumnDef<Submission>[] = [
-      {
-        accessorKey: "status",
-        header: "Status",
-        cell: ({ row }) => {
-          const submission = row.original;
-          return (
-            <div className="inline-flex items-center">
-              <CircleIcon
-                className={cn(
-                  "mr-2 h-2 w-2 text-transparent",
-                  submission.status === SubmissionStatus.SUBMITTED
-                    ? "fill-green-600"
-                    : "fill-yellow-600"
-                )}
-              />
-              <span>
-                {submission.status === SubmissionStatus.SUBMITTED
-                  ? "Submitted"
-                  : "Draft"}
-              </span>
-            </div>
-          );
-        },
-      },
-      {
-        accessorKey: "createdAt",
-        header: "Created at",
-        cell: ({ row }) => {
-          const date = new Date(row.original.createdAt);
-          const formattedDate = dateFormatter(date);
-          return <span>{formattedDate}</span>;
-        },
-      },
-      // {
-      //   id: "actions",
-      //   header: "Actions",
-      //   cell: ({ row }) => {
-      //     const submission = row.original
-      //     return (
-      //       <div className="inline-flex items-center">
-      //         <AddColaboratorsDialog
-      //           trigger={
-      //             <Button className="h-8 w-8 p-1" variant={"ghost"}>
-      //               <Icons.users className="mr-2 h-4 w-4" color="green" />
-      //             </Button>
-      //           }
-      //           submissionId={submission.id}
-      //           formId={submission.formId}
-      //         />
-      //       </div>
-      //     )
-      //   },
-      // },
-    ];
+    // const staticColumns: ColumnDef<Submission>[] = [
+    //   {
+    //     accessorKey: "status",
+    //     header: "Status",
+    //     cell: ({ row }) => {
+    //       const submission = row.original;
+    //       return (
+    //         <div className="inline-flex items-center">
+    //           <CircleIcon
+    //             className={cn(
+    //               "mr-2 h-2 w-2 text-transparent",
+    //               submission.status === SubmissionStatus.SUBMITTED
+    //                 ? "fill-green-600"
+    //                 : "fill-yellow-600"
+    //             )}
+    //           />
+    //           <span>
+    //             {submission.status === SubmissionStatus.SUBMITTED
+    //               ? "Submitted"
+    //               : "Draft"}
+    //           </span>
+    //         </div>
+    //       );
+    //     },
+    //   },
+    //   {
+    //     accessorKey: "createdAt",
+    //     header: "Created at",
+    //     cell: ({ row }) => {
+    //       const date = new Date(row.original.createdAt);
+    //       const formattedDate = dateFormatter(date);
+    //       return <span>{formattedDate}</span>;
+    //     },
+    //   },
+    //   // {
+    //   //   id: "actions",
+    //   //   header: "Actions",
+    //   //   cell: ({ row }) => {
+    //   //     const submission = row.original
+    //   //     return (
+    //   //       <div className="inline-flex items-center">
+    //   //         <AddColaboratorsDialog
+    //   //           trigger={
+    //   //             <Button className="h-8 w-8 p-1" variant={"ghost"}>
+    //   //               <Icons.users className="mr-2 h-4 w-4" color="green" />
+    //   //             </Button>
+    //   //           }
+    //   //           submissionId={submission.id}
+    //   //           formId={submission.formId}
+    //   //         />
+    //   //       </div>
+    //   //     )
+    //   //   },
+    //   // },
+    // ];
 
     const actionColumn: ColumnDef<Submission>[] = [
       {
@@ -179,7 +179,7 @@ export const SubmissionsTable = ({
         },
       },
     ];
-    const firstColumn = staticColumns.concat(dynamicColumns);
+    const firstColumn = dynamicColumns;
     return firstColumn.concat(actionColumn);
   };
 
