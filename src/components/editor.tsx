@@ -21,7 +21,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Reorder } from "framer-motion";
 import { CircleIcon, PlusCircleIcon, ShareIcon } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -31,7 +30,12 @@ import { EditFormHeaders } from "./edit-form-headers";
 import { FormRenderer } from "./form-renderer-preview";
 import { Icons } from "./icons";
 import { ModeToggle } from "./mode-toggle";
-import { TypographyH1, TypographyMuted } from "./typography";
+import {
+  TypographyH1,
+  TypographyH2,
+  TypographyMuted,
+  TypographyP,
+} from "./typography";
 import {
   Accordion,
   AccordionContent,
@@ -107,7 +111,7 @@ export const Editor = ({ form }: { form: FormWithFields }) => {
     []
   );
   const [isUpdating, setIsUpdating] = useState(false);
-  const formname = [form.title] || ["Untitled Form"];
+  const formname = [form.title || "Untitled Form"];
 
   const queryClient = useQueryClient();
 
@@ -225,7 +229,7 @@ export const Editor = ({ form }: { form: FormWithFields }) => {
     <div className="grid w-full gap-10">
       <div
         className={cn(
-          "flex flex-col w-full gap-2 bg-blue-100 items-center rounded justify-between md:flex-row md:p-4 dark:bg-zinc-700"
+          "flex flex-col w-full gap-2 bg-blue-100 py-2 md:py-0 space-y-2 md:space-y-0 items-center rounded md:justify-between md:flex-row md:p-4 dark:bg-zinc-700"
         )}
       >
         <div className="flex items-center md:space-x-10">
@@ -330,7 +334,7 @@ export const Editor = ({ form }: { form: FormWithFields }) => {
         </div>
       </div>
       <Tabs defaultValue="editor" className="container">
-        <TabsList className="mx-auto mb-8 grid w-[400px] grid-cols-3">
+        <TabsList className="mx-auto mb-8 grid md:w-[400px] grid-cols-3">
           <TabsTrigger value="editor">Editor</TabsTrigger>
           <TabsTrigger value="preview">Preview</TabsTrigger>
           <TabsTrigger value="headers">Headers</TabsTrigger>
@@ -416,33 +420,47 @@ export const Editor = ({ form }: { form: FormWithFields }) => {
           </Reorder.Group>
         </TabsContent>
         <TabsContent value="preview">
-          <div>
+          <div className="md:container md:my-8">
             {form.headerText && form.headerImage ? (
-              <div className="grid grid-cols-2 gap-4">
-                <div className="overflow-y-auto h-[500px]">
-                  <FormRenderer preview formData={form} />
+              <div className="flex flex-col-reverse lg:flex-row bg-black dark:bg-white rounded-sm">
+                <div
+                  className="overflow-y-auto h-auto lg:w-1/2 md:h-[calc(100vh-100px)] rounded-sm bg-background p-4 mr-2 lg:mr-0 lg:mt-2 ml-2 mb-2"
+                  style={{
+                    scrollbarWidth: "thin",
+                    scrollbarColor: "gray",
+                  }}
+                >
+                  <FormRenderer formData={form} preview />
                 </div>
-                <div>
-                  {form.headerImage && (
-                    <Image
-                      src={form.headerImage}
-                      alt="Header Image"
-                      width={500}
-                      height={300}
-                      className="rounded-md max-h-[300px] p-4"
-                    />
-                  )}
-                  <TypographyH1 className="pt-6 text-center md:pt-0">
-                    <span>{form.headerText}</span>
-                  </TypographyH1>
-                  {form.formDescription && (
-                    <p className="text-md text-center text-gray-600">
-                      {form.formDescription}
-                    </p>
-                  )}
+                <div
+                  className="bg-white dark:bg-black md:h-[calc(100vh-100px)] overflow-y-auto flex flex-col lg:w-1/2 justify-between rounded-sm m-2"
+                  style={{
+                    scrollbarWidth: "thin",
+                    scrollbarColor: "gray",
+                  }}
+                >
+                  <div className="flex flex-col items-center">
+                    {form.headerImage && (
+                      <Image
+                        src={form?.headerImage}
+                        alt="Header Image"
+                        width={500}
+                        height={300}
+                        className="max-h-[300px] mx-2 w-full object-contain"
+                      />
+                    )}
+                    <TypographyH2 className="mt-6 text-center md:pt-0 w-full">
+                      <span>{form?.headerText}</span>
+                    </TypographyH2>
+                    {form.formDescription && (
+                      <TypographyP className="text-md px-4 text-justify text-gray-500 w-full">
+                        {form?.formDescription}
+                      </TypographyP>
+                    )}
+                  </div>
                   {form.footerText && (
-                    <div className="mt-8 text-center">
-                      <TypographyMuted>{form.footerText}</TypographyMuted>
+                    <div className="my-2 mt-8 text-center flex flex-col items-center justify-center text-gray-400 w-full">
+                      <TypographyMuted>{form?.footerText}</TypographyMuted>
                     </div>
                   )}
                 </div>
@@ -450,6 +468,7 @@ export const Editor = ({ form }: { form: FormWithFields }) => {
             ) : (
               <div className="container my-8 max-w-3xl">
                 <div className="space-y-8">
+                  <HeaderHelper />
                   <TypographyH1 className="pt-6 md:pt-0">
                     <div className="flex flex-row items-center justify-between">
                       <div>
@@ -462,19 +481,14 @@ export const Editor = ({ form }: { form: FormWithFields }) => {
                   </TypographyH1>
                 </div>
                 <Separator className="mb-8 mt-4" />
-                <FormRenderer preview formData={form} />
+                <FormRenderer
+                  formData={form}
+                  preview
+                  // submission={submission}
+                  // submissionAccess={submissionAccess}
+                />
               </div>
             )}
-            <div className="mt-8 flex justify-center text-center">
-              <Link href="/" target="_blank">
-                <TypographyMuted>
-                  built by{" "}
-                  <span className="heading font-heading text-foreground">
-                    ThinkRoman Ventures LLC
-                  </span>
-                </TypographyMuted>
-              </Link>
-            </div>
           </div>
         </TabsContent>
         <TabsContent value="headers">

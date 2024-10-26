@@ -1,6 +1,7 @@
 "use client";
 
 import { createFormHeaders } from "@/actions/forms";
+import { getPresignedUrl } from "@/actions/users";
 import {
   Form,
   FormControl,
@@ -12,16 +13,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Form as FormType } from "@prisma/client";
+import { Loader2, UploadCloudIcon, XIcon } from "lucide-react";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { toast } from "./ui/use-toast";
-import Image from "next/image";
-import { Loader2, UploadCloudIcon, XIcon } from "lucide-react";
-import { getPresignedUrl } from "@/actions/users";
-import { cn } from "@/lib/utils";
 const formSchema = z.object({
   id: z.string().min(2).max(50),
   headerImage: z.string(),
@@ -141,9 +141,9 @@ export const EditFormHeaders = ({ formData }: { formData: FormType }) => {
                 <FormLabel>Description</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="Give the user some context about the form..."
+                    placeholder="Give user some context about the form..."
                     className="resize-none"
-                    maxLength={512}
+                    rows={8}
                     {...field}
                   />
                 </FormControl>
