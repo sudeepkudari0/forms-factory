@@ -444,12 +444,12 @@ export const Editor = ({ form }: { form: FormWithFields }) => {
                       <Image
                         src={form?.headerImage}
                         alt="Header Image"
-                        width={500}
-                        height={300}
+                        width={1000}
+                        height={1000}
                         className="max-h-[300px] mx-2 w-full object-contain"
                       />
                     )}
-                    <TypographyH2 className="mt-6 text-center md:pt-0 w-full">
+                    <TypographyH2 className=" font-jost mt-6 text-center md:pt-0 w-full">
                       <span>{form?.headerText}</span>
                     </TypographyH2>
                     {form.formDescription && (
