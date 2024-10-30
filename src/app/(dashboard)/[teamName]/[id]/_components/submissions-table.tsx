@@ -1,6 +1,6 @@
 "use client";
-
 import { DataTable } from "@/components/ui/data-table";
+import { LoadingButton } from "@/components/ui/loading-button";
 import {
   Tooltip,
   TooltipContent,
@@ -8,7 +8,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {} from "@/components/ui/tooltip";
-import {} from "@/lib/utils";
+import { toast } from "@/components/ui/use-toast";
+import { exportSubmissionsToExcel } from "@/lib/utils";
 import {
   type Submission,
   type SubmissionAccess,
@@ -18,6 +19,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import dayjs from "dayjs";
 import { EyeIcon } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 
 export type SubmissionWithFormAccess = Submission & {
   submissionAccesses: SubmissionAccess[];
@@ -28,6 +30,7 @@ export const SubmissionsTable = ({
 }: {
   submissions: Submission[];
 }) => {
+  const [loading, setLoading] = useState(false);
   const columns = () => {
     const allKeys = submissions
       ?.reduce<string[]>((keys, submission) => {
@@ -183,9 +186,36 @@ export const SubmissionsTable = ({
     return firstColumn.concat(actionColumn);
   };
 
+  const handleExportToExcel = async (submissions: Submission[]) => {
+    if (!submissions) {
+      toast({
+        title: "Error",
+        description: "No submissions to export",
+        variant: "destructive",
+      });
+      return;
+    }
+    setLoading(true);
+    await exportSubmissionsToExcel(submissions);
+    setLoading(false);
+  };
+
   return (
     <div className="overflow-hidden">
-      <DataTable columns={columns()} data={submissions || []} />
+      <DataTable
+        columns={columns()}
+        data={submissions || []}
+        actions={
+          <LoadingButton
+            loading={loading}
+            onClick={() => handleExportToExcel(submissions)}
+            variant={"outline"}
+            className=""
+          >
+            Export to Excel
+          </LoadingButton>
+        }
+      />
     </div>
   );
 };
