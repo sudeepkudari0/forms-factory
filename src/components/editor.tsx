@@ -424,13 +424,17 @@ export const Editor = ({ form }: { form: FormWithFields }) => {
             {form.headerText && form.headerImage ? (
               <div className="flex flex-col-reverse lg:flex-row bg-black dark:bg-white rounded-sm">
                 <div
-                  className="overflow-y-auto h-auto lg:w-1/2 md:h-[calc(100vh-100px)] rounded-sm bg-background p-4 mr-2 lg:mr-0 lg:mt-2 ml-2 mb-2"
+                  className="overflow-y-auto h-auto lg:w-1/2 md:h-[calc(100vh-100px)] rounded-sm p-4 mr-2 lg:mr-0 lg:mt-2 ml-2 mb-2 bg-[#e6dddf]"
                   style={{
                     scrollbarWidth: "thin",
                     scrollbarColor: "gray",
                   }}
                 >
-                  <FormRenderer formData={form} preview />
+                  <FormRenderer
+                    classNamesNew="bg-[#e6dddf]"
+                    formData={form}
+                    preview
+                  />
                 </div>
                 <div
                   className="bg-white dark:bg-black md:h-[calc(100vh-100px)] overflow-y-auto flex flex-col lg:w-1/2 justify-between rounded-sm m-2"
@@ -446,14 +450,14 @@ export const Editor = ({ form }: { form: FormWithFields }) => {
                         alt="Header Image"
                         width={1000}
                         height={1000}
-                        className="max-h-[300px] mx-2 w-full object-contain"
+                        className="max-h-[200px] mx-2 w-full object-contain"
                       />
                     )}
-                    <TypographyH2 className=" font-jost mt-6 text-center md:pt-0 w-full">
+                    <TypographyH2 className="font-jost mt-6 text-center md:pt-0 w-full">
                       <span>{form?.headerText}</span>
                     </TypographyH2>
                     {form.formDescription && (
-                      <TypographyP className="text-md px-4 text-justify text-gray-500 w-full">
+                      <TypographyP className="text-sm px-4 text-justify text-gray-500 w-full">
                         {form?.formDescription}
                       </TypographyP>
                     )}

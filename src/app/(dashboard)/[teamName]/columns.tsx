@@ -38,7 +38,7 @@ import {
 } from "@prisma/client";
 import type { ColumnDef } from "@tanstack/react-table";
 import dayjs from "dayjs";
-import { SetStateAction } from "jotai";
+import type { SetStateAction } from "jotai";
 import {
   CircleIcon,
   CopyIcon,

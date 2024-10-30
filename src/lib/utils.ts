@@ -1,11 +1,12 @@
 import { type ClassValue, clsx } from "clsx"
-import saveAs from "file-saver"
 import { twMerge } from "tailwind-merge"
 
 import { env } from "@/env.mjs"
 import type { Submission } from "@prisma/client"
 import dayjs from "dayjs"
+import { saveAs } from "file-saver"
 import Papa from "papaparse"
+import * as XLSX from "xlsx"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -62,16 +63,30 @@ export const downloadFile = async (url: string, filename: string) => {
 
 // To send OTP to email
 type OtpStore = {
-  [email: string]: string;
-};
+  [email: string]: string
+}
 
-const otpStore: OtpStore = {};
+const otpStore: OtpStore = {}
 
 export function storeOtp(email: string, otp: string): void {
-  otpStore[email] = otp;
-  setTimeout(() => delete otpStore[email], 300000);
+  otpStore[email] = otp
+  setTimeout(() => delete otpStore[email], 300000)
 }
 
 export function verifyOtp(email: string, otp: string): boolean {
-  return otpStore[email] === otp;
+  return otpStore[email] === otp
+}
+
+export const exportSubmissionsToExcel = (submissions: Submission[]) => {
+  const workbook = XLSX.utils.book_new()
+
+  const allData = submissions.map((submission) => JSON.parse(submission.data as string))
+  const worksheet = XLSX.utils.json_to_sheet(allData)
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Submissions")
+
+  const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" })
+  const blob = new Blob([excelBuffer], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
+  })
+  saveAs(blob, "Submissions.xlsx")
 }
