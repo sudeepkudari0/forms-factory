@@ -7,6 +7,7 @@ import {
 } from "@/actions/submissions";
 import {} from "@/components/ui/command";
 import { DataTable } from "@/components/ui/data-table";
+import { LoadingButton } from "@/components/ui/loading-button";
 import {} from "@/components/ui/popover";
 import {
   Tooltip,
@@ -14,7 +15,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { cn, dateFormatter } from "@/lib/utils";
+import { toast } from "@/components/ui/use-toast";
+import { cn, dateFormatter, exportSubmissionsToExcel } from "@/lib/utils";
 import {
   type Submission,
   SubmissionStatus,
@@ -34,7 +36,7 @@ export const SubmissionsTable = ({ formId }: { formId: string }) => {
   const [users, setUsers] = useState<User[]>([]);
   const [selectedteam, setSelectedteam] = useState<string | null>(null);
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
-
+  const [loading, setLoading] = useState(false);
   const [teamOpen, setteamOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
 
@@ -182,9 +184,36 @@ export const SubmissionsTable = ({ formId }: { formId: string }) => {
     return staticColumns.concat(dynamicColumns);
   };
 
+  const handleExportToExcel = async (submissions: Submission[]) => {
+    if (!submissions) {
+      toast({
+        title: "Error",
+        description: "No submissions to export",
+        variant: "destructive",
+      });
+      return;
+    }
+    setLoading(true);
+    await exportSubmissionsToExcel(submissions);
+    setLoading(false);
+  };
+
   return (
     <div className="overflow-hidden">
-      <DataTable columns={columns()} data={filteredSubmissions} />
+      <DataTable
+        columns={columns()}
+        data={filteredSubmissions}
+        actions={
+          <LoadingButton
+            loading={loading}
+            onClick={() => handleExportToExcel(submissions)}
+            variant={"outline"}
+            className=""
+          >
+            Export to Excel
+          </LoadingButton>
+        }
+      />
     </div>
   );
 };
