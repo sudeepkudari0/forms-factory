@@ -30,6 +30,7 @@ import { EditFormHeaders } from "./edit-form-headers";
 import { FormRenderer } from "./form-renderer-preview";
 import { Icons } from "./icons";
 import { ModeToggle } from "./mode-toggle";
+import { RichTextDisplay } from "./react-quill";
 import {
   TypographyH1,
   TypographyH2,
@@ -223,6 +224,79 @@ export const Editor = ({ form }: { form: FormWithFields }) => {
       ...prev,
       [fieldId]: hasChanges,
     }));
+  };
+
+  const renderPreview = () => {
+    const hasHeaderContent = form.headerText && form.headerImage;
+
+    if (!hasHeaderContent) {
+      return (
+        <div className="container my-8 max-w-3xl">
+          <div className="space-y-8">
+            <HeaderHelper />
+            <TypographyH1 className="pt-6 md:pt-0">
+              <div className="flex flex-row items-center justify-between">
+                <div>
+                  <span>{form?.title}</span>
+                  <span className="text-lg text-gray-600 tracking-wide">
+                    &nbsp;(Form)
+                  </span>
+                </div>
+              </div>
+            </TypographyH1>
+            <Separator className="mb-8 mt-4" />
+            <FormRenderer formData={form} preview={true} />
+          </div>
+        </div>
+      );
+    }
+
+    if (hasHeaderContent) {
+      return (
+        <div className="m-4 ">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-1 bg-black dark:bg-white  p-1">
+            {/* Left Side - Form */}
+            <div className="bg-background p-4">
+              <FormRenderer formData={form} preview={true} />
+            </div>
+
+            {/* Right Side - Content */}
+            <div className="bg-white dark:bg-black p-6 flex flex-col">
+              {/* Top Section */}
+              <div className="flex-grow">
+                <div className="aspect-video relative mb-6">
+                  <Image
+                    src={form.headerImage as string}
+                    alt="Header Image"
+                    fill
+                    className="rounded-lg object-cover"
+                  />
+                </div>
+
+                <TypographyH2 className="mb-4 text-center">
+                  {form.headerText}
+                </TypographyH2>
+
+                {form.formDescription && (
+                  <TypographyP className="text-md text-gray-500 text-justify">
+                    <RichTextDisplay content={form.formDescription} />
+                  </TypographyP>
+                )}
+              </div>
+
+              {/* Footer Section */}
+              {form.footerText && (
+                <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-800">
+                  <TypographyMuted className="text-center">
+                    {form.footerText}
+                  </TypographyMuted>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
   };
 
   return (
@@ -419,82 +493,7 @@ export const Editor = ({ form }: { form: FormWithFields }) => {
             </Accordion>
           </Reorder.Group>
         </TabsContent>
-        <TabsContent value="preview">
-          <div className="md:container md:my-8">
-            {form.headerText && form.headerImage ? (
-              <div className="flex flex-col-reverse lg:flex-row bg-black dark:bg-white rounded-sm">
-                <div
-                  className="overflow-y-auto h-auto lg:w-1/2 md:h-[calc(100vh-100px)] rounded-sm p-4 mr-2 lg:mr-0 lg:mt-2 ml-2 mb-2 bg-[#e6dddf]"
-                  style={{
-                    scrollbarWidth: "thin",
-                    scrollbarColor: "gray",
-                  }}
-                >
-                  <FormRenderer
-                    classNamesNew="bg-[#e6dddf]"
-                    formData={form}
-                    preview
-                  />
-                </div>
-                <div
-                  className="bg-white dark:bg-black md:h-[calc(100vh-100px)] overflow-y-auto flex flex-col lg:w-1/2 justify-between rounded-sm m-2"
-                  style={{
-                    scrollbarWidth: "thin",
-                    scrollbarColor: "gray",
-                  }}
-                >
-                  <div className="flex flex-col items-center">
-                    {form.headerImage && (
-                      <Image
-                        src={form?.headerImage}
-                        alt="Header Image"
-                        width={1000}
-                        height={1000}
-                        className="max-h-[200px] mx-2 w-full object-contain"
-                      />
-                    )}
-                    <TypographyH2 className="font-jost mt-6 text-center md:pt-0 w-full">
-                      <span>{form?.headerText}</span>
-                    </TypographyH2>
-                    {form.formDescription && (
-                      <TypographyP className="text-sm px-4 text-justify text-gray-500 w-full">
-                        {form?.formDescription}
-                      </TypographyP>
-                    )}
-                  </div>
-                  {form.footerText && (
-                    <div className="my-2 mt-8 text-center flex flex-col items-center justify-center text-gray-400 w-full">
-                      <TypographyMuted>{form?.footerText}</TypographyMuted>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ) : (
-              <div className="container my-8 max-w-3xl">
-                <div className="space-y-8">
-                  <HeaderHelper />
-                  <TypographyH1 className="pt-6 md:pt-0">
-                    <div className="flex flex-row items-center justify-between">
-                      <div>
-                        <span>{form?.title}</span>
-                        <span className="text-lg text-gray-600 tracking-wide">
-                          &nbsp;(Form)
-                        </span>
-                      </div>
-                    </div>
-                  </TypographyH1>
-                </div>
-                <Separator className="mb-8 mt-4" />
-                <FormRenderer
-                  formData={form}
-                  preview
-                  // submission={submission}
-                  // submissionAccess={submissionAccess}
-                />
-              </div>
-            )}
-          </div>
-        </TabsContent>
+        <TabsContent value="preview">{renderPreview()}</TabsContent>
         <TabsContent value="headers">
           <EditFormHeaders formData={form} />
         </TabsContent>

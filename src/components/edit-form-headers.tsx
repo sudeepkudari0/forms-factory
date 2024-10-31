@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { LoadingButton } from "@/components/ui/loading-button";
-import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Form as FormType } from "@prisma/client";
@@ -21,6 +20,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { RichTextEditor } from "./react-quill";
 import { toast } from "./ui/use-toast";
 const formSchema = z.object({
   id: z.string().min(2).max(50),
@@ -140,11 +140,10 @@ export const EditFormHeaders = ({ formData }: { formData: FormType }) => {
               <FormItem>
                 <FormLabel>Description</FormLabel>
                 <FormControl>
-                  <Textarea
-                    placeholder="Give user some context about the form..."
-                    className="resize-none"
-                    rows={8}
-                    {...field}
+                  <RichTextEditor
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder="Enter form description..."
                   />
                 </FormControl>
                 <FormMessage />

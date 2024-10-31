@@ -11,7 +11,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import validator from "validator";
 import { z } from "zod";
-import { Icons } from "./icons";
 import { Button } from "./ui/button";
 import { Calendar } from "./ui/calendar";
 import { Checkbox } from "./ui/checkbox";
@@ -554,16 +553,16 @@ export const FormRenderer = ({
               return null;
           }
         })}
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? (
-            <>
-              <Icons.spinner className="mr-2 h-4 w-4 animate-spin" /> Please
-              wait
-            </>
-          ) : (
-            "Submit"
-          )}
-        </Button>
+        <div className="flex justify-end w-full">
+          <LoadingButton
+            type="submit"
+            disabled={isSubmitting}
+            className="bg-gradient-to-r from-[#0077B6] to-[#00BCD4]"
+            loading={isSubmitting}
+          >
+            {formData?.submitText}
+          </LoadingButton>
+        </div>
       </form>
     </Form>
   );
