@@ -297,6 +297,7 @@ export const Editor = ({ form }: { form: FormWithFields }) => {
         </div>
       );
     }
+    return null;
   };
 
   return (
