@@ -53,7 +53,6 @@ import {
 } from "./ui/select";
 import { Textarea } from "./ui/textarea";
 import { toast } from "./ui/use-toast";
-import { FaSpinner } from "react-icons/fa6";
 
 type FormWithFields = Forms & {
   fields: Field[];
@@ -694,7 +693,7 @@ export const FormRenderer = ({
               }
             })}
             <div className="flex justify-end space-x-4 pb-4">
-              <LoadingButton
+              {/* <LoadingButton
                 type="button"
                 disabled={isDraftLoading}
                 className="bg-gradient-to-r from-[#0077B6] to-[#00BCD4]"
@@ -705,7 +704,7 @@ export const FormRenderer = ({
                 loading={isDraftLoading}
               >
                 Save
-              </LoadingButton>
+              </LoadingButton> */}
               <LoadingButton
                 type="submit"
                 disabled={isSubmitting}

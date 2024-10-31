@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  getAllSubmissionsForForm,
-  getUsersForteam,
-  getteamsForForm,
-} from "@/actions/submissions";
+import { getAllSubmissionsForForm } from "@/actions/submissions";
 import {} from "@/components/ui/command";
 import { DataTable } from "@/components/ui/data-table";
 import { LoadingButton } from "@/components/ui/loading-button";
@@ -17,71 +13,25 @@ import {
 } from "@/components/ui/tooltip";
 import { toast } from "@/components/ui/use-toast";
 import { cn, dateFormatter, exportSubmissionsToExcel } from "@/lib/utils";
-import {
-  type Submission,
-  SubmissionStatus,
-  type Teams,
-  type User,
-} from "@prisma/client";
+import { type Submission, SubmissionStatus } from "@prisma/client";
 import type { ColumnDef } from "@tanstack/react-table";
 import { CircleIcon, EyeIcon } from "lucide-react";
 import {} from "lucide-react";
 import Link from "next/link";
-import type React from "react";
 import { useEffect, useState } from "react";
 
 export const SubmissionsTable = ({ formId }: { formId: string }) => {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
-  const [teams, setteams] = useState<Teams[]>([]);
-  const [users, setUsers] = useState<User[]>([]);
-  const [selectedteam, setSelectedteam] = useState<string | null>(null);
-  const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [teamOpen, setteamOpen] = useState(false);
-  const [userOpen, setUserOpen] = useState(false);
 
   useEffect(() => {
     const fetchSubmissions = async () => {
       const data = await getAllSubmissionsForForm(formId);
       setSubmissions(data);
     };
-    const fetchteams = async () => {
-      const teamsData = await getteamsForForm(formId);
-      setteams(teamsData);
-    };
 
     fetchSubmissions();
-    fetchteams();
   }, [formId]);
-
-  useEffect(() => {
-    const fetchUsers = async () => {
-      if (selectedteam) {
-        const usersData = await getUsersForteam(selectedteam);
-        const filteredUsers = usersData.filter((user) =>
-          user.forms.some((form) => form.id === formId)
-        );
-        setUsers(filteredUsers);
-      }
-    };
-    fetchUsers();
-  }, [selectedteam]);
-
-  const _handleteamChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedteam(event.target.value);
-    setSelectedUser(null); // Reset user selection when team changes
-  };
-
-  const _handleUserChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedUser(event.target.value);
-  };
-
-  const filteredSubmissions = submissions.filter((submission) => {
-    if (selectedUser) {
-      return submission.userId === selectedUser;
-    }
-    return true;
-  });
 
   const columns = () => {
     const allKeys = submissions.reduce<string[]>((keys, submission) => {
@@ -202,7 +152,7 @@ export const SubmissionsTable = ({ formId }: { formId: string }) => {
     <div className="overflow-hidden">
       <DataTable
         columns={columns()}
-        data={filteredSubmissions}
+        data={submissions}
         actions={
           <LoadingButton
             loading={loading}

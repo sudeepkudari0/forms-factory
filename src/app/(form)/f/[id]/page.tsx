@@ -1,5 +1,6 @@
 import { getSubmission, getSubmissionAccess } from "@/actions/submissions";
 import { FormRenderer } from "@/components/form-renderer";
+import { RichTextDisplay } from "@/components/react-quill";
 import {
   TypographyH1,
   TypographyH2,
@@ -87,86 +88,38 @@ const Form = async ({ params, searchParams }: FormPageProperties) => {
 
   const submissionAccess = await getSubmissionAccess(sid);
 
-  return (
-    <div className="mx-3 md:container my-3 md:my-8">
-      {form.headerText && form.headerImage ? (
-        <div className="flex flex-col-reverse lg:flex-row bg-black dark:bg-white rounded-md">
-          <div
-            className="overflow-y-auto h-auto lg:w-1/2 md:h-[calc(100vh-100px)] rounded-sm bg-background pt-4 mr-2 lg:mr-0 lg:mt-2 ml-2 mb-2"
-            style={{
-              scrollbarWidth: "thin",
-              scrollbarColor: "gray",
-            }}
-          >
-            <FormRenderer
-              form={form}
-              submission={submission}
-              submissionAccess={submissionAccess}
-            />
-          </div>
-          <div
-            className="bg-white dark:bg-black md:h-[calc(100vh-100px)] overflow-y-auto flex flex-col lg:w-1/2 justify-between rounded-sm m-2"
-            style={{
-              scrollbarWidth: "thin",
-              scrollbarColor: "gray",
-            }}
-          >
-            <div className="flex flex-col items-center">
-              {form.headerImage && (
-                <Image
-                  src={form.headerImage}
-                  alt="Header Image"
-                  width={500}
-                  height={300}
-                  className="max-h-[300px] w-full rounded-md object-contain"
+  const hasHeaderContent = form.headerText && form.headerImage;
+
+  if (!hasHeaderContent) {
+    return (
+      <div className="container my-8 max-w-3xl">
+        <div className="space-y-8">
+          <HeaderHelper />
+          <TypographyH1 className="pt-6 md:pt-0">
+            <div className="flex flex-row items-center justify-between">
+              <div>
+                <span>{form?.title}</span>
+                <span className="text-lg text-gray-600 tracking-wide">
+                  &nbsp;(Form)
+                </span>
+              </div>
+              <div className="inline-flex items-center text-xl tracking-wide text-gray-600">
+                <CircleIcon
+                  className={cn(
+                    "mr-2 h-3 w-3 text-transparent",
+                    submission?.status === SubmissionStatus.SUBMITTED
+                      ? "fill-green-600"
+                      : "fill-yellow-600"
+                  )}
                 />
-              )}
-              <TypographyH2 className="mt-6 text-center md:pt-0 w-full">
-                <span>{form.headerText}</span>
-              </TypographyH2>
-              {form.formDescription && (
-                <TypographyP className="text-md px-3 text-justify text-gray-500 w-full">
-                  {form.formDescription}
-                </TypographyP>
-              )}
+                <span>
+                  {submission?.status === SubmissionStatus.SUBMITTED
+                    ? "Submitted"
+                    : "Draft"}
+                </span>
+              </div>
             </div>
-            {form.footerText && (
-              <div className="mt-8 text-center flex flex-col items-center justify-center text-gray-200 w-full">
-                <TypographyMuted>{form.footerText}</TypographyMuted>
-              </div>
-            )}
-          </div>
-        </div>
-      ) : (
-        <div className="container my-8 max-w-3xl">
-          <div className="space-y-8">
-            <HeaderHelper />
-            <TypographyH1 className="pt-6 md:pt-0">
-              <div className="flex flex-row items-center justify-between">
-                <div>
-                  <span>{form?.title}</span>
-                  <span className="text-lg text-gray-600 tracking-wide">
-                    &nbsp;(Form)
-                  </span>
-                </div>
-                <div className="inline-flex items-center text-xl tracking-wide text-gray-600">
-                  <CircleIcon
-                    className={cn(
-                      "mr-2 h-3 w-3 text-transparent",
-                      submission?.status === SubmissionStatus.SUBMITTED
-                        ? "fill-green-600"
-                        : "fill-yellow-600"
-                    )}
-                  />
-                  <span>
-                    {submission?.status === SubmissionStatus.SUBMITTED
-                      ? "Submitted"
-                      : "Draft"}
-                  </span>
-                </div>
-              </div>
-            </TypographyH1>
-          </div>
+          </TypographyH1>
           <Separator className="mb-8 mt-4" />
           <FormRenderer
             form={form}
@@ -174,7 +127,56 @@ const Form = async ({ params, searchParams }: FormPageProperties) => {
             submissionAccess={submissionAccess}
           />
         </div>
-      )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="m-4">
+      <div className="flex flex-col-reverse lg:flex-row gap-1 bg-black dark:bg-white p-1">
+        {/* Left Side - Form */}
+        <div className="bg-background pt-3 lg:w-1/2">
+          <FormRenderer
+            form={form}
+            submission={submission}
+            submissionAccess={submissionAccess}
+          />
+        </div>
+
+        {/* Right Side - Content */}
+        <div className="bg-white dark:bg-black p-6 flex flex-col lg:w-1/2">
+          {/* Top Section */}
+          <div className="flex-grow">
+            <div className="aspect-video relative mb-6">
+              <Image
+                src={form.headerImage as string}
+                alt="Header Image"
+                fill
+                className="rounded-lg object-cover"
+              />
+            </div>
+
+            <TypographyH2 className="mb-4 text-center">
+              {form.headerText}
+            </TypographyH2>
+
+            {form.formDescription && (
+              <TypographyP className="text-md text-gray-500 text-justify">
+                <RichTextDisplay content={form.formDescription} />
+              </TypographyP>
+            )}
+          </div>
+
+          {/* Footer Section */}
+          {form.footerText && (
+            <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-800">
+              <TypographyMuted className="text-center">
+                {form.footerText}
+              </TypographyMuted>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
