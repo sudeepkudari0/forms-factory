@@ -5,6 +5,7 @@ const token = process.env.WHATSAPP_API_KEY
 export const sendFormSubmissionNotification = async (
   formOwnerName: string,
   formOwnerNumber: string,
+  formId: string,
   submissionId: string,
   submissionTime: string
 ) => {
@@ -18,7 +19,7 @@ export const sendFormSubmissionNotification = async (
     to: formOwnerNumber,
     lang: "en_US",
     formOwnerName: formOwnerName,
-    link: `${process.env.NEXT_PUBLIC_APP_URL}/f/${submissionId}`,
+    link: `${process.env.NEXT_PUBLIC_APP_URL}/f/${formId}?sid=${submissionId}`,
     submissionTime: submissionTime,
   })
 
