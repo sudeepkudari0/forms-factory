@@ -13,9 +13,10 @@ export const metadata = {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: { nextUrl?: string };
+  searchParams: { nextUrl?: string; tab?: string };
 }) {
   const user = await getCurrentUser();
+  const defaultTab = searchParams?.tab === "register" ? "signup" : "login";
   const nextUrl = searchParams?.nextUrl || "/onboarding";
   if (user) {
     return redirect(nextUrl);
@@ -30,7 +31,7 @@ export default async function LoginPage({
       </div>
       <div className="bg-background p-4 rounded-md">
         <Tabs
-          defaultValue="login"
+          defaultValue={defaultTab}
           className="flex flex-col items-center max-w-2xl bg-background"
         >
           <TabsList className="flex w-auto">

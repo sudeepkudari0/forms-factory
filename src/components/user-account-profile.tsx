@@ -10,9 +10,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { PhoneInput } from "@/components/ui/phone-input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import PhoneInput from "react-phone-input-2";
 import * as z from "zod";
 import "react-phone-input-2/lib/style.css";
 import {
@@ -21,6 +21,7 @@ import {
   profileUpdate,
   updateProfilePicture,
 } from "@/actions/users";
+import { cn } from "@/lib/utils";
 import type { User } from "@prisma/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -55,6 +56,8 @@ export const ProfileForm = ({ user }: { user: User }) => {
       image: user.image || "",
     },
   });
+
+  const { isDirty } = form.formState;
 
   useEffect(() => {
     form.reset({
@@ -183,28 +186,10 @@ export const ProfileForm = ({ user }: { user: User }) => {
                 <FormLabel>Whatsapp Number</FormLabel>
                 <FormControl>
                   <PhoneInput
-                    enableSearch
-                    autoFormat={false}
-                    containerStyle={{
-                      width: "100%",
-                      border: "0px solid #ebeaea",
-                      boxSizing: "border-box",
-                      backgroundColor: "#ccc9c9",
-                      borderRadius: "8px",
-                      marginBottom: "8px",
-                    }}
-                    buttonClass="border-none bg-white"
-                    inputStyle={{
-                      width: "100%",
-                      color: "black",
-                      border: "1px solid #ebeaea",
-                      boxSizing: "border-box",
-                      marginBottom: "8px",
-                    }}
-                    value={field.value}
-                    onChange={(e) => {
-                      field.onChange(e);
-                    }}
+                    {...field}
+                    defaultCountry="IN"
+                    placeholder=""
+                    className={cn(" gap-2 font-semibold text-sm text-zinc-400")}
                   />
                 </FormControl>
                 <FormMessage />
@@ -215,7 +200,7 @@ export const ProfileForm = ({ user }: { user: User }) => {
             <LoadingButton
               type="submit"
               className="rounded text-white font-bold mt-4 bg-gradient-to-r from-[#0077B6] to-[#00BCD4] "
-              disabled={isLoading}
+              disabled={isLoading || !isDirty}
               loading={isLoading}
             >
               Update

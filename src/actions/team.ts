@@ -208,7 +208,20 @@ export async function inviteUserToTeam(values: {
     throw new Error("Invalid input: teamId, email are required.")
   }
   try {
-    const inviteData = await db.invitation.create({
+    const data = await db.user.findUnique({
+      where: {
+        email,
+      },
+    })
+
+    if (!data) {
+      return {
+        success: false,
+        message: "User not found",
+      }
+    }
+
+    await db.invitation.create({
       data: {
         teamId,
         email,
@@ -218,13 +231,18 @@ export async function inviteUserToTeam(values: {
     })
 
     const link = `${process.env.NEXT_PUBLIC_APP_URL}/login?nextUrl=/invite?token=${token}`
-    const mail = await sendInvitationEmail(email, user?.name as string, teamName, link)
-    console.log(mail)
+    await sendInvitationEmail(email, user?.name as string, data.name as string, teamName, link)
 
-    return inviteData
+    return {
+      success: true,
+      message: "Invitation sent successfully",
+    }
   } catch (error) {
     console.error("Error inviting user to team:", error)
-    throw error
+    return {
+      success: false,
+      message: "Error inviting user to team",
+    }
   }
 }
 

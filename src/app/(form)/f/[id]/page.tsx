@@ -97,12 +97,7 @@ const Form = async ({ params, searchParams }: FormPageProperties) => {
           <HeaderHelper />
           <TypographyH1 className="pt-6 md:pt-0">
             <div className="flex flex-row items-center justify-between">
-              <div>
-                <span>{form?.title}</span>
-                <span className="text-lg text-gray-600 tracking-wide">
-                  &nbsp;(Form)
-                </span>
-              </div>
+              <span>{form?.title}</span>
               <div className="inline-flex items-center text-xl tracking-wide text-gray-600">
                 <CircleIcon
                   className={cn(
@@ -134,7 +129,6 @@ const Form = async ({ params, searchParams }: FormPageProperties) => {
   return (
     <div className="m-4">
       <div className="flex flex-col-reverse lg:flex-row gap-1 bg-black dark:bg-white p-1">
-        {/* Left Side - Form */}
         <div className="bg-background pt-3 lg:w-1/2">
           <FormRenderer
             form={form}
@@ -143,7 +137,6 @@ const Form = async ({ params, searchParams }: FormPageProperties) => {
           />
         </div>
 
-        {/* Right Side - Content */}
         <div className="bg-white dark:bg-black p-6 flex flex-col lg:w-1/2">
           {/* Top Section */}
           <div className="flex-grow">

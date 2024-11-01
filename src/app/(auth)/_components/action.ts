@@ -7,12 +7,11 @@ import bcrypt from "bcrypt"
 
 export async function forgotPassword(email: string) {
   try {
-    const user = db.user.findUnique({
+    const user = await db.user.findUnique({
       where: {
         email,
       },
     })
-
     if (!user) {
       return {
         success: false,
