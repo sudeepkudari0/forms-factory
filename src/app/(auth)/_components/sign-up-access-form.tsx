@@ -20,6 +20,7 @@ export const SignUpAccessForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [accessCard, setAccessCard] = useState<boolean>(true);
   const [token, setToken] = useState("");
+  const [email, setEmail] = useState("");
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
 
@@ -35,6 +36,7 @@ export const SignUpAccessForm = () => {
     if (data.success) {
       setAccessCard(false);
       setSuccess(data.message);
+      setEmail(data.email as string);
     }
 
     setError(data.message);
@@ -77,7 +79,7 @@ export const SignUpAccessForm = () => {
           </CardContent>
         </Card>
       ) : (
-        <UserSignUpForm token={token} />
+        <UserSignUpForm token={token} email={email} />
       )}
     </>
   );

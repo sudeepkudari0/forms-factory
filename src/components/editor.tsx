@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 import type { Field, Form } from "@prisma/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { Reorder } from "framer-motion";
-import { CircleIcon, PlusCircleIcon, ShareIcon } from "lucide-react";
+import { CircleIcon, Menu, PlusCircleIcon, ShareIcon } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
@@ -236,12 +236,7 @@ export const Editor = ({ form }: { form: FormWithFields }) => {
             <HeaderHelper />
             <TypographyH1 className="pt-6 md:pt-0">
               <div className="flex flex-row items-center justify-between">
-                <div>
-                  <span>{form?.title}</span>
-                  <span className="text-lg text-gray-600 tracking-wide">
-                    &nbsp;(Form)
-                  </span>
-                </div>
+                <span>{form?.title}</span>
               </div>
             </TypographyH1>
             <Separator className="mb-8 mt-4" />
@@ -436,20 +431,27 @@ export const Editor = ({ form }: { form: FormWithFields }) => {
                       </p>
                     </AccordionTrigger>
                     <AccordionContent>
-                      <div className="flex items-center">
+                      <div className="flex items-center relative">
                         {isUpdating ? (
                           <h1>Updating</h1>
                         ) : (
-                          <EditFieldForm
-                            key={fieldItem.id}
-                            field={fieldItem}
-                            formId={form.id}
-                            onDelete={handleRemoveField}
-                            onSubmitted={handleSaveField}
-                            setUnSaved={(hasChanges) =>
-                              updateUnsavedChanges(fieldItem.id, hasChanges)
-                            }
-                          />
+                          <div>
+                            <EditFieldForm
+                              key={fieldItem.id}
+                              field={fieldItem}
+                              formId={form.id}
+                              onDelete={handleRemoveField}
+                              onSubmitted={handleSaveField}
+                              setUnSaved={(hasChanges) =>
+                                updateUnsavedChanges(fieldItem.id, hasChanges)
+                              }
+                            />
+                            <div className="absolute top-1/2 right-2">
+                              <button type="button">
+                                <Menu className="h-4 w-4 font-semibold" />
+                              </button>
+                            </div>
+                          </div>
                         )}
                       </div>
                     </AccordionContent>

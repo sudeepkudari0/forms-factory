@@ -58,11 +58,21 @@ export const InviteUserForm = ({
       teamId,
       teamName,
     });
-    toast({
-      title: "Invitation sent",
-      description: "Your invitation has been created.",
-    });
-    setIsOpen(false);
+    if (!data.success) {
+      toast({
+        title: "Error",
+        description: "User not found or not registered. Check the email.",
+        variant: "destructive",
+      });
+    }
+
+    if (data.success) {
+      toast({
+        title: "Invitation sent",
+        description: "Your invitation has been created.",
+      });
+      setIsOpen(false);
+    }
     setIsLoading(false);
   }
 

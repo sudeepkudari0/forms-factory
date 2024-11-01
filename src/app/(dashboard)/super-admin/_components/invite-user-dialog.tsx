@@ -47,7 +47,7 @@ export const InviteUserForm = ({
 
   async function onSubmit(values: formSchema) {
     setIsLoading(true);
-    const data = await inviteUser({
+    await inviteUser({
       ...values,
     });
     toast({

@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import type * as z from "zod";
 
@@ -16,16 +16,22 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
+import { PhoneInput } from "@/components/ui/phone-input";
 import { toast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
 import { userSignUpSchema } from "@/lib/validations/auth";
 import { LoadingButton } from "./ui/loading-button";
-import { PasswordInput } from "./ui/password-input";
-import { PhoneInput } from "./ui/phone-input";
 
 type FormData = z.infer<typeof userSignUpSchema>;
 
-export function UserSignUpForm({ token }: { token: string }) {
+export function UserSignUpForm({
+  token,
+  email,
+}: {
+  token: string;
+  email: string;
+}) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const router = useRouter();
 
@@ -33,13 +39,20 @@ export function UserSignUpForm({ token }: { token: string }) {
     resolver: zodResolver(userSignUpSchema),
     defaultValues: {
       name: "",
-      email: "",
+      email: email || "",
       whatsapp: "",
       accessToken: token,
       password: "",
       confirmPassword: "",
     },
   });
+
+  useEffect(() => {
+    if (token) {
+      form.setValue("accessToken", token);
+      form.setValue("email", email);
+    }
+  }, [token, form]);
 
   async function onSubmit(data: FormData) {
     setIsLoading(true);
@@ -127,7 +140,12 @@ export function UserSignUpForm({ token }: { token: string }) {
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input {...field} placeholder="Email" type="email" />
+                  <Input
+                    {...field}
+                    placeholder="Email"
+                    readOnly={true}
+                    type="email"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -139,7 +157,12 @@ export function UserSignUpForm({ token }: { token: string }) {
             render={({ field }) => (
               <FormItem>
                 <FormControl className="w-full gap-2">
-                  <PhoneInput {...field} placeholder="Whatsapp Number" />
+                  <PhoneInput
+                    {...field}
+                    placeholder="Whatsapp Number"
+                    className="w-full"
+                    defaultCountry="US"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

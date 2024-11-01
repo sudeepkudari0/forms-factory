@@ -528,7 +528,7 @@ export async function inviteUser(values: {
       },
     })
 
-    const mail = await sendUserInvitationEmail(email, generatedNanoid)
+    await sendUserInvitationEmail(email, generatedNanoid)
 
     return inviteData
   } catch (error) {
@@ -543,11 +543,16 @@ export async function checkUserInvitation(token: string) {
       where: {
         token,
       },
+      select: {
+        id: true,
+        email: true,
+      },
     })
     if (invitation) {
       return {
         success: true,
         message: "User invitation found",
+        email: invitation.email,
       }
     }
 
