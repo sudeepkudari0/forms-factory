@@ -42,14 +42,16 @@ export function ForgotPasswordForm() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     setError("");
-
     startTransition(() => {
       forgotPassword(values.email).then((data) => {
-        setSuccess(data?.success);
-        setIsOtpVerificationOpen(true);
-        setError(data?.error);
+        if (data.success) {
+          setSuccess(true);
+          setIsOtpVerificationOpen(true);
+        } else {
+          setError(data.error);
+        }
       });
     });
   }
@@ -96,9 +98,10 @@ export function ForgotPasswordForm() {
                     </FormItem>
                   )}
                 />
-
                 <FormError message={error} />
-                <FormSuccess message={error} />
+                <FormSuccess
+                  message={success ? "OTP sent successfully." : ""}
+                />
                 <LoadingButton
                   type="submit"
                   loading={isPending}

@@ -49,7 +49,7 @@ export function UserAccountNav({ userData }: { userData: User }) {
               Cookies.remove("tid");
               Cookies.remove("tname");
               signOut({
-                callbackUrl: `${env.NEXT_PUBLIC_APP_URL}/login`,
+                callbackUrl: `${env.NEXT_PUBLIC_APP_URL}`,
               });
             }}
           >

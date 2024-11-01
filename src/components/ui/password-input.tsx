@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import type { InputProps } from "@/components/ui/input";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { RiLockPasswordFill } from "react-icons/ri";
 
 type PasswordInputProps = InputProps & {
   inputClassName?: string;
@@ -19,10 +20,14 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
       props.value === "" || props.value === undefined || props.disabled;
 
     return (
-      <div className={cn("relative", className)}>
+      <div className={cn("relative w-full", className)}>
+        <RiLockPasswordFill
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"
+          size={20}
+        />
         <Input
           type={showPassword ? "text" : "password"}
-          className={cn("hide-password-toggle", inputClassName)}
+          className={cn("hide-password-toggle pl-10", inputClassName)}
           ref={ref}
           {...props}
         />
@@ -30,7 +35,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
           type="button"
           variant="ghost"
           size="sm"
-          className="absolute right-0 z-[100] top-0 h-full hover:bg-transparent"
+          className="absolute right-0 top-0 h-full hover:bg-transparent"
           onClick={() => setShowPassword((prev) => !prev)}
           disabled={disabled}
         >

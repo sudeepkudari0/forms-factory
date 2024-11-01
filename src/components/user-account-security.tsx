@@ -9,13 +9,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { User } from "@prisma/client";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { LoadingButton } from "./ui/loading-button";
+import { PasswordInput } from "./ui/password-input";
 import { toast } from "./ui/use-toast";
 
 const securitySchema = z
@@ -65,7 +65,7 @@ export function SecurityForm({ user }: { user: User }) {
             <FormItem>
               <FormLabel>New Password</FormLabel>
               <FormControl>
-                <Input type="password" {...field} />
+                <PasswordInput {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -78,7 +78,7 @@ export function SecurityForm({ user }: { user: User }) {
             <FormItem>
               <FormLabel>Confirm Password</FormLabel>
               <FormControl>
-                <Input type="password" {...field} className="mb-2" />
+                <PasswordInput {...field} className="mb-2" />
               </FormControl>
               <FormMessage />
             </FormItem>

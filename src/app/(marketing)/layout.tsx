@@ -41,7 +41,7 @@ export default function MarketingLayout({ children }: MarketingLayoutProps) {
               )}
             </Link>
             <div className="flex text-sm md:text-lg items-center gap-4 font-mono px-4 md:px-10">
-              <Link href={"/login"}>Register</Link>
+              <Link href={"/login?tab=register"}>Register</Link>
               <ModeToggle />
             </div>
           </div>
