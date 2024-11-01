@@ -3,7 +3,9 @@
 import { db } from "@/lib/db"
 import { Event } from "@/lib/events"
 import { getCurrentUser } from "@/lib/session"
+import { sendFormSubmissionNotification } from "@/lib/whatsapp"
 import { EventType, SubmissionAccessRole, SubmissionStatus } from "@prisma/client"
+import dayjs from "dayjs"
 import { cookies } from "next/headers"
 export const createSubmission = async ({ formId }: { formId: string | undefined }) => {
   const user = await getCurrentUser()
@@ -64,13 +66,22 @@ export const createFinalSubmission = async (data: {
       },
     })
   }
-
   const user = await db.userForm.findFirst({
     where: {
-      formId: update?.formId,
+      formId: update.formId,
     },
+    include: { user: true },
   })
   const event = new Event(EventType.FORM_SUBMISSION)
+
+  const formattedSubmissionTime = dayjs(update.updatedAt).format("YYYY-MM-DD h:mm a")
+
+  await sendFormSubmissionNotification(
+    user?.user?.name as string,
+    user?.user.whatsapp as string,
+    update.id,
+    formattedSubmissionTime
+  )
 
   await event.emit({
     userId: user?.userId as string,
