@@ -2,6 +2,7 @@
 
 import { addFormsToUser, createForm } from "@/actions/forms";
 import { addFormsToteam } from "@/actions/team";
+import { getCurrentUserDetails } from "@/actions/users";
 import {
   Dialog,
   DialogContent,
@@ -22,17 +23,19 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { LoadingButton } from "@/components/ui/loading-button";
+import { PhoneInput } from "@/components/ui/phone-input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 const formSchema = z.object({
   title: z.string().min(2),
   description: z.string().optional(),
+  whatsapp: z.string().min(2).max(50),
   submitText: z.string().min(2).max(50),
 });
 
@@ -61,9 +64,20 @@ const CreateFormForm = ({
     defaultValues: {
       title: "",
       description: "",
+      whatsapp: "",
       submitText: "Submit",
     },
   });
+
+  useEffect(() => {
+    const getUserData = async () => {
+      const data = await getCurrentUserDetails();
+      if (data) {
+        form.setValue("whatsapp", data.whatsapp);
+      }
+    };
+    getUserData();
+  }, [isOpen]);
 
   async function onSubmit(values: formSchema) {
     setIsLoading(true);
@@ -139,6 +153,23 @@ const CreateFormForm = ({
                   </FormControl>
                   <FormDescription>
                     A description of your form. This is optional.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="whatsapp"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Whatsapp Number</FormLabel>
+                  <FormControl className="">
+                    <PhoneInput {...field} className="gap-2 w-full" />
+                  </FormControl>
+                  <FormDescription>
+                    WhatsApp number to receive notifications for each form
+                    submission.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
