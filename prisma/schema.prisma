@@ -79,6 +79,7 @@ model Form {
   footerText      String?
   formDescription String?
   headerImage     String?
+  whatsapp        String?
   submitText      String
   published       Boolean      @default(false)
   status          FormStatus   @default(PUBLIC)

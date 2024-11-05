@@ -35,8 +35,9 @@ export async function createForm(values: {
   submitText: string
   userId: string
   username: string
+  whatsapp?: string
 }) {
-  const { title, description, submitText, userId, username } = values
+  const { title, description, submitText, userId, username, whatsapp } = values
 
   if (!title && !submitText && !userId) {
     throw new Error("Invalid input: title, submitText, and userId are required.")
@@ -48,6 +49,7 @@ export async function createForm(values: {
         title,
         description,
         submitText,
+        whatsapp,
         createdBy: username,
       },
     })
@@ -551,16 +553,16 @@ export const updateFormAccess = async (userIds: string[], submissionId: string) 
 
 export const duplicateFormFields = async (id: string, teamId: string) => {
   try {
-    const user = await getCurrentUser();
+    const user = await getCurrentUser()
 
     // Fetch the form and its fields
     const getForm = await db.form.findFirst({
       where: { id },
       include: { fields: true },
-    });
+    })
 
     if (!getForm) {
-      return { success: false, message: "Form not found" };
+      return { success: false, message: "Form not found" }
     }
 
     // Create a new form with the copied details
@@ -573,10 +575,10 @@ export const duplicateFormFields = async (id: string, teamId: string) => {
         createdAt: new Date(),
         updatedAt: new Date(),
       },
-    });
+    })
 
-    await addFormsToUser({ userId: user?.id as string, formIds: [newForm.id] });
-    await addFormsToteam({ teamId, formIds: [newForm.id] });
+    await addFormsToUser({ userId: user?.id as string, formIds: [newForm.id] })
+    await addFormsToteam({ teamId, formIds: [newForm.id] })
 
     // Duplicate each field associated with the form
     if (getForm.fields.length) {
@@ -584,16 +586,15 @@ export const duplicateFormFields = async (id: string, teamId: string) => {
         ...field,
         id: undefined,
         formId: newForm.id,
-      }));
+      }))
 
-      await db.field.createMany({ data: newFields });
+      await db.field.createMany({ data: newFields })
     }
 
-    revalidatePath("/super-admin");
-    return { success: true, message: "Form duplicated successfully" };
+    revalidatePath("/super-admin")
+    return { success: true, message: "Form duplicated successfully" }
   } catch (error) {
-    console.error("Error duplicating form fields:", error);
-    return { success: false, message: "Failed to duplicate form fields" };
+    console.error("Error duplicating form fields:", error)
+    return { success: false, message: "Failed to duplicate form fields" }
   }
-};
-
+}

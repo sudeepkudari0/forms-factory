@@ -202,6 +202,7 @@ export const FormRenderer = ({
       submissionId: submission?.id as string,
       data: JSON.parse(JSON.stringify(values)),
       formId: formData?.id as string,
+      whatsapp: formData?.whatsapp as string,
     });
     toast({
       variant: "default",

@@ -43,6 +43,7 @@ export const createFinalSubmission = async (data: {
   submissionId?: string
   data: object
   formId: string
+  whatsapp?: string
 }) => {
   const cookieStore = cookies()
   // biome-ignore lint/suspicious/noImplicitAnyLet: <explanation>
@@ -75,10 +76,9 @@ export const createFinalSubmission = async (data: {
   const event = new Event(EventType.FORM_SUBMISSION)
 
   const formattedSubmissionTime = dayjs(update.updatedAt).format("YYYY-MM-DD h:mm a")
-
   await sendFormSubmissionNotification(
     user?.user?.name as string,
-    user?.user.whatsapp as string,
+    data?.whatsapp ? data?.whatsapp : (user?.user?.whatsapp as string),
     update.formId,
     update.id,
     formattedSubmissionTime
