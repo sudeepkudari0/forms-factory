@@ -73,7 +73,7 @@ const CreateFormForm = ({
     const getUserData = async () => {
       const data = await getCurrentUserDetails();
       if (data) {
-        form.setValue("whatsapp", data.whatsapp);
+        form.setValue("whatsapp", data.whatsapp || "");
       }
     };
     getUserData();

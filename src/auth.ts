@@ -63,7 +63,7 @@ export const authOptions: NextAuthConfig = {
                 token_type: account.token_type,
                 scope: account.scope,
                 id_token: account.id_token,
-                session_state: account.session_state,
+                session_state: account.session_state as string | null,
               },
               update: {
                 access_token: account.access_token,
@@ -72,7 +72,7 @@ export const authOptions: NextAuthConfig = {
                 token_type: account.token_type,
                 scope: account.scope,
                 id_token: account.id_token,
-                session_state: account.session_state,
+                session_state: account.session_state as string | null,
               },
             })
           }
@@ -108,7 +108,7 @@ export const authOptions: NextAuthConfig = {
               token_type: account.token_type,
               scope: account.scope,
               id_token: account.id_token,
-              session_state: account.session_state,
+              session_state: account.session_state as string | null,
             },
             update: {
               access_token: account.access_token,
@@ -117,7 +117,7 @@ export const authOptions: NextAuthConfig = {
               token_type: account.token_type,
               scope: account.scope,
               id_token: account.id_token,
-              session_state: account.session_state,
+              session_state: account.session_state as string | null,
             },
           })
         }
