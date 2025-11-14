@@ -17,9 +17,9 @@ const fontHeading = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Tr Forms Factory",
+  title: "Forms Factory",
   description:
-    "ThinkRoman Forms Factory: Revolutionize your workflow with custom, on-demand forms that integrate seamlessly into your processes",
+    "Forms Factory: Revolutionize your workflow with custom, on-demand forms that integrate seamlessly into your processes",
   icons: {
     icon: "./favicon.ico",
   },
@@ -37,7 +37,8 @@ export default function RootLayout({
           name="keywords"
           content="Instant Innovation, On-Demand Creation ,Effortless Integration"
         />
-        <link rel="canonical" href="https://forms.thinkroman.com" />
+        <link rel="canonical" href="https://forms.sudeepkudari.online" />
+        <link rel="canonical" href="https://sudeepkudari.online" />
       </head>
       <body
         className={cn(
