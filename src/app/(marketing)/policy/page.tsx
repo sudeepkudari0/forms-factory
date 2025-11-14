@@ -7,7 +7,7 @@ const Policy = () => {
             PRIVACY POLICY
           </h1>
           <p className="mb-4 text-sm text-primary sm:text-base">
-            Effective Date: June 01, 2024
+            Effective Date: November 14, 2025
           </p>
         </div>
       </div>
@@ -68,7 +68,7 @@ const Policy = () => {
           </h2>
           <p className="mb-4">
             If you have any questions about this Privacy Policy, please contact
-            us at admin@thinkroman.com or via WhatsApp at +018169197853.
+            us at sudeepkudari0@gmail.com or via WhatsApp at +918618078136.
           </p>
         </div>
       </div>

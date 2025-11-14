@@ -9,25 +9,25 @@ const Contact = () => {
       <div className="mb-4 text-sm text-blue-500 sm:text-base">
         <Link
           target="_blank"
-          href="https://thinkroman.com/"
+          href="https://sudeepkudari.online/"
           className="text-blue-500 hover:text-blue-700"
         >
-          www.thinkroman.com
+          www.sudeepkudari.online
         </Link>
       </div>
       <div className="mb-4 text-sm text-primary sm:text-base">
         Email:{" "}
         <Link
-          href="mailto:contact@thinkroman.com"
+          href="mailto:sudeepkudari0@gmail.com"
           className="text-blue-500 hover:text-blue-700"
         >
-          contact@thinkroman.com
+          sudeepkudari0@gmail.com
         </Link>
       </div>
       <p className="mb-4 text-sm text-primary sm:text-base">
         Phone:{" "}
         <span className="text-blue-500 hover:text-blue-700">
-          +91 8169197853
+          +91 8618078136
         </span>
       </p>
     </div>

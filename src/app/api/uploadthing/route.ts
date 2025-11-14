@@ -1,7 +1,14 @@
-import { createRouteHandler } from "uploadthing/next"
+import { NextResponse } from "next/server"
 
-import { ourFileRouter } from "./core"
+const disabledResponse = NextResponse.json(
+  { message: "Uploads are disabled in this demo." },
+  { status: 501 }
+)
 
-export const { GET, POST } = createRouteHandler({
-  router: ourFileRouter,
-})
+export async function GET() {
+  return disabledResponse
+}
+
+export async function POST() {
+  return disabledResponse
+}

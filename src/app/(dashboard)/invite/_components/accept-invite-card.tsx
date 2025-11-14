@@ -25,7 +25,7 @@ export const AcceptInviteCard = ({
   teamName: string;
 }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [user, setUser] = useState<User>();
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const getUser = async () => {

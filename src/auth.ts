@@ -1,42 +1,133 @@
 import { db } from "@/lib/db"
-import bcrypt from "bcryptjs"
-import NextAuth, { type NextAuthConfig, type User } from "next-auth"
-import Credentials from "next-auth/providers/credentials"
+import NextAuth, { type NextAuthConfig } from "next-auth"
+import Google from "next-auth/providers/google"
+import { UserRole, UserStatus } from "@prisma/client"
 
-import { PrismaAdapter } from "./lib/db/lib/prisma-adapter"
+import { createteam } from "@/actions/team"
+import { addUserToteams } from "@/actions/users"
 
 export const BASE_PATH = "/api/auth"
 
 export const authOptions: NextAuthConfig = {
-  adapter: PrismaAdapter(db),
   session: {
     strategy: "jwt",
   },
   providers: [
-    Credentials({
-      name: "Credentials",
-      credentials: {
-        email: { label: "Email", type: "text" },
-        password: { label: "Password", type: "password" },
-      },
-      async authorize(credentials): Promise<User | null> {
-        if (credentials?.email && credentials?.password) {
-          const user = await db.user.findUnique({
-            where: {
-              email: credentials.email as string,
-            },
-          })
-
-          if (user && (await bcrypt.compare(credentials.password as string, user.hashedPassword))) {
-            return { id: user.id, name: user.name, email: user.email }
-          }
-          return null
-        }
-        return null
-      },
+    Google({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      allowDangerousEmailAccountLinking: true,
     }),
   ],
   callbacks: {
+    async signIn({ user, account }) {
+      if (!user.email) return false
+
+      try {
+        // Check if user already exists
+        const existingUser = await db.user.findUnique({
+          where: { email: user.email },
+        })
+
+        // If user doesn't exist, create them with a team
+        if (!existingUser) {
+          const newUser = await db.user.create({
+            data: {
+              name: user.name || "User",
+              email: user.email,
+              image: user.image,
+              userRole: UserRole.USER,
+              userStatus: UserStatus.ACTIVE,
+              hashedPassword: null, // Null for OAuth users
+              whatsapp: null, // Can be filled in profile later
+            },
+          })
+
+          // Create or update the OAuth account link
+          if (account) {
+            await db.account.upsert({
+              where: {
+                provider_providerAccountId: {
+                  provider: account.provider,
+                  providerAccountId: account.providerAccountId,
+                },
+              },
+              create: {
+                userId: newUser.id,
+                type: account.type,
+                provider: account.provider,
+                providerAccountId: account.providerAccountId,
+                access_token: account.access_token,
+                refresh_token: account.refresh_token,
+                expires_at: account.expires_at,
+                token_type: account.token_type,
+                scope: account.scope,
+                id_token: account.id_token,
+                session_state: account.session_state,
+              },
+              update: {
+                access_token: account.access_token,
+                refresh_token: account.refresh_token,
+                expires_at: account.expires_at,
+                token_type: account.token_type,
+                scope: account.scope,
+                id_token: account.id_token,
+                session_state: account.session_state,
+              },
+            })
+          }
+
+          // Create a team for the new user
+          const team = await createteam({
+            name: `${newUser.name}'s Team`,
+          })
+
+          if (team) {
+            await addUserToteams({
+              userId: newUser.id,
+              teamIds: [team.id],
+            })
+          }
+        } else if (account) {
+          // User exists, make sure account is linked
+          await db.account.upsert({
+            where: {
+              provider_providerAccountId: {
+                provider: account.provider,
+                providerAccountId: account.providerAccountId,
+              },
+            },
+            create: {
+              userId: existingUser.id,
+              type: account.type,
+              provider: account.provider,
+              providerAccountId: account.providerAccountId,
+              access_token: account.access_token,
+              refresh_token: account.refresh_token,
+              expires_at: account.expires_at,
+              token_type: account.token_type,
+              scope: account.scope,
+              id_token: account.id_token,
+              session_state: account.session_state,
+            },
+            update: {
+              access_token: account.access_token,
+              refresh_token: account.refresh_token,
+              expires_at: account.expires_at,
+              token_type: account.token_type,
+              scope: account.scope,
+              id_token: account.id_token,
+              session_state: account.session_state,
+            },
+          })
+        }
+
+        return true
+      } catch (error) {
+        console.error("Error in signIn callback:", error)
+        return false
+      }
+    },
     async session({ token, session }) {
       if (token) {
         // @ts-expect-error
@@ -60,16 +151,9 @@ export const authOptions: NextAuthConfig = {
         },
       })
 
-      // let dbUser
-      // if (token.email) {
-      //   dbUser = await db.user.findFirst({
-      //     where: { email: token.email },
-      //   })
-      // }
-
       if (!dbUser) {
         if (user) {
-          // token.id = user.id as string
+          token.id = user.id as string
         }
         return token
       }

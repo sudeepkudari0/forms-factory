@@ -7,7 +7,7 @@ const Terms = () => {
             TERMS OF USE
           </h1>
           <p className="mb-4 text-sm text-primary sm:text-base">
-            Effective Date: June 01, 2024
+            Effective Date: November 14, 2025
           </p>
         </div>
       </div>
@@ -17,15 +17,15 @@ const Terms = () => {
             1. ACCEPTANCE OF TERMS
           </h2>
           <p className="mb-4 text-primary">
-            By accessing and using the Tr Forms Factory website and services,
-            you agree to comply with and be bound by these Terms of Use. If you
-            do not agree to these terms, please do not use our services.
+            By accessing and using the Forms Factory website and services, you
+            agree to comply with and be bound by these Terms of Use. If you do
+            not agree to these terms, please do not use our services.
           </p>
           <h2 className="mb-2 text-xl font-bold text-primary">
             2. Description of Service
           </h2>
           <p className="mb-4 text-primary">
-            Tr Forms Factory provides users with the ability to create forms
+            Forms Factory provides users with the ability to create forms
             dynamically, generate APIs, share forms, and utilize webhooks. These
             services are provided "as is" and "as available" without any
             warranties of any kind.
@@ -68,11 +68,11 @@ const Terms = () => {
             6. Limitation of Liability
           </h2>
           <p className="mb-4 text-primary">
-            In no event shall ThinkRoman Ventures LLP be liable for any
-            indirect, incidental, special, consequential, or punitive damages,
-            including without limitation, loss of profits, data, use, goodwill,
-            or other intangible losses, resulting from your access to or use of
-            or inability to access or use the service.
+            In no event shall Forms Factory be liable for any indirect,
+            incidental, special, consequential, or punitive damages, including
+            without limitation, loss of profits, data, use, goodwill, or other
+            intangible losses, resulting from your access to or use of or
+            inability to access or use the service.
           </p>
           <h2 className="mb-2 text-xl font-bold text-primary">
             7. Changes to Terms

@@ -1,10 +1,8 @@
 "use server"
 import { db } from "@/lib/db"
-import { sendUserInvitationEmail } from "@/lib/mail"
 import { getCurrentUser } from "@/lib/session"
 import { type User, UserRole, UserStatus } from "@prisma/client"
 import bcrypt from "bcrypt"
-import { customAlphabet } from "nanoid"
 import { revalidatePath } from "next/cache"
 import { createteam } from "./team"
 
@@ -46,42 +44,24 @@ export const createSuperUser = async (values: {
   }
 }
 
+// This function is now deprecated as users are created automatically via Google OAuth
+// Kept for backwards compatibility if needed
 export async function createUser(values: {
   name: string
   email: string
-  password: string
-  accessToken: string
-  whatsapp: string
+  password?: string
+  whatsapp?: string
 }) {
   try {
-    if (!values.accessToken) {
-      return {
-        status: "error",
-        error: "Invalid access token",
-      }
-    }
-
-    const checkToken = await db.userInvitation.findFirst({
-      where: {
-        token: values.accessToken,
-      },
-    })
-
-    if (!checkToken) {
-      return {
-        status: "error",
-        error: "Invalid access token",
-      }
-    }
     const saltRounds = 10
-    const hashedPassword = await bcrypt.hash(values.password, saltRounds)
+    const hashedPassword = values.password ? await bcrypt.hash(values.password, saltRounds) : ""
 
     const createdUser = await db.user.create({
       data: {
         name: values.name,
         email: values.email,
         hashedPassword: hashedPassword,
-        whatsapp: values.whatsapp,
+        whatsapp: values.whatsapp || "",
         userRole: UserRole.USER,
         userStatus: UserStatus.ACTIVE,
       },
@@ -98,12 +78,6 @@ export async function createUser(values: {
       })
     }
 
-    await db.userInvitation.deleteMany({
-      where: {
-        id: checkToken.id,
-      },
-    })
-
     return {
       status: "success",
       data: createdUser,
@@ -114,41 +88,6 @@ export async function createUser(values: {
       error: error instanceof Error ? error.message : "Unknown error",
     }
   }
-
-  // const { email, whatsapp: to, name } = createdUser
-
-  // if (values.preApproved) {
-  //   const { error } = await tr.whatsapp.trDatacenter.accountConfirmation({
-  //     to: to,
-  //     lang: "en_US",
-  //     name: name,
-  //     crendentials: {
-  //       email: email,
-  //       password: values.password,
-  //     },
-  //   })
-
-  //   if (error) {
-  //     console.log(error)
-  //   }
-  // } else {
-  //   const whatsappNumbers = await getAdminsSuperAdminWhatsapp()
-
-  //   for (const adminWhatsapp of whatsappNumbers) {
-  //     if (adminWhatsapp) {
-  //       const { whatsapp: number } = adminWhatsapp
-  //       const { error } = await tr.whatsapp.trDatacenter.newRequestNotification({
-  //         to: number,
-  //         lang: "en_US",
-  //         name: name,
-  //       })
-
-  //       if (error) {
-  //         console.log(error)
-  //       }
-  //     }
-  //   }
-  // }
 }
 
 export const getCurrentUserDetails = async () => {
@@ -474,7 +413,7 @@ export async function updateProfilePicture(fileUrl: string) {
 
 export const getPresignedUrl = async (fileName: string) => {
   const response = await fetch(
-    `https://api.thinkroman.com/v1/storage/r2.getPresignedUploadUrl?key=${fileName}`,
+    `https://api.formfactory.com/v1/storage/r2.getPresignedUploadUrl?key=${fileName}`,
     {
       headers: {
         Authorization: `Bearer ${process.env.S3_TOKEN}`,
@@ -495,7 +434,7 @@ export const deleteExistingProfilePicture = async () => {
 
     try {
       const response = await fetch(
-        `https://api.thinkroman.com/v1/storage/r2.deleteObject?key=${fileName}`,
+        `https://api.formfactory.com/v1/storage/r2.deleteObject?key=${fileName}`,
         {
           method: "DELETE",
           headers: {
@@ -513,55 +452,4 @@ export const deleteExistingProfilePicture = async () => {
   }
 }
 
-const nanoid = customAlphabet("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz", 8)
-
-export async function inviteUser(values: {
-  email: string
-}) {
-  const { email } = values
-  const generatedNanoid = nanoid()
-  try {
-    const inviteData = await db.userInvitation.create({
-      data: {
-        token: generatedNanoid,
-        email,
-      },
-    })
-
-    await sendUserInvitationEmail(email, generatedNanoid)
-
-    return inviteData
-  } catch (error) {
-    console.error("Error inviting user to team:", error)
-    throw error
-  }
-}
-
-export async function checkUserInvitation(token: string) {
-  try {
-    const invitation = await db.userInvitation.findFirst({
-      where: {
-        token,
-      },
-      select: {
-        id: true,
-        email: true,
-      },
-    })
-    if (invitation) {
-      return {
-        success: true,
-        message: "User invitation found",
-        email: invitation.email,
-      }
-    }
-
-    return {
-      success: false,
-      message: "Access token is invalid",
-    }
-  } catch (error) {
-    console.error("Error checking user invitation:", error)
-    throw error
-  }
-}
+// User invitation system removed - users can now sign up directly via Google OAuth

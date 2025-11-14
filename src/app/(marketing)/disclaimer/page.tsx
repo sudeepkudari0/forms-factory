@@ -5,7 +5,7 @@ const Disclaimer = () => {
         <div className="max-w-96 relative mx-auto pb-10 text-center">
           <h1 className="mb-2 text-2xl font-bold sm:text-4xl">DISCLAIMER</h1>
           <p className="mb-4 text-sm sm:text-base">
-            Effective Date: June 01, 2024
+            Effective Date: November 14, 2025
           </p>
         </div>
       </div>
@@ -15,7 +15,7 @@ const Disclaimer = () => {
             1. General Information
           </h2>
           <p className="mb-4">
-            The information provided by Tr Forms Factory on this website is for
+            The information provided by Forms Factory on this website is for
             general informational purposes only. All information on the site is
             provided in good faith; however, we make no representation or
             warranty of any kind, express or implied, regarding the accuracy,
@@ -26,7 +26,7 @@ const Disclaimer = () => {
             2. Professional Advice
           </h2>
           <p className="mb-4">
-            The services provided by Tr Forms Factory, including the creation of
+            The services provided by Forms Factory, including the creation of
             forms, APIs, and webhooks, do not constitute legal, medical,
             financial, or other professional advice. Users are advised to seek
             the advice of qualified professionals before making any decisions
@@ -37,7 +37,7 @@ const Disclaimer = () => {
           </h2>
           <p className="mb-4">
             The site may contain links to third-party websites or content. Such
-            links are provided for your convenience only, and ThinkRoman
+            links are provided for your convenience only, and Forms Factory
             Ventures LLP does not endorse or assume any responsibility for any
             such third-party sites, information, materials, products, or
             services.
@@ -46,11 +46,11 @@ const Disclaimer = () => {
             4. Limitation of Liability
           </h2>
           <p className="mb-4">
-            Under no circumstance shall ThinkRoman Ventures LLP be liable to you
-            for any loss or damages of any kind incurred as a result of the use
-            of the site or reliance on any information provided on the site.
-            Your use of the site and your reliance on any information on the
-            site is solely at your own risk.
+            Under no circumstance shall Forms Factory be liable to you for any
+            loss or damages of any kind incurred as a result of the use of the
+            site or reliance on any information provided on the site. Your use
+            of the site and your reliance on any information on the site is
+            solely at your own risk.
           </p>
           <h2 className="mb-2 text-xl font-bold text-gray-900 dark:text-white">
             5. Changes and Updates
@@ -65,7 +65,7 @@ const Disclaimer = () => {
           </h2>
           <p className="mb-4">
             If you have any questions about this Disclaimer, please contact us
-            at admin@thinkroman.com or via WhatsApp at +018169197853
+            at sudeepkudari0@gmail.com or via WhatsApp at +918618078136
           </p>
         </div>
       </div>

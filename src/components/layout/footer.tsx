@@ -25,7 +25,7 @@ const SocialLinks = ({ classStyles }: { classStyles: string }) => {
     <div className={`${classStyles} space-x-6`}>
       {/* Replace with your social media icons */}
       <Link
-        href="https://wa.me/+15103772160"
+        href="https://wa.me/+918169197853"
         target="_blank"
         className="text-white"
       >
@@ -42,7 +42,7 @@ const SocialLinks = ({ classStyles }: { classStyles: string }) => {
         </svg>
       </Link>
       <Link
-        href="https://twitter.com/thinkRoman"
+        href="https://x.com/formfactory"
         target="_blank"
         className="text-white"
       >
@@ -59,7 +59,7 @@ const SocialLinks = ({ classStyles }: { classStyles: string }) => {
         </svg>
       </Link>
       <Link
-        href="https://www.linkedin.com/company/thinkroman/"
+        href="https://www.linkedin.com/company/formfactory"
         target="_blank"
         className="text-white"
       >
@@ -76,7 +76,7 @@ const SocialLinks = ({ classStyles }: { classStyles: string }) => {
         </svg>
       </Link>
       <Link
-        href="https://www.instagram.com/tr.thinkroman"
+        href="https://www.instagram.com/formfactory"
         target="_blank"
         className="text-white"
       >
@@ -93,7 +93,7 @@ const SocialLinks = ({ classStyles }: { classStyles: string }) => {
         </svg>
       </Link>
       <Link
-        href="https://www.facebook.com/groups/thinkRoman"
+        href="https://www.facebook.com/groups/formfactory"
         target="_blank"
         className="text-white"
       >
@@ -144,9 +144,9 @@ export const Footer = () => {
             <Link
               className="hover:text-blue-500"
               target="_blank"
-              href="https://thinkroman.com/"
+              href="https://formfactory.in/"
             >
-              ThinkRoman Ventures LLP
+              Forms Factory
             </Link>
             . All rights reserved.
           </div>

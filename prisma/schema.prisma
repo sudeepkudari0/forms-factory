@@ -54,8 +54,8 @@ model User {
   userRole           UserRole           @default(USER)
   userStatus         UserStatus         @default(ACTIVE)
   image              String?            @default("https://cdn-icons-png.flaticon.com/512/10619/10619962.png")
-  hashedPassword     String
-  whatsapp           String
+  hashedPassword     String?
+  whatsapp           String?
   accounts           Account[]
   submissions        Submission[]
   feedbacks          Feedback[]
@@ -157,7 +157,8 @@ model SubmissionAccess {
 }
 
 model Account {
-  userId                   String  @id @default(auto()) @map("_id") @db.ObjectId
+  id                       String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId                   String  @db.ObjectId
   type                     String
   provider                 String
   providerAccountId        String
@@ -170,6 +171,8 @@ model Account {
   id_token                 String?
   session_state            String?
   user                     User    @relation(fields: [userId], references: [id])
+
+  @@unique([provider, providerAccountId])
 }
 
 model Session {
